@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>رحمة — تصدير البيانات</title>
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <h1>طلب نسخة من بياناتي</h1>
+      <div class="header-sub">سيتم التحقق من هويتكم قبل إرسال نسخة بياناتكم.</div>
+    </header>
+    <main class="app-main">
+      <form id="exportForm" autocomplete="off">
+        <div class="form-field">
+          <label for="email">البريد الإلكتروني للتحقق</label>
+          <input type="email" id="email" name="email" required maxlength="320" dir="ltr" />
+        </div>
+        <button class="btn" type="submit">إرسال الطلب</button>
+        <a class="btn btn-secondary" href="/">إلغاء</a>
+      </form>
+      <div id="result" class="mt-16" aria-live="polite"></div>
+    </main>
+    <nav class="app-bottom-nav" aria-label="التنقل السفلي">
+      <a href="/">الرئيسية</a>
+      <a href="/ask.html">اسأل</a>
+      <a href="/answers.html">الإجابات</a>
+      <a href="/library.html">المكتبة</a>
+      <a href="/privacy.html">الخصوصية</a>
+    </nav>
+  </div>
+  <script src="/assets/app.js"></script>
+  <script>
+    document.getElementById('exportForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const result = document.getElementById('result');
+      result.innerHTML = '<div class="state-loading">جارٍ الإرسال...</div>';
+      const res = await fetch(`${window.Rahma.API_BASE}/api/privacy/data-export-request`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email: document.getElementById('email').value }),
+      });
+      const body = await res.json().catch(() => ({}));
+      const msg = body.message_ar || (body.error ? 'تعذّر إرسال الطلب.' : 'تم استلام الطلب.');
+      const chip = body.persisted === true ? 'chip-success' : 'chip-pending';
+      result.innerHTML = `<div class="state-empty"><span class="chip ${chip}">${escape(body.status || 'received')}</span><br/>${escape(msg)}</div>`;
+    });
+    function escape(s) { return String(s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  </script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>رحمة — مصادر المكتبة</title>
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <h1>مصادر المكتبة</h1>
+      <div class="header-sub">قائمة المصادر المعتمدة بعد المراجعة.</div>
+    </header>
+    <main class="app-main">
+      <a class="btn btn-secondary" href="/library.html">العودة للمكتبة</a>
+      <div id="sources" class="mt-16" aria-live="polite"><div class="state-loading">جارٍ التحميل...</div></div>
+      <p class="muted center mt-16">لا يُعرض هنا أي مصدر قبل اعتماده.</p>
+    </main>
+    <nav class="app-bottom-nav" aria-label="التنقل السفلي">
+      <a href="/">الرئيسية</a>
+      <a href="/ask.html">اسأل</a>
+      <a href="/answers.html">الإجابات</a>
+      <a href="/library.html">المكتبة</a>
+      <a href="/privacy.html">الخصوصية</a>
+    </nav>
+  </div>
+  <script src="/assets/app.js"></script>
+  <script src="/assets/library.js"></script>
+  <script>
+    (async () => {
+      const root = document.getElementById('sources');
+      const r = await window.Rahma.fetchJson('/api/library/sources');
+      if (!r.ok) { window.Library.renderUnavailableMessage(root); return; }
+      if (r.body && r.body.configured === false) {
+        window.Library.renderUnavailableMessage(root);
+        return;
+      }
+      const arr = (r.body && Array.isArray(r.body.sources)) ? r.body.sources : [];
+      if (arr.length === 0) {
+        root.innerHTML = '<div class="state-empty">لا توجد نتائج حالياً</div>';
+        return;
+      }
+      root.innerHTML = arr.map((s) => `
+        <div class="card">
+          <div class="card-title">${escapeHtml(s.source_name_ar || '')}</div>
+          <div class="card-body">
+            <span class="badge badge-quran">${escapeHtml(s.source_reference || '')}</span>
+            <span class="chip chip-success">معتمد</span>
+          </div>
+        </div>
+      `).join('');
+    })();
+    function escapeHtml(s) { return String(s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  </script>
+</body>
+</html>

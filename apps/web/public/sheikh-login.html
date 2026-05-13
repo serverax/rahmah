@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>رحمة — تسجيل دخول الشيخ</title>
+  <meta name="rahma-api-base" content="" />
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <h1>تسجيل دخول الشيخ</h1>
+      <div class="header-sub">صفحة مخصصة للشيخ حسن — مراجعة الأسئلة والإجابة عليها بإذن الله.</div>
+    </header>
+    <main class="app-main">
+      <div id="authState" class="mt-8" aria-live="polite"><div class="state-loading">جارٍ التحميل...</div></div>
+      <div class="card mt-16">
+        <div class="card-title">ملاحظة أمنية</div>
+        <div class="card-body">
+          لا يوجد حساب اختباري داخل التطبيق. لا توجد كلمات مرور مخزنة في الواجهة.
+          عند تفعيل تسجيل الدخول الحقيقي، ستظهر شاشة الدخول هنا بإذن الله.
+        </div>
+      </div>
+    </main>
+    <nav class="app-bottom-nav" aria-label="التنقل السفلي">
+      <a href="/">الرئيسية</a>
+      <a href="/ask.html">اسأل</a>
+      <a href="/answers.html">الإجابات</a>
+      <a href="/library.html">المكتبة</a>
+      <a href="/privacy.html">الخصوصية</a>
+    </nav>
+  </div>
+  <script src="/assets/app.js"></script>
+  <script src="/assets/sheikh.js"></script>
+  <script>
+    (async () => {
+      const el = document.getElementById('authState');
+      const s = await window.Sheikh.checkSheikhAuthStatus();
+      if (!s.ok) { window.Sheikh.renderArabicError(el, 'server_unavailable'); return; }
+      if (!s.configured) { window.Sheikh.renderAuthNotConfigured(el); return; }
+      el.innerHTML = '<div class="state-empty">تسجيل دخول الشيخ مفعل. الرجاء استخدام مزوّد الهوية المعتمد.</div>';
+    })();
+  </script>
+</body>
+</html>

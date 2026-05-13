@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>رحمة — عنصر المكتبة</title>
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <h1>عنصر المكتبة</h1>
+      <div class="header-sub">عرض المصدر وحالة المراجعة.</div>
+    </header>
+    <main class="app-main">
+      <a class="btn btn-secondary" href="/library.html">العودة للمكتبة</a>
+      <div id="item" class="mt-16" aria-live="polite"><div class="state-loading">جارٍ التحميل...</div></div>
+    </main>
+    <nav class="app-bottom-nav" aria-label="التنقل السفلي">
+      <a href="/">الرئيسية</a>
+      <a href="/ask.html">اسأل</a>
+      <a href="/answers.html">الإجابات</a>
+      <a href="/library.html">المكتبة</a>
+      <a href="/privacy.html">الخصوصية</a>
+    </nav>
+  </div>
+  <script src="/assets/app.js"></script>
+  <script src="/assets/library.js"></script>
+  <script>
+    (async () => {
+      const root = document.getElementById('item');
+      const id = new URLSearchParams(window.location.search).get('id') || '';
+      if (!id) { root.innerHTML = '<div class="state-error">معرّف غير صالح.</div>'; return; }
+      const r = await window.Rahma.fetchJson('/api/library/items/' + encodeURIComponent(id));
+      if (!r.ok) { window.Library.renderUnavailableMessage(root); return; }
+      // Future: render approved item with source + verification badge.
+      root.innerHTML = '<div class="state-empty">لا توجد نتائج حالياً</div>';
+    })();
+  </script>
+</body>
+</html>

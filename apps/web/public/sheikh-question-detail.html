@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>رحمة — تفاصيل السؤال</title>
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <h1>تفاصيل السؤال</h1>
+      <div class="header-sub">كتابة الإجابة وإضافة المصدر قبل النشر.</div>
+    </header>
+    <main class="app-main">
+      <a class="btn btn-secondary" href="/sheikh-questions.html">الرجوع لقائمة الأسئلة</a>
+      <div id="authState" class="mt-16" aria-live="polite"><div class="state-loading">جارٍ التحقق...</div></div>
+      <form id="answerForm" class="mt-16" autocomplete="off" style="display:none">
+        <div class="form-field">
+          <label for="answerText">نص الإجابة</label>
+          <textarea id="answerText" name="answer_text" minlength="1" maxlength="8000" placeholder="اكتبوا الإجابة الموثقة..." required></textarea>
+        </div>
+
+        <h2>المصادر والمراجع</h2>
+        <p class="muted">يلزم وجود مصدر واحد على الأقل قبل النشر العام.</p>
+        <div id="citationsContainer"></div>
+        <button class="btn btn-secondary" type="button" id="addCitation">إضافة مصدر</button>
+
+        <div class="mt-16">
+          <button class="btn" type="submit" data-mode="public">نشر الإجابة (مع المراجعة)</button>
+          <button class="btn btn-secondary" type="submit" data-mode="private">حفظ كإجابة خاصة</button>
+        </div>
+      </form>
+      <div id="result" class="mt-16" aria-live="polite"></div>
+    </main>
+    <nav class="app-bottom-nav" aria-label="التنقل السفلي">
+      <a href="/">الرئيسية</a>
+      <a href="/ask.html">اسأل</a>
+      <a href="/answers.html">الإجابات</a>
+      <a href="/library.html">المكتبة</a>
+      <a href="/privacy.html">الخصوصية</a>
+    </nav>
+  </div>
+  <script src="/assets/app.js"></script>
+  <script src="/assets/sheikh.js"></script>
+  <script>
+    (async () => {
+      const params = new URLSearchParams(window.location.search);
+      const qid = params.get('id') || '';
+      const authEl = document.getElementById('authState');
+      const form = document.getElementById('answerForm');
+      const result = document.getElementById('result');
+      const auth = await window.Sheikh.checkSheikhAuthStatus();
+      if (!auth.ok) { window.Sheikh.renderArabicError(authEl, 'server_unavailable'); return; }
+      if (!auth.configured) { window.Sheikh.renderAuthNotConfigured(authEl); return; }
+      authEl.innerHTML = `<div class="state-empty">السؤال: <code>${qid || '—'}</code></div>`;
+      form.style.display = '';
+
+      // Start with one citation row.
+      window.Sheikh.addCitationField(document.getElementById('citationsContainer'));
+      document.getElementById('addCitation').addEventListener('click', () => {
+        window.Sheikh.addCitationField(document.getElementById('citationsContainer'));
+      });
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const mode = (e.submitter && e.submitter.getAttribute('data-mode')) || 'public';
+        const answer_text = document.getElementById('answerText').value.trim();
+        const citations = window.Sheikh.collectCitations(document.getElementById('citationsContainer'));
+        await window.Sheikh.publishAnswer({ question_id: qid, answer_text, citations, mode }, result);
+      });
+    })();
+  </script>
+</body>
+</html>

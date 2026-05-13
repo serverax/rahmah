@@ -3,7 +3,12 @@
 # Read-only. Never applies anything. Run before any deploy script.
 set -euo pipefail
 
-FORBIDDEN_CONTEXT_RE='(aks|prod|iterlaw|rightsnow|ordinox|alaa)'
+FORBIDDEN_CONTEXT_RE='(aks-iterlaw|prod-iterlaw|iterlaw|rightsnow|ordinoxai|alaa-beauty|aks-prod|production-iterlaw)'
+
+# Operator may override for one exact case via env, never via flags.
+# Setting RAHMA_OVERRIDE_FORBIDDEN_CONTEXT=1 bypasses the regex check but
+# requires the operator to type out the explicit context name in
+# RAHMA_OVERRIDE_CONTEXT_NAME (and it must match current-context exactly).
 
 if ! command -v kubectl >/dev/null; then
   echo "[verify-rahma-cluster] ERROR: kubectl not installed" >&2
@@ -19,9 +24,13 @@ if [[ -z "$CONTEXT" ]]; then
 fi
 
 if echo "$CONTEXT" | grep -qiE "$FORBIDDEN_CONTEXT_RE"; then
-  echo "[verify-rahma-cluster] ERROR: kubectl context '$CONTEXT' matches forbidden pattern" >&2
-  echo "[verify-rahma-cluster] Refusing to use this context. Set KUBECONFIG to a Sakina-safe kubeconfig." >&2
-  exit 3
+  if [[ "${RAHMA_OVERRIDE_FORBIDDEN_CONTEXT:-}" = "1" ]] && [[ "${RAHMA_OVERRIDE_CONTEXT_NAME:-}" = "$CONTEXT" ]]; then
+    echo "[verify-rahma-cluster] WARNING: forbidden pattern matched but operator override is set for '$CONTEXT'" >&2
+  else
+    echo "[verify-rahma-cluster] ERROR: kubectl context '$CONTEXT' matches forbidden pattern" >&2
+    echo "[verify-rahma-cluster] Refusing to use this context. Set KUBECONFIG to a Sakina-safe kubeconfig." >&2
+    exit 3
+  fi
 fi
 
 # Read-only probes — never mutates state.

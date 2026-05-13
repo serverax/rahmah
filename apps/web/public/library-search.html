@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>رحمة — البحث في المكتبة</title>
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <h1>البحث في المكتبة</h1>
+      <div class="header-sub">يبحث فقط ضمن المحتوى المعتمد بعد المراجعة.</div>
+    </header>
+    <main class="app-main">
+      <a class="btn btn-secondary" href="/library.html">العودة للمكتبة</a>
+      <form id="searchForm" class="mt-16" autocomplete="off">
+        <div class="form-field">
+          <label for="q">كلمة البحث</label>
+          <input type="text" id="q" name="q" required minlength="2" maxlength="120" placeholder="مثال: الوضوء" />
+        </div>
+        <button class="btn" type="submit">بحث</button>
+      </form>
+      <div id="results" class="mt-16" aria-live="polite"></div>
+    </main>
+    <nav class="app-bottom-nav" aria-label="التنقل السفلي">
+      <a href="/">الرئيسية</a>
+      <a href="/ask.html">اسأل</a>
+      <a href="/answers.html">الإجابات</a>
+      <a href="/library.html">المكتبة</a>
+      <a href="/privacy.html">الخصوصية</a>
+    </nav>
+  </div>
+  <script src="/assets/app.js"></script>
+  <script src="/assets/library.js"></script>
+  <script>
+    document.getElementById('searchForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const q = document.getElementById('q').value;
+      await window.Library.searchLibrary(q, document.getElementById('results'));
+    });
+  </script>
+</body>
+</html>

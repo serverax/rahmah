@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>رحمة — رحلة الحسنات</title>
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <h1>رحلة الحسنات</h1>
+      <div class="header-sub">رحلة لطيفة تختار فيها العمل الصالح وتجمع نجوم الحسنات.</div>
+    </header>
+    <main class="app-main">
+      <div class="card">
+        <div class="card-title">نجوم الحسنات</div>
+        <div class="card-body" id="scoreBox"><span class="chip chip-success">٠ نجمة</span></div>
+      </div>
+      <div id="game" class="mt-16" aria-live="polite"><div class="state-loading">جارٍ تحميل الرحلة...</div></div>
+      <div class="mt-16">
+        <button class="btn" id="btnNext">السيناريو التالي</button>
+        <a class="btn btn-secondary" href="/child-progress.html">عرض التقدم</a>
+        <button class="btn btn-secondary" id="btnReset">إعادة بدء الرحلة</button>
+      </div>
+      <p class="muted center mt-16">لا نطلب أي بيانات شخصية. التقدم محفوظ داخل جهازك فقط.</p>
+    </main>
+    <nav class="app-bottom-nav" aria-label="التنقل السفلي">
+      <a href="/">الرئيسية</a>
+      <a href="/ask.html">اسأل</a>
+      <a href="/answers.html">الإجابات</a>
+      <a href="/library.html">المكتبة</a>
+      <a href="/privacy.html">الخصوصية</a>
+    </nav>
+  </div>
+  <script src="/assets/app.js"></script>
+  <script src="/assets/hasanat-game.js"></script>
+  <script>
+    (async () => {
+      const root = document.getElementById('game');
+      const score = document.getElementById('scoreBox');
+      let scenarios = await window.HasanatGame.loadScenarios();
+      let progress = window.HasanatGame.loadLocalProgress();
+      function updateScore() {
+        score.innerHTML = `<span class="chip chip-success">${progress.stars | 0} نجمة</span>
+          <span class="chip chip-moderation">المكتمل: ${(progress.completed || []).length}</span>`;
+      }
+      function showNext() {
+        const s = window.HasanatGame.pickNext(scenarios, progress);
+        window.HasanatGame.renderScenario(root, s, (sc, idx) => {
+          const r = window.HasanatGame.handleAnswer(progress, sc, idx);
+          window.HasanatGame.renderGentleFeedback(root, sc, r.correct);
+          updateScore();
+        });
+      }
+      document.getElementById('btnNext').addEventListener('click', showNext);
+      document.getElementById('btnReset').addEventListener('click', () => {
+        window.HasanatGame.resetProgress();
+        progress = window.HasanatGame.loadLocalProgress();
+        updateScore();
+        showNext();
+      });
+      updateScore();
+      showNext();
+    })();
+  </script>
+</body>
+</html>

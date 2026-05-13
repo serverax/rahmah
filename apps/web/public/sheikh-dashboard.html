@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>رحمة — لوحة الشيخ حسن</title>
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <h1>لوحة الشيخ حسن</h1>
+      <div class="header-sub">إدارة الأسئلة والإجابات بإشراف شرعي.</div>
+    </header>
+    <main class="app-main">
+      <div id="authState" aria-live="polite"><div class="state-loading">جارٍ التحقق من الحساب...</div></div>
+      <div class="card-grid mt-16">
+        <a class="card" href="/sheikh-questions.html"><div class="card-title">الأسئلة الجديدة</div><div class="card-body">قائمة الأسئلة الواردة من المستخدمين.</div></a>
+        <a class="card" href="/sheikh-drafts.html"><div class="card-title">المسودات</div><div class="card-body">الإجابات المحفوظة كمسودة.</div></a>
+        <a class="card" href="/sheikh-published.html"><div class="card-title">الإجابات المنشورة</div><div class="card-body">ما تم نشره علناً مع المصادر.</div></a>
+        <a class="card" href="/sheikh-review-needed.html"><div class="card-title">تحتاج مراجعة</div><div class="card-body">عناصر بحاجة لمراجعة الشيخ أو المُشرف.</div></a>
+      </div>
+    </main>
+    <nav class="app-bottom-nav" aria-label="التنقل السفلي">
+      <a href="/">الرئيسية</a>
+      <a href="/ask.html">اسأل</a>
+      <a href="/answers.html">الإجابات</a>
+      <a href="/library.html">المكتبة</a>
+      <a href="/privacy.html">الخصوصية</a>
+    </nav>
+  </div>
+  <script src="/assets/app.js"></script>
+  <script src="/assets/sheikh.js"></script>
+  <script>
+    (async () => {
+      const el = document.getElementById('authState');
+      const s = await window.Sheikh.checkSheikhAuthStatus();
+      if (!s.ok) { window.Sheikh.renderArabicError(el, 'server_unavailable'); return; }
+      if (!s.configured) { window.Sheikh.renderAuthNotConfigured(el); return; }
+      el.innerHTML = '<div class="state-empty"><span class="chip chip-success">حساب الشيخ مفعل</span></div>';
+    })();
+  </script>
+</body>
+</html>

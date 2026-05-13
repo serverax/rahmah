@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>رحمة — الأسئلة الجديدة</title>
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <h1>الأسئلة الجديدة</h1>
+      <div class="header-sub">قائمة الأسئلة الواردة بانتظار مراجعة الشيخ.</div>
+    </header>
+    <main class="app-main">
+      <a class="btn btn-secondary" href="/sheikh-dashboard.html">الرجوع للوحة التحكم</a>
+      <div id="questionsList" class="mt-16" aria-live="polite"><div class="state-loading">جارٍ التحميل...</div></div>
+    </main>
+    <nav class="app-bottom-nav" aria-label="التنقل السفلي">
+      <a href="/">الرئيسية</a>
+      <a href="/ask.html">اسأل</a>
+      <a href="/answers.html">الإجابات</a>
+      <a href="/library.html">المكتبة</a>
+      <a href="/privacy.html">الخصوصية</a>
+    </nav>
+  </div>
+  <script src="/assets/app.js"></script>
+  <script src="/assets/sheikh.js"></script>
+  <script>
+    window.Sheikh.loadPendingQuestions(document.getElementById('questionsList'));
+  </script>
+</body>
+</html>
