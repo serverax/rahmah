@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>رحمة — إجابات الشيخ حسن</title>
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <h1>إجابات الشيخ حسن</h1>
+      <div class="header-sub">إجابات مراجَعة تظهر مع مصادرها من القرآن والحديث.</div>
+    </header>
+    <main class="app-main">
+      <div id="answersList" aria-live="polite"><div class="state-loading">جارٍ التحميل...</div></div>
+    </main>
+    <nav class="app-bottom-nav" aria-label="التنقل السفلي">
+      <a href="/">الرئيسية</a>
+      <a href="/ask.html">اسأل</a>
+      <a href="/answers.html" class="active">الإجابات</a>
+      <a href="/library.html">المكتبة</a>
+      <a href="/privacy.html">الخصوصية</a>
+    </nav>
+  </div>
+  <script src="/assets/app.js"></script>
+  <script>
+    (async () => {
+      const root = document.getElementById('answersList');
+      const r = await window.Rahma.fetchJson('/api/public/sheikh-hasan/qa');
+      if (!r.ok) {
+        window.Rahma.renderArabicState(root, 'error', 'تعذّر تحميل الإجابات.');
+        return;
+      }
+      const items = (r.body && Array.isArray(r.body.items)) ? r.body.items : [];
+      if (items.length === 0) {
+        window.Rahma.renderArabicState(root, 'empty', 'لا توجد إجابات منشورة بعد. تابعوا قريباً بإذن الله.');
+        return;
+      }
+      root.innerHTML = items.map((it) => `
+        <a class="card" href="/answer.html?slug=${encodeURIComponent(it.slug)}">
+          <div class="card-title">${escapeHtml(it.title || '')}</div>
+          <div class="card-body">
+            <span class="chip chip-success">${escapeHtml(it.category || 'عام')}</span>
+            <span class="chip chip-moderation">${escapeHtml(it.language || 'ar')}</span>
+          </div>
+        </a>
+      `).join('');
+    })();
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+  </script>
+</body>
+</html>

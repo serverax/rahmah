@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>رحمة — اسأل الشيخ حسن</title>
+  <meta name="rahma-api-base" content="" />
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <h1>اسأل الشيخ حسن</h1>
+      <div class="header-sub">اكتبوا سؤالكم بوضوح، يصلكم الجواب مع المصادر بإذن الله.</div>
+    </header>
+    <main class="app-main">
+      <div class="backend-status" data-rahma-status aria-live="polite"></div>
+      <form id="askForm" autocomplete="off">
+        <div class="form-field">
+          <label for="qcategory">التصنيف</label>
+          <select id="qcategory" name="category" required>
+            <option value="">— اختر التصنيف —</option>
+            <option value="salah">الصلاة</option>
+            <option value="zakat">الزكاة</option>
+            <option value="fasting">الصيام</option>
+            <option value="family">الأسرة</option>
+            <option value="dua">الدعاء</option>
+            <option value="quran">القرآن الكريم</option>
+            <option value="hadith">الحديث الشريف</option>
+            <option value="general">عام</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="qtext">سؤالكم</label>
+          <textarea id="qtext" name="question" minlength="5" maxlength="1000" placeholder="اكتبوا سؤالكم هنا..." required></textarea>
+        </div>
+        <div class="form-field">
+          <label>
+            <input type="checkbox" id="qpublic" /> أوافق على نشر الإجابة في المكتبة العامة (مع إخفاء هويتي)
+          </label>
+        </div>
+        <button class="btn" type="submit">إرسال السؤال</button>
+        <a class="btn btn-secondary" href="/">إلغاء</a>
+      </form>
+      <div id="askResult" class="mt-16" aria-live="polite"></div>
+    </main>
+    <nav class="app-bottom-nav" aria-label="التنقل السفلي">
+      <a href="/">الرئيسية</a>
+      <a href="/ask.html" class="active">اسأل</a>
+      <a href="/answers.html">الإجابات</a>
+      <a href="/library.html">المكتبة</a>
+      <a href="/privacy.html">الخصوصية</a>
+    </nav>
+  </div>
+  <script src="/assets/app.js"></script>
+  <script>
+    document.getElementById('askForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const result = document.getElementById('askResult');
+      result.innerHTML = '<div class="state-loading">جارٍ الإرسال...</div>';
+      const payload = {
+        question: document.getElementById('qtext').value.trim(),
+        language: 'ar',
+        category: document.getElementById('qcategory').value || null,
+        public_allowed: document.getElementById('qpublic').checked,
+      };
+      try {
+        const res = await fetch(`${window.Rahma.API_BASE}/api/sheikh-hasan/ask`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const body = await res.json().catch(() => ({}));
+        if (res.ok && body.ok) {
+          result.innerHTML = `<div class="state-empty"><span class="chip chip-pending">قيد المراجعة</span><br/>تم إرسال السؤال للشيخ. سيتم إعلامكم عند الرد بإذن الله.</div>`;
+          document.getElementById('askForm').reset();
+        } else {
+          const code = body && body.error ? body.error : 'unknown_error';
+          const msg = ({
+            service_not_configured: 'الخدمة غير مهيأة بعد على الخادم.',
+            auth_not_configured: 'الخدمة بانتظار تهيئة الحساب.',
+            empty_question: 'يرجى كتابة سؤال صالح.',
+          })[code] || 'تعذّر إرسال السؤال. حاولوا لاحقاً.';
+          result.innerHTML = `<div class="state-error">${msg}</div>`;
+        }
+      } catch (_e) {
+        result.innerHTML = `<div class="state-error">تعذّر الاتصال بالخادم.</div>`;
+      }
+    });
+  </script>
+</body>
+</html>

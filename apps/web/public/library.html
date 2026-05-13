@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>رحمة — المكتبة الإسلامية</title>
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <h1>المكتبة الإسلامية</h1>
+      <div class="header-sub">مصادر معتمَدة فقط — بعد المراجعة.</div>
+    </header>
+    <main class="app-main">
+      <div id="ragStatus" class="backend-status" aria-live="polite"></div>
+      <section class="card-grid">
+        <div class="card">
+          <div class="card-title">القرآن الكريم</div>
+          <div class="card-body">قسم القرآن مرتبط بمكتبة المصادر المعتمدة بعد المراجعة.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">الحديث الشريف</div>
+          <div class="card-body">عرض الأحاديث مع بيان درجة الصحة من مصدر معتمَد.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">أذكار وأدعية</div>
+          <div class="card-body">مجموعات أذكار اليوم والأدعية المختارة بعد المراجعة.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">سيرة الأنبياء</div>
+          <div class="card-body">قصص قصيرة بأسلوب مناسب للأسرة.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">للأطفال</div>
+          <div class="card-body">محتوى لطيف وآمن للأطفال، بإشراف ولي الأمر.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">الأخلاق الإسلامية</div>
+          <div class="card-body">صدق، رحمة، بر الوالدين، تعاون.</div>
+        </div>
+      </section>
+      <p class="muted center mt-16">المحتوى يتم نشره بعد مراجعة المصادر — قد تكون المكتبة قيد التحضير.</p>
+    </main>
+    <nav class="app-bottom-nav" aria-label="التنقل السفلي">
+      <a href="/">الرئيسية</a>
+      <a href="/ask.html">اسأل</a>
+      <a href="/answers.html">الإجابات</a>
+      <a href="/library.html" class="active">المكتبة</a>
+      <a href="/privacy.html">الخصوصية</a>
+    </nav>
+  </div>
+  <script src="/assets/app.js"></script>
+  <script>
+    (async () => {
+      const r = await window.Rahma.fetchJson('/api/rag/status');
+      const el = document.getElementById('ragStatus');
+      if (!r.ok || !r.body) {
+        el.innerHTML = `<span class="chip chip-blocked">الخدمة غير متاحة حالياً</span>`;
+        return;
+      }
+      const safe = r.body.safe_to_answer_from_rag === true;
+      el.innerHTML = `
+        <span class="chip ${safe ? 'chip-success' : 'chip-moderation'}">حالة المكتبة: ${safe ? 'متاحة' : 'الأساس فقط'}</span>
+        <span class="chip chip-moderation">المصادر المعتمَدة: ${Number(r.body.approved_sources || 0)}</span>
+      `;
+    })();
+  </script>
+</body>
+</html>

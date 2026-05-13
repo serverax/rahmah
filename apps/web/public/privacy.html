@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>رحمة — سياسة الخصوصية</title>
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <h1>سياسة الخصوصية</h1>
+      <div class="header-sub">حماية بياناتكم وحماية الأطفال.</div>
+    </header>
+    <main class="app-main">
+      <div id="privacyContent" aria-live="polite"><div class="state-loading">جارٍ التحميل...</div></div>
+    </main>
+    <nav class="app-bottom-nav" aria-label="التنقل السفلي">
+      <a href="/">الرئيسية</a>
+      <a href="/ask.html">اسأل</a>
+      <a href="/answers.html">الإجابات</a>
+      <a href="/library.html">المكتبة</a>
+      <a href="/privacy.html" class="active">الخصوصية</a>
+    </nav>
+  </div>
+  <script src="/assets/app.js"></script>
+  <script>
+    (async () => {
+      const root = document.getElementById('privacyContent');
+      const r = await window.Rahma.fetchJson('/api/family/privacy');
+      if (!r.ok || !r.body || !r.body.privacy) {
+        root.innerHTML = '<div class="state-error">تعذّر تحميل سياسة الخصوصية.</div>';
+        return;
+      }
+      const p = r.body.privacy;
+      root.innerHTML = `
+        <article class="card">
+          <h2 class="card-title">${escapeHtml(p.title_ar || 'سياسة الخصوصية')}</h2>
+          <div class="card-body" style="white-space:pre-line">${escapeHtml(p.body_ar || '')}</div>
+          <div class="muted mt-16">${escapeHtml(p.contact_ar || '')}</div>
+        </article>
+      `;
+    })();
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+  </script>
+</body>
+</html>

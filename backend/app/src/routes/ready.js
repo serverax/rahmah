@@ -73,8 +73,8 @@ export default async function readyRoute(fastify) {
         configured: isSheikhAuditConfigured(),
       },
       engine: {
-        implemented: false,
-        mode: 'not_implemented',
+        implemented: true,
+        mode: 'deterministic_rules',
         rag_registry_configured: isRagRegistryConfigured(),
         rag_retrieval_configured: isRagRetrievalConfigured(),
       },

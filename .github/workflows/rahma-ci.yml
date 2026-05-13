@@ -43,3 +43,44 @@ jobs:
           WHATSAPP_ENABLED: 'false'
           APP_STORE_COMPLIANCE_MODE: 'true'
         run: npm test
+
+  fake-claim-scan:
+    name: Reject fake DEPLOYED / RAG ACTIVE / payment-success claims
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Scan active code / manifests / workflows
+        shell: bash
+        run: |
+          set -e
+          # Phrases that must never appear as claims in ACTIVE code.
+          # Reports/ may quote them when describing what was avoided.
+          PATTERNS=(
+            "RAG ACTIVE"
+            "K3S VERIFIED"
+            "payment successful"
+            "verified by scholar"
+            "complete Quran database"
+            "complete Hadith database"
+            "DEPLOYED AND HEALTHY"
+          )
+          BAD=""
+          for pat in "${PATTERNS[@]}"; do
+            MATCHES=$(grep -RIn -F "$pat" backend deployment .github apps 2>/dev/null || true)
+            if [ -n "$MATCHES" ]; then
+              echo "::error::Fake-claim phrase found: \"$pat\""
+              echo "$MATCHES"
+              BAD="1"
+            fi
+          done
+          if [ -n "$BAD" ]; then exit 1; fi
+          echo "no fake-claim phrases in active code/manifests/workflows"
+
+      - name: Verify Arabic RTL checklist exists
+        shell: bash
+        run: |
+          test -f docs/QA_ARABIC_RTL_CHECKLIST.md
+          test -f docs/QA_ARABIC_RTL_FRONTEND_CHECKLIST.md
+          echo "RTL checklists present"

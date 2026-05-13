@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>رحمة — الصدقة الجارية</title>
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <h1>الصدقة الجارية</h1>
+      <div class="header-sub">شفافية كاملة — لا نُظهر إيصال نجاح وهمياً.</div>
+    </header>
+    <main class="app-main">
+      <div id="paymentNotice" class="mt-8" aria-live="polite"></div>
+      <h2>حملات نشطة</h2>
+      <div id="campaignsList" aria-live="polite"><div class="state-loading">جارٍ التحميل...</div></div>
+      <hr class="soft" />
+      <h2>الشفافية</h2>
+      <div id="transparencyText"></div>
+    </main>
+    <nav class="app-bottom-nav" aria-label="التنقل السفلي">
+      <a href="/">الرئيسية</a>
+      <a href="/ask.html">اسأل</a>
+      <a href="/answers.html">الإجابات</a>
+      <a href="/library.html">المكتبة</a>
+      <a href="/privacy.html">الخصوصية</a>
+    </nav>
+  </div>
+  <script src="/assets/app.js"></script>
+  <script>
+    (async () => {
+      const list = document.getElementById('campaignsList');
+      const notice = document.getElementById('paymentNotice');
+      const trans = document.getElementById('transparencyText');
+
+      const tr = await window.Rahma.fetchJson('/api/sadaqah/transparency');
+      if (tr.ok && tr.body && tr.body.transparency) {
+        trans.innerHTML = `<div class="card">
+          <div class="card-title">${escapeHtml(tr.body.transparency.title_ar)}</div>
+          <div class="card-body" style="white-space:pre-line">${escapeHtml(tr.body.transparency.body_ar)}</div>
+        </div>`;
+        if (tr.body.provider_status !== 'enabled' && tr.body.provider_status !== 'sandbox') {
+          notice.innerHTML = `<div class="state-empty"><span class="chip chip-blocked">الدفع غير مفعل حالياً</span></div>`;
+        }
+      } else {
+        trans.innerHTML = '<div class="state-error">تعذّر تحميل صفحة الشفافية.</div>';
+      }
+
+      const cr = await window.Rahma.fetchJson('/api/sadaqah/campaigns');
+      if (!cr.ok) {
+        list.innerHTML = '<div class="state-error">تعذّر تحميل الحملات.</div>';
+        return;
+      }
+      const items = (cr.body && Array.isArray(cr.body.items)) ? cr.body.items : [];
+      if (items.length === 0) {
+        list.innerHTML = '<div class="state-empty">لا توجد حملات نشطة معتمَدة حالياً.</div>';
+        return;
+      }
+      list.innerHTML = items.map((c) => `
+        <div class="card">
+          <div class="card-title">${escapeHtml(c.title_ar)}</div>
+          <div class="card-body">${escapeHtml(c.description_ar)}<br/>
+            <span class="chip chip-success">معتمد</span>
+            <span class="chip chip-moderation">${escapeHtml(c.category)}</span>
+          </div>
+        </div>
+      `).join('');
+    })();
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+  </script>
+</body>
+</html>

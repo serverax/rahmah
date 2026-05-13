@@ -1,0 +1,13 @@
+{
+  "name": "rahma-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Rahma/Sakina Arabic-native RTL frontend (vanilla HTML scaffold). Intended to be swapped for a React/Next.js implementation in a focused sprint.",
+  "engines": { "node": ">=20.0.0" },
+  "scripts": {
+    "start": "node server.js",
+    "build": "node -e \"console.log('static — no build step\\n')\"",
+    "test": "node --test ../../backend/app/test/frontend-rtl.test.js"
+  }
+}

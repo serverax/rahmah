@@ -1,0 +1,148 @@
+/* Rahma/Sakina — Arabic-native RTL styles.
+   Source of truth for layout direction is `dir="rtl"` on <html>. */
+:root {
+  --color-bg: #fffbf5;
+  --color-ink: #1f2a37;
+  --color-ink-soft: #4b5563;
+  --color-emerald: #0f766e;
+  --color-emerald-bright: #10b981;
+  --color-gold: #d4af37;
+  --color-card: #ffffff;
+  --color-border: rgba(15, 118, 110, 0.18);
+  --color-amber: #f59e0b;
+  --color-rose: #e11d48;
+  --radius: 14px;
+  --shadow: 0 2px 14px rgba(15, 23, 42, 0.06);
+  --font-ar: "Noto Naskh Arabic", "Amiri", "Segoe UI", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+html { font-size: 17px; }
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-ar);
+  line-height: 1.7;
+  /* Direction is set on <html dir="rtl"> — body inherits. */
+}
+a { color: var(--color-emerald); text-decoration: none; }
+a:hover, a:focus { color: var(--color-emerald-bright); text-decoration: underline; }
+
+/* App shell */
+.app-shell { min-height: 100vh; display: flex; flex-direction: column; }
+.app-header {
+  background: linear-gradient(135deg, var(--color-emerald) 0%, var(--color-emerald-bright) 100%);
+  color: #fffbf5;
+  padding: 14px 18px;
+  box-shadow: var(--shadow);
+}
+.app-header h1 { margin: 0; font-size: 1.2rem; font-weight: 700; }
+.app-header .header-sub { font-size: 0.85rem; opacity: 0.85; }
+.app-main { flex: 1; padding: 18px 16px 88px; max-width: 720px; margin: 0 auto; width: 100%; }
+.app-bottom-nav {
+  position: fixed; inset-inline-start: 0; inset-inline-end: 0; bottom: 0;
+  background: #fff;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  /* In RTL, justify-content: space-between still works because the first
+     item is the start (right in RTL) and last is the end (left). */
+  justify-content: space-between;
+  padding: 8px 12px;
+  box-shadow: 0 -2px 10px rgba(15, 23, 42, 0.05);
+}
+.app-bottom-nav a {
+  flex: 1; text-align: center; padding: 8px 4px; font-size: 0.78rem;
+  color: var(--color-ink-soft);
+}
+.app-bottom-nav a.active { color: var(--color-emerald); font-weight: 700; }
+
+/* Cards */
+.card-grid {
+  display: grid; gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin: 12px 0;
+}
+.card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+.card-title { font-size: 1.05rem; font-weight: 700; color: var(--color-emerald); margin: 0 0 6px; }
+.card-body  { font-size: 0.95rem; color: var(--color-ink-soft); }
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  background: var(--color-emerald);
+  color: #fffbf5;
+  padding: 10px 18px;
+  border: none;
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  text-align: center;
+}
+.btn:hover, .btn:focus { background: var(--color-emerald-bright); }
+.btn[disabled] { background: var(--color-border); color: var(--color-ink-soft); cursor: not-allowed; }
+.btn-secondary { background: transparent; color: var(--color-emerald); border: 1px solid var(--color-emerald); }
+
+/* Forms */
+.form-field { display: block; margin: 14px 0; }
+.form-field label { display: block; margin-bottom: 6px; font-weight: 700; }
+.form-field textarea, .form-field input, .form-field select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 1rem;
+  background: #fff;
+  /* Keep numeric/code inputs LTR even inside RTL doc. */
+  text-align: start;
+}
+.form-field textarea { min-height: 140px; resize: vertical; }
+
+/* Status chips */
+.chip { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; }
+.chip-pending  { background: rgba(245, 158, 11, 0.15); color: var(--color-amber); }
+.chip-success  { background: rgba(16, 185, 129, 0.15); color: var(--color-emerald-bright); }
+.chip-blocked  { background: rgba(225, 29, 72, 0.15); color: var(--color-rose); }
+.chip-moderation { background: rgba(99, 102, 241, 0.15); color: #6366f1; }
+
+/* Citation badges */
+.badge {
+  display: inline-block; padding: 3px 9px; margin-inline-end: 6px;
+  border-radius: 6px; font-size: 0.78rem; font-weight: 700;
+}
+.badge-quran  { background: rgba(15, 118, 110, 0.12); color: var(--color-emerald); }
+.badge-hadith { background: rgba(212, 175, 55, 0.16); color: #8a6c0a; }
+.badge-fiqh   { background: rgba(75, 85, 99, 0.12);  color: #374151; }
+.badge-scholar{ background: rgba(99, 102, 241, 0.12); color: #4f46e5; }
+
+/* States */
+.state-loading, .state-error, .state-empty {
+  padding: 18px;
+  border-radius: var(--radius);
+  background: #fff;
+  border: 1px dashed var(--color-border);
+  text-align: center;
+  color: var(--color-ink-soft);
+}
+.state-error { border-color: var(--color-rose); color: var(--color-rose); }
+
+/* Backend status row */
+.backend-status {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin: 8px 0; padding: 8px; border-radius: var(--radius);
+  background: #fff; border: 1px solid var(--color-border); font-size: 0.85rem;
+}
+
+/* Utility */
+.muted  { color: var(--color-ink-soft); }
+.center { text-align: center; }
+.mt-8   { margin-top: 8px; }
+.mt-16  { margin-top: 16px; }
+hr.soft { border: 0; border-top: 1px solid var(--color-border); margin: 18px 0; }

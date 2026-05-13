@@ -1,0 +1,40 @@
+# =============================================================================
+# Local development Postgres for the Rahma backend. NOT for production.
+# =============================================================================
+# Usage:
+#   cd deployment/local
+#   POSTGRES_PASSWORD="$(openssl rand -base64 32)" \
+#     docker compose -f docker-compose.postgres.yml up -d
+#
+#   export DATABASE_URL="postgresql://rahma_user:${POSTGRES_PASSWORD}@127.0.0.1:5433/rahma"
+#   cd ../../
+#   node scripts/db/run-migrations.js
+#   node scripts/db/check-db-health.js
+#
+# Notes:
+#   - Listens on host port 5433 to avoid clashing with any local Postgres.
+#   - Volume is named so data persists between `up`/`down`.
+#   - No credentials are hard-coded; operator supplies POSTGRES_PASSWORD env.
+#   - When pgvector is needed, switch image to ankane/pgvector or pgvector/pgvector.
+# =============================================================================
+services:
+  rahma-postgres:
+    image: postgres:16.4-alpine
+    container_name: rahma-postgres-local
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: rahma
+      POSTGRES_USER: rahma_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in shell before up}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - rahma_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+volumes:
+  rahma_pg_data:

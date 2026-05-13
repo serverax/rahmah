@@ -272,8 +272,8 @@ test('GET /ready contains rag block + engine block + sheikh_audit block', async 
     assert.equal(body.rag.mode, 'foundation');
     assert.equal(body.rag.documents_indexed, 0);
     assert.equal(typeof body.engine, 'object');
-    assert.equal(body.engine.implemented, false);
-    assert.equal(body.engine.mode, 'not_implemented');
+    assert.equal(body.engine.implemented, true);
+    assert.equal(body.engine.mode, 'deterministic_rules');
     assert.equal(typeof body.sheikh_audit, 'object');
     assert.equal(body.sheikh_audit.configured, false);
     assert.equal(body.safe_to_serve_public, false);
