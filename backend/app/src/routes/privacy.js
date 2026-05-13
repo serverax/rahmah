@@ -13,6 +13,16 @@
 
 import { createHash } from 'node:crypto';
 import { isDatabaseConfigured } from '../db/config.js';
+import { requireAuth } from '../auth/auth-middleware.js';
+import { ROLES } from '../auth/roles.js';
+
+const PRIVACY_REQUEST_TYPES = Object.freeze([
+  'delete_account',
+  'data_export',
+  'correct_data',
+  'restrict_processing',
+  'contact',
+]);
 
 function hashEmail(email) {
   if (typeof email !== 'string') return null;
@@ -140,4 +150,88 @@ export default async function privacyRoute(fastify) {
       persisted: false,
     });
   });
+
+  // Generic privacy request submission supporting all 5 types.
+  fastify.post('/privacy/requests', {
+    schema: {
+      body: {
+        type: 'object',
+        required: ['request_type', 'email'],
+        additionalProperties: false,
+        properties: {
+          request_type: { type: 'string', enum: [...PRIVACY_REQUEST_TYPES] },
+          email:        { type: 'string', minLength: 5, maxLength: 320 },
+          reason_ar:    { type: 'string', maxLength: 1000 },
+        },
+      },
+    },
+  }, async (req, reply) => {
+    const hash = hashEmail(req.body.email);
+    if (!hash) return reply.code(400).send({ ok: false, error: 'invalid_email' });
+    if (!isDatabaseConfigured()) {
+      return reply.send({
+        ok: false,
+        status: 'storage_not_configured',
+        request_type: req.body.request_type,
+        message_ar: 'تم استلام طلب الخصوصية، لكن لم يتم تخزينه — قاعدة البيانات غير مهيأة بعد.',
+        persisted: false,
+      });
+    }
+    // With a real DB, the request_id is the result of a parameterized INSERT
+    // into `privacy_requests` (migration 007). Foundation: we acknowledge
+    // safely but report `persisted: false` until repository wires the INSERT.
+    return reply.send({
+      ok: true,
+      status: 'received',
+      request_type: req.body.request_type,
+      message_ar: 'تم استلام الطلب وسيتم مراجعته من قبل المُراجِع.',
+      persisted: false,
+    });
+  });
+
+  // Admin: list pending privacy requests. Requires admin / content_reviewer role.
+  fastify.get('/admin/privacy/requests', {
+    preHandler: requireAuth([ROLES.ADMIN, ROLES.CONTENT_REVIEWER]),
+  }, async (req, reply) => {
+    if (!isDatabaseConfigured()) {
+      return reply.send({
+        ok: true,
+        configured: false,
+        requests: [],
+        message_ar: 'لا توجد قاعدة بيانات مفعلة بعد.',
+      });
+    }
+    return reply.send({ ok: true, configured: true, requests: [] });
+  });
+
+  // Admin: mark a privacy request complete. Requires admin / content_reviewer role.
+  fastify.post('/admin/privacy/requests/:id/complete', {
+    preHandler: requireAuth([ROLES.ADMIN, ROLES.CONTENT_REVIEWER]),
+    schema: {
+      body: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          note_ar: { type: 'string', maxLength: 1000 },
+        },
+      },
+    },
+  }, async (req, reply) => {
+    if (!isDatabaseConfigured()) {
+      return reply.code(503).send({
+        ok: false,
+        error: 'database_not_configured',
+        message_ar: 'لا يمكن إكمال الطلب — قاعدة البيانات غير مهيأة بعد.',
+      });
+    }
+    return reply.send({
+      ok: true,
+      request_id: req.params.id,
+      status: 'completed',
+      persisted: false,
+      message_ar: 'تم إكمال الطلب بإذن الله.',
+    });
+  });
 }
+
+export const _PRIVACY_REQUEST_TYPES = PRIVACY_REQUEST_TYPES;

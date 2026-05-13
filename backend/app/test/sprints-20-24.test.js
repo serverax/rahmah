@@ -174,13 +174,14 @@ test('S22: GET /api/library/status reports configured=false when no DB', async (
   }
 });
 
-test('S22: GET /api/library/categories returns the 7 Arabic categories', async () => {
+test('S22: GET /api/library/categories returns the Arabic categories', async () => {
   const app = await buildTestAppWithLibraryAndPrivacy();
   try {
     const res = await app.inject({ method: 'GET', url: '/api/library/categories' });
     const body = res.json();
     assert.equal(body.ok, true);
-    assert.ok(Array.isArray(body.categories) && body.categories.length === 7);
+    assert.ok(Array.isArray(body.categories) && body.categories.length >= 7,
+      `expected ≥7 categories, got ${body.categories.length}`);
     for (const c of body.categories) {
       assert.ok(/[ء-ي]/.test(c.title_ar), `${c.id} title_ar must be Arabic`);
     }

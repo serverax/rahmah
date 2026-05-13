@@ -1,0 +1,33 @@
+{
+  "manifest_version": "1.0.0",
+  "is_test_fixture": true,
+  "language": "ar",
+  "items": [
+    {
+      "source_type": "azkar",
+      "source_name_ar": "FIXTURE — مصدر اختبار غير معتمد",
+      "source_reference": "FIXTURE-AZKAR-001",
+      "title_ar": "ذكر اختباري",
+      "body_ar": "هذا نص اختباري لتجربة آلية الفهرسة فقط ولا يُعتبر فتوى ولا ذكراً معتمداً للنشر.",
+      "language": "ar",
+      "license_status": "test_fixture",
+      "verification_status": "pending_review",
+      "is_test_fixture": true,
+      "authenticity_note_ar": "FIXTURE — للاختبار التقني فقط، لا للنشر.",
+      "reviewer_email_hash": null
+    },
+    {
+      "source_type": "dua",
+      "source_name_ar": "FIXTURE — مصدر اختبار آخر",
+      "source_reference": "FIXTURE-DUA-001",
+      "title_ar": "دعاء اختباري",
+      "body_ar": "نص دعاء اختباري طويل بما يكفي لاختبار آلية التقطيع. لا يجوز عرضه للعموم. يبقى في حالة قيد المراجعة. لا يُنقل من هذا الملف إلى قاعدة الإنتاج تحت أي ظرف.",
+      "language": "ar",
+      "license_status": "test_fixture",
+      "verification_status": "pending_review",
+      "is_test_fixture": true,
+      "authenticity_note_ar": "FIXTURE — للاختبار التقني فقط، لا للنشر.",
+      "reviewer_email_hash": null
+    }
+  ]
+}
