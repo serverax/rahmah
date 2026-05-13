@@ -38,9 +38,10 @@ jobs:
           echo "::endgroup::"
 
           echo "::group::DSN-with-credentials scan"
-          # Reports show paths; never echo the matched line value.
-          if grep -RInE "$DSN_PATTERN" . \
-              --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist --exclude-dir=build \
+          # Limit to runtime code + shipped web assets. Docs/reports/tests and
+          # example compose files intentionally show redacted DSN shapes.
+          if grep -RInE "$DSN_PATTERN" backend/app/src apps \
+              --exclude-dir=node_modules \
               -l; then
             echo "::error::DSN with embedded credentials found (path printed above; value redacted)"
             exit 1
