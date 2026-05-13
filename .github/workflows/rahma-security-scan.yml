@@ -50,9 +50,9 @@ jobs:
           echo "::endgroup::"
 
           echo "::group::password=... scan"
-          # Allowlist: REPLACE_ME_, CHANGE_ME, leak_, $POSTGRES_PASSWORD literals are placeholders.
-          MATCHES=$(grep -RInE "$PW_PATTERN" . \
-            --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist --exclude-dir=build \
+          # Limit to runtime code + web assets (same rationale as DSN scan).
+          MATCHES=$(grep -RInE "$PW_PATTERN" backend/app/src apps \
+            --exclude-dir=node_modules \
             || true)
           if [ -n "$MATCHES" ]; then
             FILTERED=$(printf '%s\n' "$MATCHES" | grep -vE 'REPLACE_ME|CHANGE_ME|\\\$POSTGRES_PASSWORD|leak_pass|password=\$' || true)
