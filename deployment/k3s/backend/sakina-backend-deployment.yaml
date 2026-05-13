@@ -1,7 +1,9 @@
 # Sakina Backend Deployment (K3s staging)
-# The container image below is a PLACEHOLDER. The deployment WILL fail to
-# pull until the operator builds and pushes a real image to a reachable
-# registry and updates this manifest.
+# The container image below is produced by .github/workflows/backend-image-ci.yml.
+# Until that workflow has successfully published the :main tag to ghcr.io, a
+# pod created from this manifest will fail with ImagePullBackOff. Verify with
+# `crane manifest` or by checking the workflow run before applying. Never
+# apply to a context matching aks/prod/iterlaw (see scripts/k3s/deploy-sakina-staging.sh).
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -38,12 +40,19 @@ spec:
           type: RuntimeDefault
       containers:
         - name: sakina-backend
-          # PLACEHOLDER image — agreed local placeholder until the first real
-          # image is built and pushed by the backend-ci workflow / operator.
-          # The deploy script will still refuse to roll out until this tag
-          # actually exists in a reachable registry.
-          image: ghcr.io/serverax/rahmah/sakina-backend:0.1.0-local-placeholder
-          imagePullPolicy: IfNotPresent
+          # Image is produced by .github/workflows/backend-image-ci.yml on
+          # push to main. The tag :main is rolling; :sha-<commit> is the
+          # pinnable alternative for production cuts.
+          #
+          # DO NOT apply this manifest until:
+          #   (a) The backend-image-ci workflow has successfully published
+          #       the :main tag (verify with `crane manifest ghcr.io/...`
+          #       or check the GitHub Actions run), AND
+          #   (b) kubectl context is a safe Sakina K3s context. Apply MUST
+          #       NOT target aks-iterlaw-we-prod or any prod cluster.
+          # Deployment remains blocked until both conditions hold.
+          image: ghcr.io/serverax/rahmah/sakina-backend:main
+          imagePullPolicy: Always
           ports:
             - name: http
               containerPort: 3000
