@@ -3,19 +3,13 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import Fastify from 'fastify';
 import { buildApp } from '../src/app.js';
-import libraryRoute from '../src/routes/library.js';
-import privacyRoute from '../src/routes/privacy.js';
 
-// Some routes (library + privacy) are intentionally NOT registered in the
-// production app.js — the operator decides when to mount them. For testing
-// we build a small local fastify instance and register them ourselves.
+// As of Sprint 25, library + privacy routes are registered in production
+// app.js. This helper preserves the older test shape so older tests don't
+// need rewriting; it now just delegates to the real buildApp().
 async function buildTestAppWithLibraryAndPrivacy() {
-  const app = Fastify({ logger: false, disableRequestLogging: true });
-  await app.register(libraryRoute, { prefix: '/api/library' });
-  await app.register(privacyRoute, { prefix: '/api' });
-  return app;
+  return buildApp();
 }
 
 const __filename = fileURLToPath(import.meta.url);

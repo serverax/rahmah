@@ -8,6 +8,8 @@ import ragRoute from './routes/rag.js';
 import familyRoute from './routes/family.js';
 import charityRoute from './routes/charity.js';
 import engineRoute from './routes/engine.js';
+import libraryRoute from './routes/library.js';
+import privacyRoute from './routes/privacy.js';
 
 export function buildApp(opts = {}) {
   const app = Fastify({
@@ -25,6 +27,8 @@ export function buildApp(opts = {}) {
   app.register(familyRoute, { prefix: '/api/family' });
   app.register(charityRoute, { prefix: '/api/sadaqah' });
   app.register(engineRoute, { prefix: '/api/engine' });
+  app.register(libraryRoute, { prefix: '/api/library' });
+  app.register(privacyRoute, { prefix: '/api' });
 
   return app;
 }
