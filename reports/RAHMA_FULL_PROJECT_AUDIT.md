@@ -7,7 +7,7 @@
 - **`F:/rahma` exists:** **YES**.
 - **Repo:** `https://github.com/serverax/rahmah` (remote `origin`).
 - **Branch:** `main`.
-- **HEAD (at report write):** `503d69c` plus local commits if any applied after inventory generation; re-run `git rev-parse HEAD` after pull/commit.
+- **HEAD (audit commit):** `7bd5f44` on `main` (includes this report, inventory, DB script fix, CI scan fixes, deployment comment neutralisation).
 - **Remote:** `https://github.com/serverax/rahmah.git` (fetch/push).
 - **Other projects touched:** **NO** — no edits under IterLaw, OrdinoxAI app repos, RightsNow, or Alaa Beauty. References to those names appear only in allowed documentation/scope-lock text (see contamination).
 - **Contamination scan (`iterlaw|ordinox|rightsnow|alaa`, case-insensitive content):**
