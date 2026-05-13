@@ -69,7 +69,8 @@ jobs:
           )
           BAD=""
           for pat in "${PATTERNS[@]}"; do
-            MATCHES=$(grep -RIn -F "$pat" --exclude='rahma-ci.yml' backend deployment .github apps 2>/dev/null || true)
+            # Scan application source only — tests may quote forbidden phrases in negative assertions.
+            MATCHES=$(grep -RIn -F "$pat" --exclude='rahma-ci.yml' backend/app/src deployment .github apps 2>/dev/null || true)
             if [ -n "$MATCHES" ]; then
               echo "::error::Fake-claim phrase found: \"$pat\""
               echo "$MATCHES"
