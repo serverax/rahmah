@@ -1,0 +1,18 @@
+{
+  "manifest_version": "1.0.0",
+  "language": "ar",
+  "items": [
+    {
+      "source_type": "azkar",
+      "source_name_ar": "أذكار الصباح والمساء — اسم المرجع الذي اعتمده مراجع التطبيق",
+      "source_reference": "اسم الكتاب / المصدر مع رقم الصفحة أو الباب",
+      "title_ar": "أذكار الصباح",
+      "body_ar": "نص الذكر ينقل حرفياً من المصدر بعد المراجعة.",
+      "language": "ar",
+      "license_status": "permitted",
+      "verification_status": "pending_review",
+      "authenticity_note_ar": null,
+      "reviewer_email_hash": null
+    }
+  ]
+}

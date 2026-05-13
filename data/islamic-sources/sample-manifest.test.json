@@ -1,0 +1,31 @@
+{
+  "manifest_version": "1.0.0",
+  "language": "ar",
+  "_notice": "TEST DATA ONLY — used by the manifest validator's dry-run tests. Items are fictional non-religious test rows; verification_status is pending_review; nothing here is approved.",
+  "items": [
+    {
+      "source_type": "azkar",
+      "source_name_ar": "بيانات اختبار فقط — عنوان اختباري",
+      "source_reference": "مرجع اختباري داخلي رقم 1",
+      "title_ar": "اختبار 1",
+      "body_ar": "هذا نص اختباري لا يمثل أي محتوى ديني حقيقي.",
+      "language": "ar",
+      "license_status": "permitted",
+      "verification_status": "pending_review",
+      "authenticity_note_ar": null,
+      "reviewer_email_hash": null
+    },
+    {
+      "source_type": "dua",
+      "source_name_ar": "بيانات اختبار فقط — عنوان اختباري 2",
+      "source_reference": "مرجع اختباري داخلي رقم 2",
+      "title_ar": "اختبار 2",
+      "body_ar": "هذا نص اختباري آخر، غير حقيقي.",
+      "language": "ar",
+      "license_status": "permitted",
+      "verification_status": "pending_review",
+      "authenticity_note_ar": null,
+      "reviewer_email_hash": null
+    }
+  ]
+}

@@ -15,7 +15,7 @@
     "db:migrate": "node ../../scripts/db/run-migrations.js",
     "db:check": "node ../../scripts/db/check-db-health.js",
     "lint": "eslint src test",
-    "test": "node --test test/health.test.js test/ready.test.js test/ibadat-ask.test.js test/no-external-llm.test.js test/strict-safety.test.js test/db-config.test.js test/db-health.test.js test/migrations.test.js test/sources.test.js test/audit.test.js test/ibadat-source-gate.test.js test/citation-requirement.test.js test/sheikh-answer-policy.test.js test/ask-sheikh-hasan-public-qa.test.js test/public-qa.test.js test/ask-sheikh-hasan-migration.test.js test/cache.test.js test/rag-foundation.test.js test/sheikh-action-audit.test.js test/family-child-safety.test.js test/charity-foundation.test.js test/engine-status.test.js test/frontend-rtl.test.js test/rahma-control-engine.test.js test/db-tooling.test.js test/sprints-20-24.test.js"
+    "test": "node --test test/health.test.js test/ready.test.js test/ibadat-ask.test.js test/no-external-llm.test.js test/strict-safety.test.js test/db-config.test.js test/db-health.test.js test/migrations.test.js test/sources.test.js test/audit.test.js test/ibadat-source-gate.test.js test/citation-requirement.test.js test/sheikh-answer-policy.test.js test/ask-sheikh-hasan-public-qa.test.js test/public-qa.test.js test/ask-sheikh-hasan-migration.test.js test/cache.test.js test/rag-foundation.test.js test/sheikh-action-audit.test.js test/family-child-safety.test.js test/charity-foundation.test.js test/engine-status.test.js test/frontend-rtl.test.js test/rahma-control-engine.test.js test/db-tooling.test.js test/sprints-20-24.test.js test/sprint-27-db.test.js test/sprint-28-rag-governance.test.js"
   },
   "dependencies": {
     "fastify": "^5.0.0",

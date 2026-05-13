@@ -8,7 +8,28 @@
  * The function returns a frozen object the route forwards directly.
  */
 
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { isDatabaseConfigured } from '../db/config.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const REPO_ROOT = path.resolve(__dirname, '..', '..', '..', '..');
+
+let _seedPolicyChecked = false;
+let _seedPolicyExists = false;
+async function detectSeedPolicy() {
+  if (_seedPolicyChecked) return _seedPolicyExists;
+  try {
+    await fs.stat(path.join(REPO_ROOT, 'data', 'islamic-sources', 'REVIEW_POLICY.md'));
+    _seedPolicyExists = true;
+  } catch {
+    _seedPolicyExists = false;
+  }
+  _seedPolicyChecked = true;
+  return _seedPolicyExists;
+}
 
 let _registry = null;
 let _retrieval = null;
@@ -57,6 +78,7 @@ export async function buildRagStatus() {
   const documentsIndexed = 0;
   const chunksIndexed = 0;
 
+  const seedPolicyExists = await detectSeedPolicy();
   return Object.freeze({
     rag_enabled: _ragEnabled,
     mode,
@@ -67,5 +89,7 @@ export async function buildRagStatus() {
     approved_sources: counts.approved | 0,
     pending_review_sources: counts.pending_review | 0,
     safe_to_answer_from_rag: counts.approved > 0 && retrievalConfigured && dbConfigured,
+    ingestion_supported: true,
+    seed_policy_exists: seedPolicyExists,
   });
 }
