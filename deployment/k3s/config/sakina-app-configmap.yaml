@@ -25,6 +25,12 @@ data:
   SCHOLAR_ANSWER_CITATION_REQUIRED: "true"
   PUBLIC_ANSWER_MODERATION_REQUIRED: "true"
 
+  # ---- App-store compliance ------------------------------------------------
+  # Foundation mode: backend exposes app-store-compliance flags on /ready and
+  # the (future) UI shows required compliance links. Real privacy/terms/data-
+  # deletion flows ship in Sprint 11.
+  APP_STORE_COMPLIANCE_MODE: "true"
+
   # ---- WhatsApp adapter (disabled by default) -----------------------------
   # The actual provider client is intentionally not implemented yet.
   # Real provider name + token + recipient live in the Secret, not here.

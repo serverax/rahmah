@@ -123,6 +123,37 @@ export default async function askSheikhHasanRoute(fastify) {
   });
 
   // -------------------------------------------------------------------------
+  // Question status — readable by the user who asked. No identity check yet;
+  // returns coarse status only. Real per-user authorization comes with the
+  // auth plugin in a later sprint. When no repository is wired, returns 503.
+  // -------------------------------------------------------------------------
+  fastify.get('/questions/:id/status', async (req, reply) => {
+    const repo = getSheikhRepository();
+    if (!repo) {
+      return reply.code(503).send({ ok: false, error: 'service_not_configured' });
+    }
+    const result = await repo.getQuestionStatus({ question_id: req.params.id });
+    if (!result || !result.ok) {
+      const code = result && result.reason === 'not_found' ? 404 : 400;
+      return reply.code(code).send({
+        ok: false,
+        error: result && result.reason ? result.reason : 'lookup_failed',
+      });
+    }
+    // Return only safe, coarse fields. NEVER include question_text or
+    // question_hash or assigned_sheikh_id here.
+    return reply.send({
+      ok: true,
+      question_id: result.id,
+      status: result.status,
+      language: result.language,
+      category: result.category,
+      created_at: result.created_at,
+      updated_at: result.updated_at,
+    });
+  });
+
+  // -------------------------------------------------------------------------
   // Sheikh queue.
   // -------------------------------------------------------------------------
   fastify.get('/sheikh/questions', async (req, reply) => {

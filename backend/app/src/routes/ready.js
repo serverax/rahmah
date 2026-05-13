@@ -52,6 +52,14 @@ export default async function readyRoute(fastify) {
         report_content_required: true,
         repository_configured: isSheikhRepositoryConfigured(),
       },
+      app_store: {
+        compliance_mode: envFlag('APP_STORE_COMPLIANCE_MODE', true),
+        apple_foundation_required: true,
+        google_play_foundation_required: true,
+        account_deletion_required: true,
+        content_reporting_required: true,
+        moderation_required: true,
+      },
       environment: process.env.NODE_ENV || 'staging',
     };
   });

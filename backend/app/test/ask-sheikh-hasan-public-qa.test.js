@@ -212,8 +212,108 @@ test('GET /ready surfaces ask_sheikh_hasan + public_qa blocks with correct defau
     assert.equal(body.public_qa.private_user_identity_hidden, true);
     assert.equal(body.public_qa.report_content_required, true);
     assert.equal(body.public_qa.repository_configured, false);
+    // app_store block (Sprint 3)
+    assert.equal(typeof body.app_store, 'object');
+    assert.equal(body.app_store.compliance_mode, true);
+    assert.equal(body.app_store.apple_foundation_required, true);
+    assert.equal(body.app_store.google_play_foundation_required, true);
+    assert.equal(body.app_store.account_deletion_required, true);
+    assert.equal(body.app_store.content_reporting_required, true);
+    assert.equal(body.app_store.moderation_required, true);
   } finally {
     await app.close();
     envRestore(snap);
+  }
+});
+
+test('GET /api/sheikh-hasan/questions/:id/status returns 503 service_not_configured when no repo', async () => {
+  const snap = envSnapshot();
+  _resetSheikhRepositoryForTests();
+  const app = buildApp();
+  try {
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/sheikh-hasan/questions/some-fake-id/status',
+    });
+    assert.equal(res.statusCode, 503);
+    const body = res.json();
+    assert.equal(body.error, 'service_not_configured');
+  } finally {
+    await app.close();
+    envRestore(snap);
+  }
+});
+
+test('GET /api/sheikh-hasan/questions/:id/status returns 404 when repository says not_found', async () => {
+  configureSheikhRepository({
+    repository: {
+      submitQuestion: async () => ({ ok: false, reason: 'unused' }),
+      listPendingForSheikh: async () => [],
+      getQuestionStatus: async () => ({ ok: false, reason: 'not_found' }),
+      saveAnswerDraft: async () => ({ ok: false, reason: 'unused' }),
+      listPublicQA: async () => [],
+      getPublicQABySlug: async () => null,
+      recordReport: async () => ({ ok: false, reason: 'unused' }),
+    },
+  });
+  const app = buildApp();
+  try {
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/sheikh-hasan/questions/missing-id/status',
+    });
+    assert.equal(res.statusCode, 404);
+    const body = res.json();
+    assert.equal(body.error, 'not_found');
+  } finally {
+    await app.close();
+    _resetSheikhRepositoryForTests();
+  }
+});
+
+test('GET /api/sheikh-hasan/questions/:id/status returns coarse fields only — no question_text leak', async () => {
+  configureSheikhRepository({
+    repository: {
+      submitQuestion: async () => ({}),
+      listPendingForSheikh: async () => [],
+      getQuestionStatus: async () => ({
+        ok: true,
+        id: 'fake-uuid',
+        status: 'pending_review',
+        language: 'en',
+        category: 'salah',
+        created_at: '2026-05-13T00:00:00Z',
+        updated_at: '2026-05-13T00:00:00Z',
+        // adversarial fields that must NOT leak:
+        question_text: 'private user question content',
+        question_hash: 'a'.repeat(64),
+        assigned_sheikh_id: 'should-not-leak',
+      }),
+      saveAnswerDraft: async () => ({}),
+      listPublicQA: async () => [],
+      getPublicQABySlug: async () => null,
+      recordReport: async () => ({}),
+    },
+  });
+  const app = buildApp();
+  try {
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/sheikh-hasan/questions/fake-uuid/status',
+    });
+    assert.equal(res.statusCode, 200);
+    const raw = res.body;
+    assert.ok(!raw.includes('private user question content'), 'question_text leaked');
+    assert.ok(!raw.includes('question_hash'),                  'question_hash field leaked');
+    assert.ok(!raw.includes('assigned_sheikh_id'),             'assigned_sheikh_id leaked');
+    assert.ok(!raw.includes('should-not-leak'),                'sentinel leaked');
+    const body = res.json();
+    assert.equal(body.ok, true);
+    assert.equal(body.status, 'pending_review');
+    assert.equal(body.category, 'salah');
+    assert.equal(body.language, 'en');
+  } finally {
+    await app.close();
+    _resetSheikhRepositoryForTests();
   }
 });

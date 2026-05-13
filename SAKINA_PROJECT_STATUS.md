@@ -1,6 +1,6 @@
 # Sakina/Rahmah Project Status
 
-Last updated: 2026-05-13 (Sprint 6 — Ask Sheikh Hasan foundation).
+Last updated: 2026-05-13 (Sprint 3 — Project plan, app-store compliance, and Ask Sheikh Hasan foundation).
 
 ## 1. Scope Lock
 
@@ -47,7 +47,7 @@ Status legend:
 | Public Q&A | CREATED — backend foundation | `routes/public-qa.js` returns live entries when DB configured, else `service_not_configured` |
 | Moderation queue | CREATED — backend foundation | `POST /api/sheikh-hasan/moderation/answers/:id/publish` placeholder (auth-gated) |
 | Reporting | CREATED — backend foundation | `POST /api/public/sheikh-hasan/qa/:slug/report` |
-| Apple/Google compliance | NOT DONE | Documented in `SAKINA_PROJECT_MASTER_PLAN.md` section 8; no privacy policy/terms files in repo yet |
+| Apple/Google compliance — foundation | CREATED | `docs/compliance/APP_STORE_COMPLIANCE_FOUNDATION.md` + `/ready.app_store` block + `APP_STORE_COMPLIANCE_MODE` ConfigMap flag. Real privacy/terms/deletion UI still NOT DONE (Sprint 11). |
 | Luxury 3D UI | NOT DONE | Blueprint only in `docs/uiux/ASK_SHEIKH_HASAN_UI_UX_BLUEPRINT.md`; no `mobile-app/` real code yet |
 | WhatsApp notifier | CREATED — PENDING_CONFIG | `backend/app/src/sheikh/whatsapp-notifier.js` — disabled by default, no HTTP client, returns `pending_config` |
 

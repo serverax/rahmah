@@ -80,6 +80,35 @@ test('fiqh only → scholar_advice_needs_review (moderation), public refused', (
   assert.equal(r.can_publish_private, true);
 });
 
+test('fiqh citation IS an accepted citation type (not insufficient_citation)', () => {
+  // Sprint 3 requirement: fiqh is a valid citation type. It does not yield
+  // insufficient_citation — it routes through moderator review. This test
+  // exists to lock the policy: fiqh is "accepted" but the moderator must
+  // explicitly approve before public publication (safer fail-closed default
+  // for secondary-source-only answers).
+  const r = evaluateCitationRequirement([
+    { citation_type: 'fiqh', citation_label: 'Al-Mughni vol 1 p. 200' },
+    { citation_type: 'fiqh', citation_label: 'Al-Umm vol 2 p. 14' },
+  ]);
+  assert.notEqual(
+    r.citation_status,
+    'insufficient_citation',
+    'fiqh-only must NOT be treated as insufficient_citation',
+  );
+  assert.equal(r.citation_status, 'scholar_advice_needs_review');
+  assert.equal(r.reason, 'fiqh_only_requires_moderation');
+});
+
+test('fiqh combined with Quran → quran_cited (Quran takes precedence for auto-publish)', () => {
+  const r = evaluateCitationRequirement([
+    { citation_type: 'quran', citation_label: 'Al-Baqarah 2:183' },
+    { citation_type: 'fiqh',  citation_label: 'Al-Mughni vol 1 p. 200' },
+  ]);
+  // Quran citation is the primary; this enables public-path moderation.
+  assert.equal(r.citation_status, 'quran_cited');
+  assert.equal(r.can_publish_public, true);
+});
+
 test('mix of unknown types only → insufficient_citation', () => {
   const r = evaluateCitationRequirement([
     { citation_type: 'tweet', citation_label: 'twitter post' },
