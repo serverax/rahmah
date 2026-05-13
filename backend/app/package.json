@@ -1,0 +1,26 @@
+{
+  "name": "sakina-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sakina Islamic App backend — ibadat-only safety-first API. NO external LLM. NO unsourced religious answers.",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "build": "node --check src/index.js && node --check src/app.js",
+    "lint": "eslint src test",
+    "test": "node --test test/health.test.js test/ready.test.js test/ibadat-ask.test.js test/no-external-llm.test.js"
+  },
+  "dependencies": {
+    "fastify": "^5.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "globals": "^15.0.0"
+  }
+}

@@ -38,8 +38,11 @@ spec:
           type: RuntimeDefault
       containers:
         - name: sakina-backend
-          # PLACEHOLDER image — replace with operator-built artifact before apply
-          image: ghcr.io/REPLACE-ME/sakina-backend:0.0.0-PLACEHOLDER
+          # PLACEHOLDER image — agreed local placeholder until the first real
+          # image is built and pushed by the backend-ci workflow / operator.
+          # The deploy script will still refuse to roll out until this tag
+          # actually exists in a reachable registry.
+          image: ghcr.io/serverax/rahmah/sakina-backend:0.1.0-local-placeholder
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
