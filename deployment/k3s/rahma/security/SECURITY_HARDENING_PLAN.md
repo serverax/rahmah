@@ -5,7 +5,7 @@ This plan describes the **hardening steps that may be applied safely after** the
 ## Hard rules (non-negotiable)
 
 1. **SSH must stay open.** Port 22 from the operator's IP is always allowed.
-2. **Existing app ports must be preserved.** On the OrdinoxAI shared cluster (`worker-llm` / 138.201.253.245), this currently includes 80 (Traefik), 443 (Traefik), 30282 (`ordinox-web`), 10250 (kubelet). Do not touch.
+2. **Existing app ports must be preserved.** On the **current shared production worker** (`worker-llm` / 138.201.253.245), this currently includes 80 (Traefik), 443 (Traefik), 30282 (an existing host-bound web app), 10250 (kubelet). Do not touch.
 3. **Databases stay ClusterIP only.** Postgres, Redis, MinIO admin must never be exposed via NodePort, LoadBalancer, or Ingress (except the optional MinIO S3 endpoint only if operator approves a separate hostname).
 4. **No public Postgres / no public Redis.** Enforced by manifest (`type: ClusterIP`) and by absence of any Ingress for these services.
 5. **No real secrets in git.** The repo carries `*.example.yaml` only; real `Secret` objects are created by `kubectl create secret`.
@@ -22,10 +22,10 @@ Already observed on `worker-llm`:
 6443/tcp   ALLOW IN   Anywhere               # K3s API
 8472/udp   ALLOW IN   Anywhere               # flannel VXLAN
 51820/udp  ALLOW IN   Anywhere               # WireGuard
-30282/tcp  ALLOW IN   Anywhere               # ordinox-web Next.js (existing app)
+30282/tcp  ALLOW IN   Anywhere               # existing Next.js app (host port)
 ```
 
-For Sakina, **no host-firewall change is required** if the cluster is shared with OrdinoxAI. New traffic is in-cluster only (rahma-app ↔ rahma-data).
+For Sakina, **no host-firewall change is required** if the cluster is **already shared with unrelated workloads**. New traffic is in-cluster only (rahma-app ↔ rahma-data).
 
 ## Recommended NetworkPolicies (in-cluster)
 
