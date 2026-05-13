@@ -148,9 +148,17 @@ test('S28: /api/rag/status reports ingestion_supported=true + seed_policy_exists
   }
 });
 
-test('S28: no "complete Quran database" or "complete Hadith database" claims', async () => {
+test('S28: no Islamic-completeness over-claims in active code', async () => {
+  // Patterns are built at runtime from split strings so the literal phrase
+  // never appears in this source file (the CI fake-claim scanner greps the
+  // repo for these exact strings and must not match this test).
+  const phrase1 = ['complete', 'Quran', 'database'].join(' ');
+  const phrase2 = ['complete', 'Hadith', 'database'].join(' ');
+  const FORBIDDEN = [
+    new RegExp(phrase1, 'i'),
+    new RegExp(phrase2, 'i'),
+  ];
   const dirs = ['backend', 'apps', 'data', 'scripts', 'docs'];
-  const FORBIDDEN = [/complete Quran database/i, /complete Hadith database/i];
   async function walk(d) {
     let entries;
     try { entries = await fs.readdir(d, { withFileTypes: true }); } catch { return []; }
@@ -172,7 +180,7 @@ test('S28: no "complete Quran database" or "complete Hadith database" claims', a
       }
     }
   }
-  // Allow mentions inside this test file (which contains the regex literals).
-  const filtered = hits.filter((h) => !h.includes('sprint-28-rag-governance.test.js') && !h.includes('rahma-ci.yml'));
+  // Allow appearance inside CI workflow that necessarily names patterns.
+  const filtered = hits.filter((h) => !h.includes('rahma-ci.yml'));
   assert.deepEqual(filtered, [], `forbidden Islamic-completeness claims found:\n${filtered.join('\n')}`);
 });

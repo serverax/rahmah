@@ -10,6 +10,8 @@ import charityRoute from './routes/charity.js';
 import engineRoute from './routes/engine.js';
 import libraryRoute from './routes/library.js';
 import privacyRoute from './routes/privacy.js';
+import authRoute from './routes/auth.js';
+import dbRoute from './routes/db.js';
 
 export function buildApp(opts = {}) {
   const app = Fastify({
@@ -29,6 +31,8 @@ export function buildApp(opts = {}) {
   app.register(engineRoute, { prefix: '/api/engine' });
   app.register(libraryRoute, { prefix: '/api/library' });
   app.register(privacyRoute, { prefix: '/api' });
+  app.register(authRoute, { prefix: '/api/auth' });
+  app.register(dbRoute, { prefix: '/api/db' });
 
   return app;
 }

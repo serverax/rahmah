@@ -2,9 +2,11 @@ import { checkDatabaseHealth } from '../db/health.js';
 import { isSourceRetrievalConfigured } from '../safety/source-store-status.js';
 import { isSheikhRepositoryConfigured } from '../sheikh/sheikh-question-repository.js';
 import { isSheikhAuditConfigured } from '../audit/sheikh-action-audit.js';
-import { isAuthConfigured } from '../sheikh/sheikh-auth-policy.js';
+import { isAuthConfigured as isSheikhAuthPolicyConfigured } from '../sheikh/sheikh-auth-policy.js';
 import { whatsappStatusForReady } from '../sheikh/whatsapp-notifier.js';
 import { cacheStatusForReady } from '../cache/index.js';
+import { isAuthConfigured as isAuthFoundationConfigured, getAuthMode } from '../auth/auth-config.js';
+import { safeQueryOne } from '../db/query.js';
 import {
   buildRagStatus,
   isRagRegistryConfigured,
@@ -25,10 +27,31 @@ export default async function readyRoute(fastify) {
     const db = await checkDatabaseHealth({ timeoutMs: 1500 });
     const wa = whatsappStatusForReady();
 
+    // Migration-table probe — best effort. Never crashes /ready.
+    let migration_table_exists = false;
+    let applied_migrations_count = 0;
+    if (db.configured && db.connected) {
+      const m = await safeQueryOne("SELECT to_regclass('public.schema_migrations') AS t");
+      migration_table_exists = Boolean(m.ok && m.row && m.row.t);
+      if (migration_table_exists) {
+        const c = await safeQueryOne('SELECT COUNT(*)::int AS n FROM schema_migrations');
+        if (c.ok && c.row) applied_migrations_count = c.row.n | 0;
+      }
+    }
+
     return {
       ok: true,
       service: 'sakina-backend',
-      database: db,
+      database: {
+        ...db,
+        migration_table_exists,
+        applied_migrations_count,
+        pending_migrations_count: null,
+      },
+      auth: {
+        configured: isAuthFoundationConfigured(),
+        mode: getAuthMode(),
+      },
       ibadat: {
         scope: 'ibadat',
         source_required: true,
@@ -43,7 +66,7 @@ export default async function readyRoute(fastify) {
       ask_sheikh_hasan: {
         enabled: envFlag('ASK_SHEIKH_HASAN_ENABLED', true),
         sheikh_login_required: true,
-        sheikh_auth_configured: isAuthConfigured(),
+        sheikh_auth_configured: isSheikhAuthPolicyConfigured(),
         public_answers_enabled: envFlag('PUBLIC_SHEIKH_QA_ENABLED', true),
         citation_required_for_public_answers: envFlag(
           'SCHOLAR_ANSWER_CITATION_REQUIRED',
