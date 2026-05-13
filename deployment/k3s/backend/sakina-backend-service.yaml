@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sakina-backend
+  namespace: sakina-ai
+  labels:
+    app.kubernetes.io/name: sakina-backend
+    app.kubernetes.io/part-of: sakina-islamic-app
+    app.kubernetes.io/component: api
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: sakina-backend

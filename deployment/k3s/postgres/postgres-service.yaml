@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sakina-postgres
+  namespace: sakina-ai
+  labels:
+    app.kubernetes.io/name: sakina-postgres
+    app.kubernetes.io/part-of: sakina-islamic-app
+    app.kubernetes.io/component: database
+spec:
+  type: ClusterIP
+  clusterIP: None  # headless for StatefulSet stable DNS
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: sakina-postgres

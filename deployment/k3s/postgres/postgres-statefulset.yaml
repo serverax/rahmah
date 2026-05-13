@@ -1,0 +1,92 @@
+# Sakina PostgreSQL StatefulSet (K3s staging)
+# Secrets are sourced from `sakina-secrets` Secret (template in deployment/k3s/secrets/).
+# StorageClass is intentionally unset to use the cluster default (local-path on K3s).
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: sakina-postgres
+  namespace: sakina-ai
+  labels:
+    app.kubernetes.io/name: sakina-postgres
+    app.kubernetes.io/part-of: sakina-islamic-app
+    app.kubernetes.io/component: database
+spec:
+  serviceName: sakina-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sakina-postgres
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: sakina-postgres
+        app.kubernetes.io/part-of: sakina-islamic-app
+        app.kubernetes.io/component: database
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        fsGroup: 999
+      containers:
+        - name: postgres
+          image: postgres:16.4-alpine  # pinned minor; bump in a tracked PR
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: postgres
+              containerPort: 5432
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: sakina-postgres-config
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: sakina-secrets
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sakina-secrets
+                  key: POSTGRES_PASSWORD
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "sakina_app", "-d", "sakina_db"]
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 6
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "sakina_app", "-d", "sakina_db"]
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 6
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false  # Postgres needs to write its dirs
+            capabilities:
+              drop: ["ALL"]
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        labels:
+          app.kubernetes.io/name: sakina-postgres
+          app.kubernetes.io/part-of: sakina-islamic-app
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi
+        # storageClassName: intentionally omitted — uses cluster default

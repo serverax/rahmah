@@ -1,0 +1,28 @@
+# PLACEHOLDER / ALTERNATIVE MANIFEST
+# ----------------------------------
+# The active manifest `postgres-statefulset.yaml` uses `volumeClaimTemplates`
+# which creates its own PVC automatically. This standalone PVC is provided
+# as an ALTERNATIVE for environments where Postgres runs as a Deployment
+# instead of a StatefulSet (rare for stateful data). Do NOT apply both.
+#
+# StorageClass is left unset on purpose so the cluster's DEFAULT class is
+# used. On a K3s cluster that default is typically `local-path`. Confirm
+# with `kubectl get storageclass` on the target K3s cluster before applying.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sakina-postgres-data
+  namespace: sakina-ai
+  labels:
+    app.kubernetes.io/name: sakina-postgres
+    app.kubernetes.io/part-of: sakina-islamic-app
+    app.kubernetes.io/component: database
+  annotations:
+    sakina.io/notice: "ALTERNATIVE PVC. StatefulSet variant is the active path."
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  # storageClassName: intentionally omitted — uses cluster default

@@ -1,0 +1,108 @@
+# Sakina Backend Deployment (K3s staging)
+# The container image below is a PLACEHOLDER. The deployment WILL fail to
+# pull until the operator builds and pushes a real image to a reachable
+# registry and updates this manifest.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sakina-backend
+  namespace: sakina-ai
+  labels:
+    app.kubernetes.io/name: sakina-backend
+    app.kubernetes.io/part-of: sakina-islamic-app
+    app.kubernetes.io/component: api
+spec:
+  replicas: 1  # staging-first
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sakina-backend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: sakina-backend
+        app.kubernetes.io/part-of: sakina-islamic-app
+        app.kubernetes.io/component: api
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: sakina-backend
+          # PLACEHOLDER image — replace with operator-built artifact before apply
+          image: ghcr.io/REPLACE-ME/sakina-backend:0.0.0-PLACEHOLDER
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          env:
+            - name: NODE_ENV
+              value: staging
+            - name: API_SCOPE
+              value: ibadat
+            - name: PORT
+              value: "3000"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: sakina-secrets
+                  key: DATABASE_URL
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: sakina-secrets
+                  key: JWT_SECRET
+            - name: SESSION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: sakina-secrets
+                  key: SESSION_SECRET
+            - name: OLLAMA_BASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: sakina-secrets
+                  key: OLLAMA_BASE_URL
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 6
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}

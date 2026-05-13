@@ -1,0 +1,42 @@
+# Sakina Backend Ingress (Traefik / K3s default)
+# -------------------------------------------------
+# Host is a PLACEHOLDER (sakina.ordinoxai.com). DNS must point to the K3s
+# ingress LoadBalancer / node IP before this resolves.
+#
+# TLS section is COMMENTED OUT until cert-manager presence is confirmed
+# on the target K3s cluster. Do NOT uncomment without first running:
+#   kubectl get crd certificates.cert-manager.io
+#   kubectl get clusterissuer
+# Otherwise the Ingress will be admitted with no TLS or fail validation.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sakina-backend
+  namespace: sakina-ai
+  labels:
+    app.kubernetes.io/name: sakina-backend
+    app.kubernetes.io/part-of: sakina-islamic-app
+    app.kubernetes.io/component: api
+  annotations:
+    sakina.io/notice: "PLACEHOLDER host. Verify DNS + cert-manager before enabling TLS."
+    # Traefik on K3s reads the ingressClassName below; no extra annotations
+    # required for the default install. Add traefik middleware refs here as
+    # rate-limiting / headers are added in a tracked PR.
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: sakina.ordinoxai.com
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: sakina-backend
+                port:
+                  number: 3000
+  # tls:
+  #   # PLACEHOLDER — uncomment ONLY if cert-manager + ClusterIssuer exist.
+  #   - hosts:
+  #       - sakina.ordinoxai.com
+  #     secretName: sakina-backend-tls

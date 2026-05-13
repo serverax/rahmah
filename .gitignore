@@ -1,0 +1,65 @@
+# Secrets
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+
+# Top-level / generic secrets dirs (rendered output goes here)
+/secrets/
+**/.secrets/
+**/secrets/.local/
+**/secrets/*.rendered.yaml
+**/secrets/*.rendered.yml
+**/secrets/*.real.yaml
+**/secrets/*.real.yml
+
+# In deployment/k3s/secrets/ ignore everything EXCEPT templates and examples.
+deployment/k3s/secrets/*
+!deployment/k3s/secrets/*.template.yaml
+!deployment/k3s/secrets/*.template.yml
+!deployment/k3s/secrets/*.example.yaml
+!deployment/k3s/secrets/*.example.yml
+!deployment/k3s/secrets/README.md
+!deployment/k3s/secrets/.gitkeep
+
+# Claude Code workstation metadata
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Node
+node_modules/
+dist/
+build/
+coverage/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+
+# Logs
+*.log
+
+# Generated
+*.generated.*

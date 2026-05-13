@@ -1,0 +1,17 @@
+# PLACEHOLDER values are clearly marked. No secrets in this file.
+# Only non-sensitive Postgres configuration belongs here.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sakina-postgres-config
+  namespace: sakina-ai
+  labels:
+    app.kubernetes.io/name: sakina-postgres
+    app.kubernetes.io/part-of: sakina-islamic-app
+    app.kubernetes.io/component: database
+data:
+  POSTGRES_DB: sakina_db
+  PGDATA: /var/lib/postgresql/data/pgdata
+  TZ: UTC
+  # Non-secret tuning hints (Postgres reads PGOPTIONS at startup if set)
+  PGOPTIONS: "-c log_statement=ddl -c log_min_duration_statement=500"
