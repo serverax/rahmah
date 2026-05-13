@@ -1,0 +1,79 @@
+# =============================================================================
+# Local embeddings worker — FUTURE manifest, NOT applied. No image pinned.
+# =============================================================================
+# Embedding model candidate list lives in
+# docs/architecture/SAKINA_CACHE_AND_PERFORMANCE_ARCHITECTURE.md
+# (plus the smart-foundation doc when it ships):
+#   - bge-m3
+#   - multilingual-e5-small
+#   - bge-small-en
+# Operator decides which model to deploy. No external embedding API is used.
+# =============================================================================
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rahma-embeddings
+  namespace: rahma-app
+  labels:
+    app.kubernetes.io/name: rahma-embeddings
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/component: embeddings-worker
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: rahma-embeddings
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rahma-embeddings
+  namespace: rahma-app
+  labels:
+    app.kubernetes.io/name: rahma-embeddings
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/component: embeddings-worker
+  annotations:
+    rahma.io/notice: "FUTURE — do not apply. Operator must pin a real image."
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rahma-embeddings
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: rahma-embeddings
+        app.kubernetes.io/part-of: rahma
+        app.kubernetes.io/component: embeddings-worker
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: embeddings
+          image: REPLACE_ME_EMBEDDINGS_IMAGE   # placeholder — operator-pinned
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "512Mi"
+            limits:
+              cpu: "2"
+              memory: "2Gi"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]

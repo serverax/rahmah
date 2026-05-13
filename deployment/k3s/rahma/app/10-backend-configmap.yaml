@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rahma-backend-config
+  namespace: rahma-app
+  labels:
+    app.kubernetes.io/name: rahma-backend
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/component: api
+data:
+  NODE_ENV: "staging"
+  API_SCOPE: "ibadat"
+  PORT: "3000"
+
+  # Internal cluster DNS — services in rahma-data namespace.
+  DATABASE_HOST: "rahma-postgres.rahma-data.svc.cluster.local"
+  DATABASE_PORT: "5432"
+  REDIS_HOST: "rahma-redis.rahma-data.svc.cluster.local"
+  REDIS_PORT: "6379"
+  MINIO_ENDPOINT: "rahma-minio.rahma-data.svc.cluster.local"
+  MINIO_PORT: "9000"
+
+  # Sakina backend feature gates (same set used by the legacy sakina-app-config).
+  ASK_SHEIKH_HASAN_ENABLED: "true"
+  PUBLIC_SHEIKH_QA_ENABLED: "true"
+  SHEIKH_AUTH_REQUIRED: "true"
+  PUBLIC_RANDOM_CHAT_ENABLED: "false"
+  SCHOLAR_ANSWER_CITATION_REQUIRED: "true"
+  PUBLIC_ANSWER_MODERATION_REQUIRED: "true"
+  APP_STORE_COMPLIANCE_MODE: "true"
+  WHATSAPP_ENABLED: "false"

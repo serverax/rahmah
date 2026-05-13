@@ -1,0 +1,81 @@
+# =============================================================================
+# Rahma NetworkPolicies — OPTIONAL. Apply ONLY if the cluster's CNI supports
+# NetworkPolicy enforcement (e.g. Calico, Cilium, kube-router, weave-net).
+# K3s default flannel does NOT enforce NetworkPolicy by itself.
+#
+# Verify first:
+#   kubectl get pods -A | grep -E 'calico|cilium|kube-router|weave-net'
+#
+# If none are present, applying this file is safe (it parses) but the rules
+# will not be enforced and the `/ready` block will not change.
+# =============================================================================
+---
+# Default-deny ingress in rahma-data — only allow rahma-app pods.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: rahma-data-default-deny-then-allow-rahma-app
+  namespace: rahma-data
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: rahma
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: rahma
+      ports:
+        - protocol: TCP
+          port: 5432    # Postgres
+        - protocol: TCP
+          port: 6379    # Redis
+        - protocol: TCP
+          port: 9000    # MinIO S3 endpoint
+---
+# Default-deny ingress in rahma-security — only allow rahma-app pods.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: rahma-security-default-deny-then-allow-rahma-app
+  namespace: rahma-security
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: rahma
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: rahma
+      ports:
+        - protocol: TCP
+          port: 8080
+---
+# rahma-app: allow Traefik in kube-system to reach backend on 3000.
+# Adjust the namespaceSelector if Traefik is in a different namespace.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: rahma-app-allow-ingress-from-traefik
+  namespace: rahma-app
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: rahma-backend
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: TCP
+          port: 3000

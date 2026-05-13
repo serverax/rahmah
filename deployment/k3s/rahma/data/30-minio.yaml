@@ -1,0 +1,134 @@
+# =============================================================================
+# Rahma MinIO (S3-compatible object storage) — manifest only, NOT applied.
+# =============================================================================
+# Apply only after:
+#   - rahma-data namespace exists on the confirmed Sakina kubectl context.
+#   - rahma-minio-secret created on the cluster via `kubectl create secret`.
+#   - Operator has decided whether the MinIO admin console (port 9001) should
+#     be exposed via Ingress at all. By default it remains ClusterIP and is
+#     reachable only via `kubectl port-forward` for troubleshooting.
+# =============================================================================
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rahma-minio
+  namespace: rahma-data
+  labels:
+    app.kubernetes.io/name: rahma-minio
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/component: object-storage
+spec:
+  type: ClusterIP            # never publicly exposed
+  ports:
+    - name: s3
+      port: 9000
+      targetPort: 9000
+      protocol: TCP
+    - name: console
+      port: 9001
+      targetPort: 9001
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: rahma-minio
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rahma-minio
+  namespace: rahma-data
+  labels:
+    app.kubernetes.io/name: rahma-minio
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/component: object-storage
+spec:
+  serviceName: rahma-minio
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rahma-minio
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: rahma-minio
+        app.kubernetes.io/part-of: rahma
+        app.kubernetes.io/component: object-storage
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: minio
+          image: quay.io/minio/minio:RELEASE.2024-12-18T13-15-44Z
+          imagePullPolicy: IfNotPresent
+          args:
+            - server
+            - /data
+            - --console-address
+            - ":9001"
+          ports:
+            - name: s3
+              containerPort: 9000
+              protocol: TCP
+            - name: console
+              containerPort: 9001
+              protocol: TCP
+          env:
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rahma-minio-secret
+                  key: MINIO_ROOT_USER
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rahma-minio-secret
+                  key: MINIO_ROOT_PASSWORD
+            # MinIO browser disabled by default — operator may flip later.
+            - name: MINIO_BROWSER
+              value: "off"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+          readinessProbe:
+            httpGet:
+              path: /minio/health/ready
+              port: 9000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /minio/health/live
+              port: 9000
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: data
+              mountPath: /data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        labels:
+          app.kubernetes.io/name: rahma-minio
+          app.kubernetes.io/part-of: rahma
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 20Gi

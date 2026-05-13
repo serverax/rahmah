@@ -1,0 +1,102 @@
+name: rahma-security-scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  secret-scan:
+    name: Forbidden-secret + cross-project scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Scan for real-secret shapes
+        shell: bash
+        run: |
+          set -e
+          PATTERNS='OPENAI_API_KEY|ANTHROPIC_API_KEY|GEMINI_API_KEY|WHATSAPP_TOKEN|AWS_SECRET_ACCESS_KEY|MINIO_SECRET|BEGIN PRIVATE KEY|ghp_[0-9A-Za-z]{36}|AKIA[0-9A-Z]{16}|xox[bp]-'
+          # Also catch DSN-with-credentials and password= assignments.
+          DSN_PATTERN='(postgres(ql)?|redis|mongodb|mysql)://[^/[:space:]]+:[^/@[:space:]]+@'
+          PW_PATTERN='password=[^[:space:]"'"'"']+'
+
+          echo "::group::Pattern scan (real secret shapes)"
+          if grep -RInE "$PATTERNS" . \
+              --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist --exclude-dir=build; then
+            echo "::error::Real-secret-shaped string committed to repo"
+            exit 1
+          fi
+          echo "no matches"
+          echo "::endgroup::"
+
+          echo "::group::DSN-with-credentials scan"
+          # Reports show paths; never echo the matched line value.
+          if grep -RInE "$DSN_PATTERN" . \
+              --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist --exclude-dir=build \
+              -l; then
+            echo "::error::DSN with embedded credentials found (path printed above; value redacted)"
+            exit 1
+          fi
+          echo "no matches"
+          echo "::endgroup::"
+
+          echo "::group::password=... scan"
+          # Allowlist: REPLACE_ME_, CHANGE_ME, leak_, $POSTGRES_PASSWORD literals are placeholders.
+          MATCHES=$(grep -RInE "$PW_PATTERN" . \
+            --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist --exclude-dir=build \
+            || true)
+          if [ -n "$MATCHES" ]; then
+            FILTERED=$(printf '%s\n' "$MATCHES" | grep -vE 'REPLACE_ME|CHANGE_ME|\\\$POSTGRES_PASSWORD|leak_pass|password=\$' || true)
+            if [ -n "$FILTERED" ]; then
+              echo "::error::Suspected password= assignment with real value:"
+              echo "$FILTERED" | sed 's/=.*/=[REDACTED]/'
+              exit 1
+            fi
+          fi
+          echo "no real matches"
+          echo "::endgroup::"
+
+  cross-project-scan:
+    name: Cross-project contamination
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Scan active code for IterLaw / RightsNow / OrdinoxAI / Alaa
+        shell: bash
+        run: |
+          set -e
+          # Allowed mention scopes:
+          #   - reports/ (historical audit references explaining scope-lock)
+          #   - docs/ that describe the safety/scope rule
+          #   - deployment/k3s/README.SERVER.md (server context note)
+          #   - .github/workflows/rahma-security-scan.yml (this file)
+          # Anywhere else is a contamination error.
+          MATCHES=$(grep -RIn "IterLaw\|RightsNow\|OrdinoxAI\|Alaa Beauty" . \
+              --exclude-dir=node_modules --exclude-dir=.git || true)
+          if [ -z "$MATCHES" ]; then
+            echo "no matches — clean"
+            exit 0
+          fi
+          # Filter allowed scopes
+          BAD=$(printf '%s\n' "$MATCHES" \
+            | grep -vE '^\./reports/' \
+            | grep -vE '^\./docs/' \
+            | grep -vE '^\./deployment/k3s/README\.SERVER\.md' \
+            | grep -vE '^\./SAKINA_PROJECT_(STATUS|MASTER_PLAN)\.md' \
+            | grep -vE '^\./README\.md' \
+            | grep -vE '^\./\.github/workflows/rahma-security-scan\.yml' \
+            || true)
+          if [ -n "$BAD" ]; then
+            echo "::error::Cross-project name found in active code:"
+            echo "$BAD"
+            exit 1
+          fi
+          echo "all matches are in allowed (docs/reports/security-scan) scope"

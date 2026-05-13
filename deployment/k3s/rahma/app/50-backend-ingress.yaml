@@ -1,0 +1,43 @@
+# =============================================================================
+# Rahma backend Ingress — DO NOT APPLY until both are true:
+#
+#   1. A DNS A/AAAA record for the hostname below resolves to the K3s
+#      ingress IP (Traefik svclb on the target cluster).
+#   2. cert-manager + a ClusterIssuer are confirmed on the target cluster
+#      OR the operator explicitly accepts HTTP-only for staging.
+#
+# The current production DNS (`sakina.ordinoxai.com`) returned NXDOMAIN at
+# the time this manifest was written. Operator must create the record before
+# applying.
+# =============================================================================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rahma-backend
+  namespace: rahma-app
+  labels:
+    app.kubernetes.io/name: rahma-backend
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/component: api
+  annotations:
+    # Traefik ingress class assumed; adjust to the cluster's actual class.
+    kubernetes.io/ingress.class: "traefik"
+    # TLS via cert-manager — uncomment + adjust issuer name AFTER cert-manager
+    # is confirmed on the target cluster.
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  rules:
+    - host: sakina.ordinoxai.com   # PLACEHOLDER — operator-owned hostname
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: rahma-backend
+                port:
+                  number: 3000
+  # tls:
+  #   - hosts:
+  #       - sakina.ordinoxai.com
+  #     secretName: rahma-backend-tls

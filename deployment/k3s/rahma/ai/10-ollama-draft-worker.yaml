@@ -1,0 +1,82 @@
+# =============================================================================
+# Local LLM (Ollama) draft-only worker — FUTURE manifest, NOT applied.
+# =============================================================================
+# This worker is "draft-only". It MUST NOT publish public Islamic answers.
+# Every drafted answer goes through:
+#   - citation validator
+#   - WASM policy gate (when shipped)
+#   - Sheikh review
+#   - moderator approval
+# before any public publication.
+#
+# Image and model are deferred until the operator decides which local model
+# to run. Public LLM APIs are not used in Sakina.
+# =============================================================================
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rahma-ollama
+  namespace: rahma-app
+  labels:
+    app.kubernetes.io/name: rahma-ollama
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/component: llm-draft-worker
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 11434
+      targetPort: 11434
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: rahma-ollama
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rahma-ollama
+  namespace: rahma-app
+  labels:
+    app.kubernetes.io/name: rahma-ollama
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/component: llm-draft-worker
+  annotations:
+    rahma.io/notice: "FUTURE — do not apply. Draft-only worker. Cannot publish."
+spec:
+  replicas: 0   # zero by default — operator must scale up
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rahma-ollama
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: rahma-ollama
+        app.kubernetes.io/part-of: rahma
+        app.kubernetes.io/component: llm-draft-worker
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: ollama
+          image: ollama/ollama:latest   # operator-pinned in a real deploy
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 11434
+              protocol: TCP
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "2Gi"
+            limits:
+              cpu: "4"
+              memory: "8Gi"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop: ["ALL"]

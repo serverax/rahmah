@@ -1,0 +1,54 @@
+# =============================================================================
+# Rahma/Sakina dedicated namespaces — manifest only, NOT applied to any cluster.
+# =============================================================================
+# Apply ONLY after:
+#   - kubectl config current-context is a confirmed Sakina-safe context
+#     (not aks-iterlaw-we-prod and not the OrdinoxAI shared cluster unless
+#     explicitly authorised by the operator).
+#   - Operator has confirmed the target K3s master and provided a working
+#     admin kubeconfig.
+# =============================================================================
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rahma-app
+  labels:
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/managed-by: manual-k3s
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rahma-data
+  labels:
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/managed-by: manual-k3s
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rahma-security
+  labels:
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/managed-by: manual-k3s
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rahma-monitoring
+  labels:
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/managed-by: manual-k3s
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted

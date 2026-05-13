@@ -1,0 +1,120 @@
+name: rahma-infra-validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  yaml-syntax:
+    name: YAML syntax + manifest policy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Validate YAML syntax across all rahma manifests
+        shell: bash
+        run: |
+          set -e
+          shopt -s globstar nullglob
+          FILES=(deployment/k3s/rahma/**/*.yaml)
+          if [ ${#FILES[@]} -eq 0 ]; then
+            echo "no rahma manifests yet — nothing to validate"
+            exit 0
+          fi
+          for f in "${FILES[@]}"; do
+            python -c "import sys, yaml; list(yaml.safe_load_all(open(sys.argv[1])))" "$f"
+            echo "  ok: $f"
+          done
+
+      - name: Manifest policy — namespaces, service types, no real secrets
+        shell: bash
+        run: |
+          set -e
+          shopt -s globstar nullglob
+          FILES=(deployment/k3s/rahma/**/*.yaml)
+          if [ ${#FILES[@]} -eq 0 ]; then
+            echo "no rahma manifests yet — skipping policy"
+            exit 0
+          fi
+          BAD=""
+
+          # Namespace name allow-list.
+          ALLOWED_NS_REGEX='^(rahma-app|rahma-data|rahma-security|rahma-monitoring)$'
+
+          for f in "${FILES[@]}"; do
+            # Reject NodePort / LoadBalancer service types.
+            if grep -qE '^\s*type:\s*(NodePort|LoadBalancer)\s*$' "$f"; then
+              echo "::error file=$f::Service type NodePort/LoadBalancer is not allowed"
+              BAD="1"
+            fi
+            # Reject hostNetwork: true.
+            if grep -qE '^\s*hostNetwork:\s*true\s*$' "$f"; then
+              echo "::error file=$f::hostNetwork: true is not allowed"
+              BAD="1"
+            fi
+            # Reject ClusterRole / ClusterRoleBinding without explicit operator note.
+            if grep -qE '^\s*kind:\s*ClusterRole(Binding)?\s*$' "$f"; then
+              echo "::error file=$f::ClusterRole/ClusterRoleBinding requires explicit operator approval"
+              BAD="1"
+            fi
+            # Reject namespaces outside the allow-list.
+            python - "$f" <<'PY'
+import sys, yaml
+allowed = {'rahma-app', 'rahma-data', 'rahma-security', 'rahma-monitoring'}
+docs = list(yaml.safe_load_all(open(sys.argv[1])))
+bad = []
+for d in docs:
+    if not isinstance(d, dict): continue
+    md = d.get('metadata') or {}
+    ns = md.get('namespace')
+    if ns and ns not in allowed:
+        bad.append(ns)
+if bad:
+    print(f"::error file={sys.argv[1]}::Disallowed namespace(s): {sorted(set(bad))}")
+    sys.exit(1)
+PY
+          done
+
+          # Reject real Secret values: any Secret resource whose stringData/data
+          # contains a value other than the placeholder set is a hard fail.
+          for f in $(find deployment/k3s/rahma -name '*.yaml'); do
+            python - "$f" <<'PY' || exit 1
+import sys, yaml
+path = sys.argv[1]
+PLACEHOLDERS = {'CHANGE_ME', 'REPLACE_ME', 'PLACEHOLDER'}
+docs = list(yaml.safe_load_all(open(path)))
+bad = []
+for d in docs:
+    if not isinstance(d, dict): continue
+    if d.get('kind') != 'Secret': continue
+    if 'EXAMPLE' not in (d.get('metadata') or {}).get('name', ''):
+        bad.append("non-EXAMPLE Secret manifest committed to repo")
+        continue
+    for key, val in (d.get('stringData') or {}).items():
+        if not isinstance(val, str): continue
+        if not any(p in val for p in PLACEHOLDERS):
+            bad.append(f"Secret key {key} has non-placeholder value")
+if bad:
+    print(f"::error file={path}::{bad}")
+    sys.exit(1)
+PY
+          done
+
+          if [ -n "$BAD" ]; then
+            exit 1
+          fi
+          echo "manifest policy: clean"

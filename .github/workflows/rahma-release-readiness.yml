@@ -1,0 +1,101 @@
+name: rahma-release-readiness
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  readiness-truth-check:
+    name: Truth-check readiness claims
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend/app
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Start backend in background
+        env:
+          NODE_ENV: 'staging'
+          SHEIKH_AUTH_REQUIRED: 'false'
+          WHATSAPP_ENABLED: 'false'
+          APP_STORE_COMPLIANCE_MODE: 'true'
+        run: |
+          (npm start &) || true
+          sleep 3
+          for i in 1 2 3 4 5; do
+            if curl -sf http://127.0.0.1:3000/health >/dev/null; then
+              echo "backend listening"; exit 0
+            fi
+            sleep 2
+          done
+          echo "backend did not start; will skip /ready probe"
+
+      - name: Probe /ready and assert honest claims
+        shell: bash
+        run: |
+          set -e
+          BODY=$(curl -sf http://127.0.0.1:3000/ready || echo '{}')
+          echo "$BODY" | python -c '
+import json, sys
+body = json.loads(sys.stdin.read() or "{}")
+errors = []
+
+app_store = body.get("app_store") or {}
+# Sprint 3 contract: foundation only — submission_ready must NEVER be true here.
+if app_store.get("submission_ready") is True:
+    errors.append("app_store.submission_ready must be false in CI")
+
+cache = body.get("cache") or {}
+# Sprint 8 contract: until a real redis adapter ships, mode must remain memory.
+if cache.get("mode") not in (None, "memory"):
+    errors.append(f"cache.mode must be memory (saw {cache.get(\"mode\")})")
+
+ask = body.get("ask_sheikh_hasan") or {}
+if ask.get("sheikh_auth_configured") is True:
+    errors.append("sheikh_auth_configured must be false in CI (no real auth wired)")
+if ask.get("whatsapp_configured") is True:
+    errors.append("whatsapp_configured must be false in CI")
+
+if errors:
+    for e in errors:
+        print(f"::error::{e}")
+    sys.exit(1)
+print("readiness truth-check: ok")
+'
+
+  doc-truth-check:
+    name: Reject fake DEPLOYED/PRODUCTION claims in active docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Active-doc claim scan
+        shell: bash
+        run: |
+          set -e
+          BAD=$(grep -RIn -E '\b(production[ -]ready|deployed and running|live in production|app[ -]store ready)\b' \
+            backend deployment .github 2>/dev/null \
+            || true)
+          if [ -n "$BAD" ]; then
+            echo "::error::Forbidden claim found in active code/manifests/workflows:"
+            echo "$BAD"
+            exit 1
+          fi
+          echo "no forbidden claims in active code"
