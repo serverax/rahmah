@@ -16,6 +16,12 @@ import {
   isSheikhRepositoryConfigured,
 } from '../sheikh/sheikh-question-repository.js';
 import { publicAnswerProjection } from '../sheikh/sheikh-answer-policy.js';
+import {
+  getPublicQAList,
+  setPublicQAList,
+  getPublicQADetail,
+  setPublicQADetail,
+} from '../cache/index.js';
 
 const reportSchema = {
   body: {
@@ -38,16 +44,22 @@ export default async function publicQARoute(fastify) {
       return reply.send({ ok: true, items: [], configured: false });
     }
     const q = req.query || {};
-    const list = await repo.listPublicQA({
-      category: typeof q.category === 'string' ? q.category : null,
-      language: typeof q.language === 'string' ? q.language : null,
-      limit: 50,
-    });
-    return reply.send({
-      ok: true,
-      configured: true,
-      items: Array.isArray(list) ? list : [],
-    });
+    const language = typeof q.language === 'string' ? q.language : null;
+    const category = typeof q.category === 'string' ? q.category : null;
+
+    const cached = await getPublicQAList({ language, category });
+    if (Array.isArray(cached)) {
+      return reply.send({ ok: true, configured: true, cached: true, items: cached });
+    }
+
+    const list = await repo.listPublicQA({ category, language, limit: 50 });
+    const items = Array.isArray(list) ? list : [];
+    // Cache only when every entry is a valid public-list projection.
+    // setPublicQAList itself enforces this via cache-policy.
+    if (items.length > 0) {
+      await setPublicQAList({ language, category, items });
+    }
+    return reply.send({ ok: true, configured: true, cached: false, items });
   });
 
   // -------------------------------------------------------------------------
@@ -60,12 +72,31 @@ export default async function publicQARoute(fastify) {
     if (!repo) {
       return reply.code(503).send({ ok: false, error: 'service_not_configured' });
     }
-    const raw = await repo.getPublicQABySlug({ slug: req.params.slug });
+    const slug = typeof req.params.slug === 'string' ? req.params.slug : '';
+
+    const cached = await getPublicQADetail(slug);
+    if (cached && typeof cached === 'object') {
+      return reply.send({ ok: true, cached: true, qa: cached });
+    }
+
+    const raw = await repo.getPublicQABySlug({ slug });
     if (!raw) {
       return reply.code(404).send({ ok: false, error: 'not_found' });
     }
     const projected = publicAnswerProjection(raw);
-    return reply.send({ ok: true, qa: projected });
+
+    // Cache only if projection has citations. Citation-empty rows pass through
+    // but the route refuses to call them valid — the response is still 200 but
+    // the safety rule is enforced by setPublicQADetail at the cache layer.
+    if (
+      projected &&
+      Array.isArray(projected.citations) &&
+      projected.citations.length > 0
+    ) {
+      await setPublicQADetail(slug, projected);
+    }
+
+    return reply.send({ ok: true, cached: false, qa: projected });
   });
 
   // -------------------------------------------------------------------------

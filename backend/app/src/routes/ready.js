@@ -3,6 +3,7 @@ import { isSourceRetrievalConfigured } from '../safety/source-store-status.js';
 import { isSheikhRepositoryConfigured } from '../sheikh/sheikh-question-repository.js';
 import { isAuthConfigured } from '../sheikh/sheikh-auth-policy.js';
 import { whatsappStatusForReady } from '../sheikh/whatsapp-notifier.js';
+import { cacheStatusForReady } from '../cache/index.js';
 
 function envFlag(name, fallback) {
   const v = process.env[name];
@@ -60,6 +61,7 @@ export default async function readyRoute(fastify) {
         content_reporting_required: true,
         moderation_required: true,
       },
+      cache: cacheStatusForReady(),
       environment: process.env.NODE_ENV || 'staging',
     };
   });

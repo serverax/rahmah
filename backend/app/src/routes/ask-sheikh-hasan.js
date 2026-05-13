@@ -25,6 +25,10 @@ import {
   decideModeratorPublish,
 } from '../sheikh/sheikh-answer-policy.js';
 import { notifyNewQuestion } from '../sheikh/whatsapp-notifier.js';
+import {
+  getQuestionStatus as cacheGetQuestionStatus,
+  setQuestionStatus as cacheSetQuestionStatus,
+} from '../cache/index.js';
 
 const askSchema = {
   body: {
@@ -132,7 +136,14 @@ export default async function askSheikhHasanRoute(fastify) {
     if (!repo) {
       return reply.code(503).send({ ok: false, error: 'service_not_configured' });
     }
-    const result = await repo.getQuestionStatus({ question_id: req.params.id });
+
+    const id = typeof req.params.id === 'string' ? req.params.id : '';
+    const cached = await cacheGetQuestionStatus(id);
+    if (cached && typeof cached === 'object') {
+      return reply.send({ ok: true, cached: true, ...cached });
+    }
+
+    const result = await repo.getQuestionStatus({ question_id: id });
     if (!result || !result.ok) {
       const code = result && result.reason === 'not_found' ? 404 : 400;
       return reply.code(code).send({
@@ -142,15 +153,19 @@ export default async function askSheikhHasanRoute(fastify) {
     }
     // Return only safe, coarse fields. NEVER include question_text or
     // question_hash or assigned_sheikh_id here.
-    return reply.send({
-      ok: true,
+    const projection = {
       question_id: result.id,
       status: result.status,
       language: result.language,
       category: result.category,
       created_at: result.created_at,
       updated_at: result.updated_at,
-    });
+    };
+
+    // Cache the projection only — the policy module enforces field allow-list.
+    await cacheSetQuestionStatus(id, projection);
+
+    return reply.send({ ok: true, cached: false, ...projection });
   });
 
   // -------------------------------------------------------------------------
