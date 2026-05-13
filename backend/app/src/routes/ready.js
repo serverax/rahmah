@@ -1,9 +1,15 @@
 import { checkDatabaseHealth } from '../db/health.js';
 import { isSourceRetrievalConfigured } from '../safety/source-store-status.js';
 import { isSheikhRepositoryConfigured } from '../sheikh/sheikh-question-repository.js';
+import { isSheikhAuditConfigured } from '../audit/sheikh-action-audit.js';
 import { isAuthConfigured } from '../sheikh/sheikh-auth-policy.js';
 import { whatsappStatusForReady } from '../sheikh/whatsapp-notifier.js';
 import { cacheStatusForReady } from '../cache/index.js';
+import {
+  buildRagStatus,
+  isRagRegistryConfigured,
+  isRagRetrievalConfigured,
+} from '../rag/rag-status.js';
 
 function envFlag(name, fallback) {
   const v = process.env[name];
@@ -62,6 +68,17 @@ export default async function readyRoute(fastify) {
         moderation_required: true,
       },
       cache: cacheStatusForReady(),
+      rag: await buildRagStatus(),
+      sheikh_audit: {
+        configured: isSheikhAuditConfigured(),
+      },
+      engine: {
+        implemented: false,
+        mode: 'not_implemented',
+        rag_registry_configured: isRagRegistryConfigured(),
+        rag_retrieval_configured: isRagRetrievalConfigured(),
+      },
+      safe_to_serve_public: db.configured === false ? false : db.configured,
       environment: process.env.NODE_ENV || 'staging',
     };
   });
