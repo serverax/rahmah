@@ -21,6 +21,7 @@ import {
   AUTH_UNAUTHENTICATED_AR,
   AUTH_FORBIDDEN_AR,
 } from './auth-config.js';
+import { isPrincipalRole } from './roles.js';
 
 const TEST_HEADER = 'x-sakina-test-principal';
 
@@ -31,7 +32,7 @@ function readDevPrincipal(req) {
   try {
     const p = JSON.parse(raw);
     if (!p || typeof p !== 'object') return null;
-    if (!['sheikh', 'moderator', 'admin'].includes(p.role)) return null;
+    if (!isPrincipalRole(p.role)) return null;
     return Object.freeze({
       role: p.role,
       user_id: typeof p.user_id === 'string' ? p.user_id : null,

@@ -9,6 +9,7 @@
 
 import { isDatabaseConfigured } from '../db/config.js';
 import { safeQueryOne } from '../db/query.js';
+import { countMigrationFiles, pendingCount } from '../db/migration-registry.js';
 
 const DB_NOT_CONFIGURED_AR = 'قاعدة البيانات غير مفعلة بعد';
 const DB_UNREACHABLE_AR = 'قاعدة البيانات مهيأة لكنها غير قابلة للوصول حالياً.';
@@ -17,6 +18,7 @@ const DB_NO_MIGRATIONS_AR = 'قاعدة البيانات متصلة لكن لم 
 
 export default async function dbRoute(fastify) {
   fastify.get('/status', async (req, reply) => {
+    const total = await countMigrationFiles();
     if (!isDatabaseConfigured()) {
       return reply.send({
         ok: true,
@@ -25,6 +27,7 @@ export default async function dbRoute(fastify) {
         migration_table_exists: false,
         applied_migrations_count: 0,
         pending_migrations_count: null,
+        total_migration_files: total,
         last_error_redacted: null,
         safe_message_ar: DB_NOT_CONFIGURED_AR,
       });
@@ -38,6 +41,7 @@ export default async function dbRoute(fastify) {
         migration_table_exists: false,
         applied_migrations_count: 0,
         pending_migrations_count: null,
+        total_migration_files: total,
         last_error_redacted: ping.reason || 'unreachable',
         safe_message_ar: DB_UNREACHABLE_AR,
       });
@@ -55,7 +59,8 @@ export default async function dbRoute(fastify) {
       database_reachable: true,
       migration_table_exists: exists,
       applied_migrations_count: count,
-      pending_migrations_count: null,
+      pending_migrations_count: pendingCount(total, count),
+      total_migration_files: total,
       last_error_redacted: null,
       safe_message_ar: exists ? DB_READY_AR : DB_NO_MIGRATIONS_AR,
     });
