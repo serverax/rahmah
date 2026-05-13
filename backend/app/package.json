@@ -13,10 +13,11 @@
     "dev": "node --watch src/index.js",
     "build": "node --check src/index.js && node --check src/app.js",
     "lint": "eslint src test",
-    "test": "node --test test/health.test.js test/ready.test.js test/ibadat-ask.test.js test/no-external-llm.test.js test/strict-safety.test.js"
+    "test": "node --test test/health.test.js test/ready.test.js test/ibadat-ask.test.js test/no-external-llm.test.js test/strict-safety.test.js test/db-config.test.js test/db-health.test.js"
   },
   "dependencies": {
-    "fastify": "^5.0.0"
+    "fastify": "^5.0.0",
+    "pg": "^8.20.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",

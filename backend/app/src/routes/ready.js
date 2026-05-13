@@ -1,18 +1,16 @@
-import { isDatabaseConfigured } from '../safety/db-status.js';
+import { checkDatabaseHealth } from '../db/health.js';
 
 export default async function readyRoute(fastify) {
   fastify.get('/ready', async () => {
-    // We do NOT attempt a real DB connection from this scaffold. Real
-    // connectivity probing belongs to Sprint 3+ once a Postgres pod is
-    // actually reachable. Reporting `connected: false` until then is the
-    // only honest value.
+    // Real DB probe. Bounded by a short internal timeout so an unreachable
+    // host never stalls /ready. `error_type` is a safe coarse bucket;
+    // never the raw error message, never the DSN.
+    const db = await checkDatabaseHealth({ timeoutMs: 1500 });
+
     return {
       ok: true,
       service: 'sakina-backend',
-      database: {
-        configured: isDatabaseConfigured(),
-        connected: false,
-      },
+      database: db,
       ibadat: {
         scope: 'ibadat',
         source_required: true,

@@ -18,7 +18,7 @@ Backend API for the Sakina Islamic app. Built with Fastify, ESM, Node 20+.
 | Method | Path | What it does |
 |---|---|---|
 | GET  | `/health` | Liveness. Static `{ ok:true, service:"sakina-backend", status:"healthy" }`. |
-| GET  | `/ready`  | Readiness + safety flags. Reports `database.configured` and `database.connected` (the latter is `false` in this scaffold; real probe arrives in Sprint 4). Always exposes `ibadat.source_required=true` and `ibadat.answer_without_source_blocked=true`. Never leaks `DATABASE_URL`. |
+| GET  | `/ready`  | Readiness + safety flags. Real DB probe (Sprint 4) — bounded by a tight internal timeout. Reports `database.{configured,connected,checked,error_type}` (error_type is a coarse bucket — never the raw pg error message). Always exposes `ibadat.source_required=true` and `ibadat.answer_without_source_blocked=true`. Never leaks `DATABASE_URL`. |
 | POST | `/api/ibadat/ask` | Schema-validated. Rejects out-of-scope questions politely. For in-scope questions, returns the blocked fallback while the source store is empty. **No answer generation.** |
 
 `/health` meaning: process is alive.
@@ -47,13 +47,35 @@ Windows-native PowerShell variants live alongside (`.ps1`).
 
 **The local smoke test is NOT a cluster deployment.** It runs the image on the host Docker engine, hits `127.0.0.1:3331` (configurable via `SAKINA_SMOKE_PORT`), and tears the container down. No registry push.
 
-Optional DB mode for the smoke script:
+Optional DB mode for the Docker smoke script:
 
 ```
 DATABASE_URL='postgres://...' bash backend/app/scripts/docker-smoke-local.sh
 ```
 
 The script forwards `DATABASE_URL` to the container, never echoes the value, and asserts that the `/ready` response contains no `postgres(ql)://` substring.
+
+## DB readiness states (`/ready.database`)
+
+| State | When | `configured` | `connected` | `checked` | `error_type` |
+|---|---|---|---|---|---|
+| Not configured | `DATABASE_URL` unset | `false` | `false` | `false` | `null` |
+| Configured but unreachable | DSN set, host refused / DNS / timeout / auth fail | `true` | `false` | `true` | coarse bucket (`connection_refused`, `dns_unresolved`, `connection_timeout`, `auth_failed`, `unknown_database`, `probe_timeout`, `unknown_error`) |
+| Connected | DSN set, `SELECT 1` returned 1 | `true` | `true` | `true` | `null` |
+
+`error_type` is **never** the raw pg error message and **never** the DSN. Connection-pool background errors are silently swallowed so they cannot crash the process.
+
+## Local DB readiness smoke (host, no Docker)
+
+```
+DATABASE_URL='postgres://...' bash backend/app/scripts/db-ready-smoke-local.sh
+```
+
+Starts the app on the host on `SAKINA_LOCAL_PORT` (default `3332`), forwards `DATABASE_URL` (never echoed), prints **only** the four `database.*` booleans/strings, asserts no DSN appears in the `/ready` body, and kills the server on exit.
+
+## No-secret-logging rule
+
+The backend never logs `DATABASE_URL`, `POSTGRES_PASSWORD`, `JWT_SECRET`, or any secret-shaped string. The `redactDatabaseUrlForDiagnostics()` helper exists for human-debug callers and intentionally emits only `[unconfigured]` / `[configured: postgres scheme]` / `[configured: non-postgres scheme]`.
 
 ## GHCR image CI
 

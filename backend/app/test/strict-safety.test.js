@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildApp } from '../src/app.js';
+import { _resetPoolForTests } from '../src/db/health.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,10 +12,14 @@ const REPO_ROOT = path.resolve(__dirname, '..', '..', '..');
 const APP_DIR = path.resolve(__dirname, '..');
 
 // ---------- /ready DSN leak guard --------------------------------------------
-test('/ready does not include DATABASE_URL value when set', async () => {
-  const sentinel = 'postgres://leak_user:leak_pass@leak-host:5432/leak_db';
+test('/ready does not include DATABASE_URL value when set (unreachable host)', async () => {
+  // Use a clearly-unroutable IP so the probe fails fast with a coarse error
+  // type instead of hanging. The sentinel must NOT appear anywhere in the
+  // response body.
+  const sentinel = 'postgres://leak_user:leak_pass@127.0.0.99:65530/leak_db';
   const previous = process.env.DATABASE_URL;
   process.env.DATABASE_URL = sentinel;
+  _resetPoolForTests();
   const app = buildApp();
   try {
     const res = await app.inject({ method: 'GET', url: '/ready' });
@@ -22,28 +27,35 @@ test('/ready does not include DATABASE_URL value when set', async () => {
     assert.equal(res.statusCode, 200);
     assert.ok(!raw.includes('leak_user'),  '/ready leaked DATABASE_URL username');
     assert.ok(!raw.includes('leak_pass'),  '/ready leaked DATABASE_URL password');
-    assert.ok(!raw.includes('leak-host'),  '/ready leaked DATABASE_URL host');
     assert.ok(!raw.includes('leak_db'),    '/ready leaked DATABASE_URL db name');
+    assert.ok(!raw.includes('127.0.0.99'), '/ready leaked DATABASE_URL host');
     assert.ok(!/postgres(ql)?:\/\//.test(raw), '/ready response contains a DSN substring');
   } finally {
     await app.close();
+    _resetPoolForTests();
     if (previous === undefined) delete process.env.DATABASE_URL;
     else process.env.DATABASE_URL = previous;
   }
 });
 
-test('/ready reports database.configured=true when DATABASE_URL is set; connected stays false', async () => {
+test('/ready reports configured=true and a coarse error_type when DATABASE_URL is unreachable', async () => {
   const previous = process.env.DATABASE_URL;
-  process.env.DATABASE_URL = 'postgres://x:y@example:5432/z';
+  process.env.DATABASE_URL = 'postgres://x:y@127.0.0.99:65530/z';
+  _resetPoolForTests();
   const app = buildApp();
   try {
     const res = await app.inject({ method: 'GET', url: '/ready' });
     const body = res.json();
     assert.equal(body.database.configured, true);
-    // Sprint 3 scaffold does not yet probe DB connectivity.
-    assert.equal(body.database.connected, false);
+    assert.equal(body.database.checked,    true);
+    assert.equal(body.database.connected,  false);
+    assert.ok(
+      ['connection_refused', 'connection_timeout', 'dns_unresolved', 'probe_timeout', 'unknown_error'].includes(body.database.error_type),
+      `unexpected error_type: ${body.database.error_type}`,
+    );
   } finally {
     await app.close();
+    _resetPoolForTests();
     if (previous === undefined) delete process.env.DATABASE_URL;
     else process.env.DATABASE_URL = previous;
   }
