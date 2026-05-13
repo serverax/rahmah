@@ -189,28 +189,29 @@ Target features required before submission:
 - Accessibility: minimum 16px body, AAA contrast, semantic structure, focus order.
 - Performance budget: 3D off on low-tier devices; key flows must work without 3D enabled.
 
-## 10. Sprint Roadmap
+## 10. Sprint Roadmap (canonical)
 
-Each sprint produces a report under `reports/` with command-output evidence per `[[feedback-reporting-evidence]]`. Status of each:
+Each sprint produces a report under `reports/` with command-output evidence per `[[feedback-reporting-evidence]]`. This roadmap is the **canonical** numbering for the Sakina/Rahmah project. Numbers are intentionally non-overlapping and do not correspond to any other project.
 
 | Sprint | Focus | Status |
 |---|---|---|
-| 2 | Backend API scaffold + safety gates | COMPLETE (commit `e028ae4`) |
-| 3 | Container runtime + GHCR image CI | COMPLETE (commit `87b6aaa`) — image not yet pushed to GHCR |
+| 1 | K3s foundation files | COMPLETE (commit `4a024fb`) — manifests only, never applied |
+| 2 | Backend scaffold + safety gates | COMPLETE (commit `e028ae4`) |
+| 3 | Container runtime + GHCR image | COMPLETE (commit `87b6aaa`) — image CI workflow exists; image not yet published to GHCR |
 | 4 | Postgres readiness + DB connection | COMPLETE (commit `3e6fa1c`) — never deployed |
 | 5 | Verified Islamic source registry | COMPLETE (commit `3d8a701`) — schema only |
-| **6** | **Ask Sheikh Hasan public cited Q&A + UI/UX blueprint** | **CURRENT** |
-| 7 | Redis / performance cache | NOT STARTED |
-| 8 | Ask Sheikh Hasan real authentication | NOT STARTED |
-| 9 | Public Q&A admin / moderation UI | NOT STARTED |
-| 10 | App Store / Google Play compliance foundation | NOT STARTED |
-| 11 | Luxury 3D mobile UI foundation | NOT STARTED |
-| 12 | K3s server deployment (admin kubeconfig + Docker image + first apply) | NOT STARTED |
-| 13 | Source ingestion worker | NOT STARTED |
-| 14 | Constrained answer generation | NOT STARTED |
-| 15 | Hybrid RAG search | NOT STARTED |
+| 6 | Citation validator + answer audit | COMPLETE (shipped inside Sprints 2–5: `src/safety/citation-validator.js`, `src/audit/answer-audit.js`, tests `audit.test.js`, `ibadat-source-gate.test.js`) |
+| 7 | Redis / cache / performance layer | NOT STARTED |
+| 8 | Ask Sheikh Hasan DB foundation | COMPLETE (commit `e27b984`) — migration `003_ask_sheikh_hasan_public_qa.sql`, 8 tables |
+| 9 | Ask Sheikh Hasan backend workflow | COMPLETE (commit `e27b984`) — `src/sheikh/*`, routes `ask-sheikh-hasan.js`, 32 dedicated tests |
+| 10 | Public cited Q&A | COMPLETE (commit `e27b984`) — `routes/public-qa.js`, identity-leak projection, report endpoint |
+| 11 | Apple / Google compliance foundation | NOT STARTED |
+| 12 | Luxury 3D mobile UI foundation | NOT STARTED — blueprint only (`docs/uiux/ASK_SHEIKH_HASAN_UI_UX_BLUEPRINT.md`) |
+| 13 | Real K3s server deployment | NOT STARTED — blockers documented in `deployment/k3s/README.SERVER.md` and `reports/SAKINA_ASK_SHEIKH_HASAN_PUBLIC_QA_UI_UX_AND_BACKEND_REPORT.md` section 18 |
+| 14 | Islamic source ingestion worker | NOT STARTED |
+| 15 | Hybrid RAG retrieval | NOT STARTED |
 | 16 | Reranking + citation scoring | NOT STARTED |
-| 17 | Scholar / admin dashboard | NOT STARTED |
+| 17 | Sheikh / admin dashboard | NOT STARTED |
 | 18 | Security hardening | NOT STARTED |
 | 19 | Monitoring / observability | NOT STARTED |
 | 20 | Store release readiness | NOT STARTED |
