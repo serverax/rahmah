@@ -39,9 +39,22 @@ export default async function readyRoute(fastify) {
       }
     }
 
+    // Compute production-readiness blockers honestly from the subsystem truths.
+    const ragStatus = await buildRagStatus();
+    const blockers = [];
+    if (!isAuthFoundationConfigured()) blockers.push('auth_not_configured');
+    if (!db.configured) blockers.push('database_not_configured');
+    else if (!db.connected) blockers.push('database_not_connected');
+    if (ragStatus.mode === 'foundation') blockers.push('rag_foundation_only');
+    if (!isSheikhRepositoryConfigured()) blockers.push('sheikh_repository_not_configured');
+    if (ragStatus.approved_sources === 0) blockers.push('no_approved_islamic_sources');
+    const production_ready = blockers.length === 0;
+
     return {
       ok: true,
       service: 'sakina-backend',
+      production_ready,
+      blockers,
       database: {
         ...db,
         migration_table_exists,
@@ -91,7 +104,7 @@ export default async function readyRoute(fastify) {
         moderation_required: true,
       },
       cache: cacheStatusForReady(),
-      rag: await buildRagStatus(),
+      rag: ragStatus,
       sheikh_audit: {
         configured: isSheikhAuditConfigured(),
       },
