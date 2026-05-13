@@ -83,6 +83,42 @@ The backend never logs `DATABASE_URL`, `POSTGRES_PASSWORD`, `JWT_SECRET`, or any
 
 The K3s manifest `deployment/k3s/backend/sakina-backend-deployment.yaml` references `ghcr.io/serverax/rahmah/sakina-backend:main`. **Do not apply that manifest until** (a) the workflow has actually published the tag, AND (b) the kubectl context is a safe Sakina K3s context (never `aks-iterlaw-we-prod` or any cluster matching `aks`/`prod`/`iterlaw` — the deploy script enforces this).
 
+## Verified source registry (Sprint 5)
+
+The route `POST /api/ibadat/ask` is gated by a citation validator that requires every cited source to:
+
+- have a non-empty `id`,
+- have a non-empty `citation_label`,
+- have a non-empty `chunk_text`, and
+- be `approved` (pending / rejected are never acceptable).
+
+Even when valid approved sources are present, **Sprint 5 deliberately does not generate answer text**. The response stays the blocked fallback with `reason: 'answer_generation_not_enabled'`. The wiring is in place so a future sprint can flip the switch atomically.
+
+DB tables backing the registry (created by `backend/db/migrations/002_verified_islamic_sources.sql`):
+
+| Table | Purpose |
+|---|---|
+| `sakina_verified_sources` | Catalog of source bodies (Quran, Hadith collections, fiqh refs, scholar refs, dua collections). License + verification status tracked. |
+| `sakina_source_documents` | Documents within a source. Content hash (sha256) stored, not raw text. |
+| `sakina_source_chunks` | Retrievable chunks. **Only `verification_status='approved'` is eligible for retrieval** — enforced by CHECK + a partial index `WHERE verification_status='approved'`. Every chunk must have a non-empty `citation_label`. |
+| `sakina_answer_audit` | One row per `/api/ibadat/ask` call. Stores `question_hash` (sha256 of the trimmed question) — **never the raw question, never any user identity**. |
+
+The application **never inserts copyrighted religious content** through this migration. Population is the scope of a later licensing-reviewed sprint.
+
+## Audit hook
+
+`src/audit/answer-audit.js` exposes `recordAnswerAudit({ pool, question, scope, blocked, blockReason, sourceCount })`. Behavior:
+
+- If `pool` is missing → safe no-op (returns `{ recorded:false, reason:'no_pool' }`).
+- If `question` is empty after trim → no-op.
+- Otherwise inserts via parameterized SQL: `INSERT INTO sakina_answer_audit (question_hash, scope, blocked, block_reason, source_count) VALUES ($1, $2, $3, $4, $5)`.
+- `question_hash` is computed locally via Node `crypto.createHash('sha256')`. **The raw question never appears in SQL or in bound parameters.**
+- Errors are swallowed silently. Audit must never affect the user-facing response.
+
+## No-copyright / no-scraping rule
+
+The backend request path does NOT scrape external sites, does NOT call external HTTP, and does NOT call any LLM. Every source must be loaded into the DB through a deliberate (out-of-route) ingestion process that documents license + verification status. The repository query path filters to `approved`-only at SQL level; defense-in-depth filtering happens again in the source-store wrapper and a third time in the citation validator.
+
 ## Status
 
-Scaffold + local container runtime verified. Not deployed. Real DB connectivity not implemented (Sprint 4). Real source registry not implemented (Sprint 5). RAG knowledge base not built (Sprint 14/15).
+Scaffold + local container runtime + DB readiness + verified-source registry foundation. **Not deployed.** **Answer generation NOT enabled** — every in-scope question still resolves to the blocked fallback because the source store is empty and, even when sources are present, the route currently returns `reason: 'answer_generation_not_enabled'`.

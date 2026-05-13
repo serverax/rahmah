@@ -1,10 +1,8 @@
 import { checkDatabaseHealth } from '../db/health.js';
+import { isSourceRetrievalConfigured } from '../safety/source-store-status.js';
 
 export default async function readyRoute(fastify) {
   fastify.get('/ready', async () => {
-    // Real DB probe. Bounded by a short internal timeout so an unreachable
-    // host never stalls /ready. `error_type` is a safe coarse bucket;
-    // never the raw error message, never the DSN.
     const db = await checkDatabaseHealth({ timeoutMs: 1500 });
 
     return {
@@ -15,6 +13,12 @@ export default async function readyRoute(fastify) {
         scope: 'ibadat',
         source_required: true,
         answer_without_source_blocked: true,
+      },
+      sources: {
+        registry_required: true,
+        retrieval_configured: isSourceRetrievalConfigured(),
+        answer_generation_enabled: false,
+        verified_sources_required: true,
       },
       environment: process.env.NODE_ENV || 'staging',
     };
