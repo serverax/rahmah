@@ -21,10 +21,13 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
-import pg from 'pg';
+import { createRequire } from 'node:module';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const require = createRequire(path.resolve(__dirname, '..', '..', 'backend', 'app', 'package.json'));
+const pg = require('pg');
+
 const MIGRATIONS_DIR = path.resolve(__dirname, '..', '..', 'backend', 'db', 'migrations');
 
 function hash(s) {

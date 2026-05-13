@@ -4,7 +4,14 @@
  * Prints a single JSON line. Never echoes the DSN.
  */
 
-import pg from 'pg';
+import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const backendPkg = path.resolve(__dirname, '..', '..', 'backend', 'app', 'package.json');
+const require = createRequire(backendPkg);
+const pg = require('pg');
 
 const dsn = process.env.DATABASE_URL;
 const out = {

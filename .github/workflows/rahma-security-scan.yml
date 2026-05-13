@@ -27,8 +27,10 @@ jobs:
           PW_PATTERN='password=[^[:space:]"'"'"']+'
 
           echo "::group::Pattern scan (real secret shapes)"
+          # Exclude this workflow (it defines the patterns) and the CI doc that names them.
           if grep -RInE "$PATTERNS" . \
-              --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist --exclude-dir=build; then
+              --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist --exclude-dir=build \
+              --exclude='rahma-security-scan.yml' --exclude='RAHMA_GITHUB_PIPELINES.md'; then
             echo "::error::Real-secret-shaped string committed to repo"
             exit 1
           fi

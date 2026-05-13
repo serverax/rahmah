@@ -45,7 +45,7 @@ jobs:
         run: npm test
 
   fake-claim-scan:
-    name: Reject fake DEPLOYED / RAG ACTIVE / payment-success claims
+    name: Overstated production claim scan
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -56,6 +56,7 @@ jobs:
         run: |
           set -e
           # Phrases that must never appear as claims in ACTIVE code.
+          # This job file is excluded — it necessarily names the phrases to scan for.
           # Reports/ may quote them when describing what was avoided.
           PATTERNS=(
             "RAG ACTIVE"
@@ -68,7 +69,7 @@ jobs:
           )
           BAD=""
           for pat in "${PATTERNS[@]}"; do
-            MATCHES=$(grep -RIn -F "$pat" backend deployment .github apps 2>/dev/null || true)
+            MATCHES=$(grep -RIn -F "$pat" --exclude='rahma-ci.yml' backend deployment .github apps 2>/dev/null || true)
             if [ -n "$MATCHES" ]; then
               echo "::error::Fake-claim phrase found: \"$pat\""
               echo "$MATCHES"

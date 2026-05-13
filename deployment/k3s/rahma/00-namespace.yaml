@@ -3,7 +3,7 @@
 # =============================================================================
 # Apply ONLY after:
 #   - kubectl config current-context is a confirmed Sakina-safe context
-#     (not aks-iterlaw-we-prod and not the OrdinoxAI shared cluster unless
+#     (not aks-iterlaw-we-prod and not a non-Sakina shared cluster unless
 #     explicitly authorised by the operator).
 #   - Operator has confirmed the target K3s master and provided a working
 #     admin kubeconfig.
