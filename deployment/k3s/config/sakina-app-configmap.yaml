@@ -1,0 +1,35 @@
+# =============================================================================
+# Sakina backend ConfigMap — non-secret runtime flags.
+# =============================================================================
+# These values are NOT secrets and are safe to commit. The Sakina backend
+# reads each as an environment variable. Secrets remain in the Secret
+# template under deployment/k3s/secrets/sakina-secrets.template.yaml.
+# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sakina-app-config
+  namespace: sakina-ai
+  labels:
+    app.kubernetes.io/name: sakina-backend
+    app.kubernetes.io/part-of: sakina-islamic-app
+    app.kubernetes.io/component: api
+  annotations:
+    sakina.io/notice: "Non-secret flags only. Real credentials live in Secret sakina-secrets."
+data:
+  # ---- Feature gates (read by backend /ready + route guards) ---------------
+  ASK_SHEIKH_HASAN_ENABLED: "true"
+  PUBLIC_SHEIKH_QA_ENABLED: "true"
+  SHEIKH_AUTH_REQUIRED: "true"
+  PUBLIC_RANDOM_CHAT_ENABLED: "false"
+  SCHOLAR_ANSWER_CITATION_REQUIRED: "true"
+  PUBLIC_ANSWER_MODERATION_REQUIRED: "true"
+
+  # ---- WhatsApp adapter (disabled by default) -----------------------------
+  # The actual provider client is intentionally not implemented yet.
+  # Real provider name + token + recipient live in the Secret, not here.
+  WHATSAPP_ENABLED: "false"
+
+  # ---- Misc ---------------------------------------------------------------
+  NODE_ENV: "staging"
+  API_SCOPE: "ibadat"

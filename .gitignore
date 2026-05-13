@@ -26,6 +26,15 @@ deployment/k3s/secrets/*
 # Claude Code workstation metadata
 .claude/
 
+# Kubeconfigs — NEVER commit. Operator-only credentials.
+.kube/
+*.kubeconfig
+kubeconfig*
+sakina-k3s.yaml
+
+# Container image archives produced for offline import
+*.tar
+
 # OS
 .DS_Store
 Thumbs.db

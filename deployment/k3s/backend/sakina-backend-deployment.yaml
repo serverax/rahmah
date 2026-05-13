@@ -57,11 +57,16 @@ spec:
             - name: http
               containerPort: 3000
               protocol: TCP
+          envFrom:
+            # Non-secret feature flags / runtime hints come from the
+            # ConfigMap. Keys are read by /ready and the sheikh route guards.
+            - configMapRef:
+                name: sakina-app-config
+                optional: true
           env:
-            - name: NODE_ENV
-              value: staging
-            - name: API_SCOPE
-              value: ibadat
+            # Per-key overrides for values that must stay outside the
+            # ConfigMap. NODE_ENV/API_SCOPE/PORT live here in addition to the
+            # ConfigMap to allow per-pod override if needed.
             - name: PORT
               value: "3000"
             - name: DATABASE_URL
@@ -84,6 +89,36 @@ spec:
                 secretKeyRef:
                   name: sakina-secrets
                   key: OLLAMA_BASE_URL
+            - name: SHEIKH_HASAN_USER_ID
+              valueFrom:
+                secretKeyRef:
+                  name: sakina-secrets
+                  key: SHEIKH_HASAN_USER_ID
+                  optional: true
+            - name: ADMIN_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: sakina-secrets
+                  key: ADMIN_API_KEY
+                  optional: true
+            - name: WHATSAPP_PROVIDER
+              valueFrom:
+                secretKeyRef:
+                  name: sakina-secrets
+                  key: WHATSAPP_PROVIDER
+                  optional: true
+            - name: WHATSAPP_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: sakina-secrets
+                  key: WHATSAPP_API_TOKEN
+                  optional: true
+            - name: SHEIKH_HASAN_WHATSAPP_TO
+              valueFrom:
+                secretKeyRef:
+                  name: sakina-secrets
+                  key: SHEIKH_HASAN_WHATSAPP_TO
+                  optional: true
           resources:
             requests:
               cpu: "100m"
