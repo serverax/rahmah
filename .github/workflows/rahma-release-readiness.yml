@@ -51,33 +51,33 @@ jobs:
         run: |
           set -e
           BODY=$(curl -sf http://127.0.0.1:3000/ready || echo '{}')
-          echo "$BODY" | python -c '
-import json, sys
-body = json.loads(sys.stdin.read() or "{}")
-errors = []
+          BODY="$BODY" python - <<'PY'
+          import json, os, sys
+          body = json.loads(os.environ.get("BODY") or "{}")
+          errors = []
 
-app_store = body.get("app_store") or {}
-# Sprint 3 contract: foundation only — submission_ready must NEVER be true here.
-if app_store.get("submission_ready") is True:
-    errors.append("app_store.submission_ready must be false in CI")
+          app_store = body.get("app_store") or {}
+          # Sprint 3 contract: foundation only — submission_ready must NEVER be true here.
+          if app_store.get("submission_ready") is True:
+              errors.append("app_store.submission_ready must be false in CI")
 
-cache = body.get("cache") or {}
-# Sprint 8 contract: until a real redis adapter ships, mode must remain memory.
-if cache.get("mode") not in (None, "memory"):
-    errors.append(f"cache.mode must be memory (saw {cache.get(\"mode\")})")
+          cache = body.get("cache") or {}
+          # Sprint 8 contract: until a real redis adapter ships, mode must remain memory.
+          if cache.get("mode") not in (None, "memory"):
+              errors.append(f"cache.mode must be memory (saw {cache.get('mode')})")
 
-ask = body.get("ask_sheikh_hasan") or {}
-if ask.get("sheikh_auth_configured") is True:
-    errors.append("sheikh_auth_configured must be false in CI (no real auth wired)")
-if ask.get("whatsapp_configured") is True:
-    errors.append("whatsapp_configured must be false in CI")
+          ask = body.get("ask_sheikh_hasan") or {}
+          if ask.get("sheikh_auth_configured") is True:
+              errors.append("sheikh_auth_configured must be false in CI (no real auth wired)")
+          if ask.get("whatsapp_configured") is True:
+              errors.append("whatsapp_configured must be false in CI")
 
-if errors:
-    for e in errors:
-        print(f"::error::{e}")
-    sys.exit(1)
-print("readiness truth-check: ok")
-'
+          if errors:
+              for e in errors:
+                  print(f"::error::{e}")
+              sys.exit(1)
+          print("readiness truth-check: ok")
+          PY
 
   doc-truth-check:
     name: Reject fake DEPLOYED/PRODUCTION claims in active docs
