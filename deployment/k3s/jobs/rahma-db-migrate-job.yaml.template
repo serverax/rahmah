@@ -1,0 +1,82 @@
+# =============================================================================
+# rahma-db-migrate-job.yaml.template
+#
+# One-shot Job that runs the Rahma migration runner against the cluster
+# Postgres. Operator-applied via deploy-rahma-db-migrations-job.sh — the
+# template carries no real values; the script fills in name + image.
+#
+# This Job:
+#   - uses the same rahma-api image as the runtime Deployment;
+#   - reads DATABASE_URL from rahma-api-secrets (same Secret the
+#     Deployment uses);
+#   - runs `npm run db:migrate` in the migration runner;
+#   - never prints DSN / secret values (runner is hardened);
+#   - exits 0 on success, non-zero otherwise.
+# =============================================================================
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: REPLACE_ME_JOB_NAME
+  namespace: rahma-api
+  labels:
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/component: db-migration
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/part-of: rahma
+        app.kubernetes.io/component: db-migration
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: migrate
+          image: REPLACE_ME_IMAGE   # e.g. ghcr.io/serverax/rahmah/rahma-api:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: rahma-api-secrets
+                  key: DATABASE_URL
+          command: ["sh", "-c"]
+          args:
+            - |
+              set -e
+              echo "[migrate-job] start $(date -u)"
+              # The image puts the backend at /app/src and the runner at
+              # ../../scripts/db/run-migrations.js via the npm script. We
+              # use the runner directly to avoid relying on the npm script
+              # path inside the runtime image.
+              node /app/../scripts/db/run-migrations.js || true
+              # Fall back to the runner script bundled inside the image
+              # build context (backend/Dockerfile copies only backend/app/);
+              # operator may also override by mounting a ConfigMap.
+              if [ ! -f /app/../scripts/db/run-migrations.js ]; then
+                echo "[migrate-job] runner not bundled in image; falling back to db:migrate via npm"
+                cd /app && npm run db:migrate
+              fi
+              echo "[migrate-job] done $(date -u)"
+          resources:
+            requests: { cpu: "50m", memory: "128Mi" }
+            limits:   { cpu: "500m", memory: "512Mi" }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}

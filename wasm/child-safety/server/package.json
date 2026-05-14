@@ -1,0 +1,16 @@
+{
+  "name": "rahma-child-safety-runtime",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Rahma child-safety WASM runtime bridge (foundation prototype). Single-binary HTTP wrapper that exposes GET /health + POST /evaluate. Currently runs the deterministic JS port of the policy in-process; will load child_safety.wasm via wasmtime/wasmedge in a later sprint.",
+  "engines": { "node": ">=20.0.0" },
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test":  "node --test test/runtime.test.js"
+  },
+  "dependencies": {
+    "fastify": "^5.0.0"
+  }
+}

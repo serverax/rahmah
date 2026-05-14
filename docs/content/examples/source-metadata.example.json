@@ -1,0 +1,27 @@
+{
+  "manifest_version": "1.0.0",
+  "is_test_fixture": false,
+  "language": "ar",
+  "items": [
+    {
+      "source_type": "dua",
+      "source_name_ar": "حصن المسلم — أذكار الصباح",
+      "source_reference": "Hisn al-Muslim / Morning Adhkar",
+      "license_id": "operator-defined-license-id",
+      "language": "ar",
+      "content_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "verification_status": "pending_review",
+      "authenticity_note_ar": null
+    },
+    {
+      "source_type": "hadith",
+      "source_name_ar": "صحيح البخاري",
+      "source_reference": "Sahih Bukhari 6018",
+      "license_id": "operator-defined-license-id",
+      "language": "ar",
+      "content_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+      "verification_status": "pending_review",
+      "authenticity_note_ar": "صحيح"
+    }
+  ]
+}

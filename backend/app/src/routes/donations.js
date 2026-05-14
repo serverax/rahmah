@@ -29,6 +29,25 @@ function providerName() {
 
 function providerEnabled() { return providerName() !== 'disabled'; }
 
+/**
+ * Whether the provider is fully configured for live calls. For Stripe that
+ * means STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET must be present; for
+ * PayPal — PAYPAL_CLIENT_ID + PAYPAL_CLIENT_SECRET; for manual_offline —
+ * always true (no online flow).
+ */
+function providerConfigured() {
+  const p = providerName();
+  if (p === 'disabled') return false;
+  if (p === 'stripe') {
+    return Boolean(process.env.STRIPE_SECRET_KEY) && Boolean(process.env.STRIPE_WEBHOOK_SECRET);
+  }
+  if (p === 'paypal') {
+    return Boolean(process.env.PAYPAL_CLIENT_ID) && Boolean(process.env.PAYPAL_CLIENT_SECRET);
+  }
+  if (p === 'manual_offline') return true;
+  return false;
+}
+
 const intentSchema = {
   body: {
     type: 'object',
@@ -44,12 +63,37 @@ const intentSchema = {
 };
 
 export default async function donationsRoute(fastify) {
+  fastify.get('/status', async (req, reply) => {
+    return reply.send({
+      ok: true,
+      provider: providerName(),
+      provider_configured: providerConfigured(),
+      card_handling_in_backend: false,
+      database_configured: isDatabaseConfigured(),
+      safe_message_ar: providerConfigured()
+        ? 'خدمة التبرع جاهزة بإذن الله.'
+        : 'خدمة التبرع غير مُفعّلة بعد. لن يتم تحصيل أي مبلغ.',
+    });
+  });
+
   fastify.post('/intent', { schema: intentSchema }, async (req, reply) => {
+    // Defense in depth — refuse any body field that looks like card data.
+    const dangerous = ['pan','card_number','cvv','cvc','track1','track2','iban','bic','swift'];
+    for (const k of dangerous) {
+      if (req.body && Object.prototype.hasOwnProperty.call(req.body, k)) {
+        return reply.code(400).send({
+          ok: false,
+          error: 'card_data_rejected',
+          safe_message_ar: 'لا يقبل خادم رحمة بيانات بطاقات الدفع مطلقاً.',
+        });
+      }
+    }
     if (!providerEnabled()) {
       return reply.send({
         ok: false,
         status: 'provider_disabled',
         provider: 'disabled',
+        provider_configured: false,
         persisted: false,
         message_ar: 'خدمة التبرع غير مُفعّلة بعد. لم يتم تحصيل أي مبلغ.',
       });

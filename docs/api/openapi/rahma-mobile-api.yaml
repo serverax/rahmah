@@ -1,0 +1,705 @@
+openapi: 3.1.0
+info:
+  title: Rahma Mobile API
+  description: |
+    The single public endpoint for the Rahma mobile app. Rahma is mobile-only —
+    there is no public website and no public admin dashboard.
+
+    All endpoints are served under `https://api.<final-rahma-domain>` (the
+    placeholder used in repo manifests is `api.rahma.example`). Until the
+    operator confirms the final domain, this spec uses the placeholder.
+
+    Honest-evidence contract:
+    - The mobile app MUST treat `production_ready: false` from `/ready` as
+      "service is up but not fully provisioned". The blockers array is the
+      truth.
+    - Sheikh-Hasan public answers ALWAYS include their citations.
+    - No endpoint returns a religious answer without a citation_label.
+  version: 0.1.0
+  license:
+    name: Apache-2.0
+servers:
+  - url: https://api.rahma.example
+    description: PLACEHOLDER — operator replaces with final production hostname.
+tags:
+  - name: health
+    description: liveness + readiness
+  - name: auth
+    description: identity status (server is auth-provider-agnostic until configured)
+  - name: db
+    description: database readiness
+  - name: rag
+    description: source registry + retrieval status
+  - name: engine
+    description: deterministic Rahma Control Engine
+  - name: privacy
+    description: privacy & data-rights requests
+  - name: terms
+    description: terms of service
+  - name: library
+    description: Islamic library (approved content only)
+  - name: sheikh-hasan-public
+    description: public moderated Q&A
+  - name: sheikh-hasan-admin
+    description: scholar/admin workflow (requires role)
+
+paths:
+  /health:
+    get:
+      tags: [health]
+      summary: Liveness probe
+      operationId: getHealth
+      responses:
+        "200":
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthOK'
+  /ready:
+    get:
+      tags: [health]
+      summary: Readiness + production_ready + blockers
+      operationId: getReady
+      responses:
+        "200":
+          description: Readiness snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadySnapshot'
+
+  /api/auth/status:
+    get:
+      tags: [auth]
+      summary: Auth provider status (never leaks secrets)
+      operationId: getAuthStatus
+      responses:
+        "200":
+          description: Auth status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthStatus'
+
+  /api/db/status:
+    get:
+      tags: [db]
+      summary: Database readiness (never echoes DATABASE_URL)
+      operationId: getDbStatus
+      responses:
+        "200":
+          description: DB status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DbStatus'
+
+  /api/rag/status:
+    get:
+      tags: [rag]
+      summary: RAG layer status (foundation / database / vector)
+      operationId: getRagStatus
+      responses:
+        "200":
+          description: RAG status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RagStatus'
+  /api/rag/sources/status:
+    get:
+      tags: [rag]
+      summary: Source registry counts
+      operationId: getRagSourcesStatus
+      responses:
+        "200":
+          description: Counts by verification status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RagSourcesStatus'
+  /api/rag/query:
+    post:
+      tags: [rag]
+      summary: Cited-only retrieval. No citation → no answer.
+      operationId: ragQuery
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [question_ar]
+              properties:
+                question_ar: { type: string, minLength: 3, maxLength: 1000 }
+                language:    { type: string, enum: [ar, en] }
+                limit:       { type: integer, minimum: 1, maximum: 8 }
+      responses:
+        "200":
+          description: Answer gate decision
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RagQueryResponse'
+
+  /api/engine/status:
+    get:
+      tags: [engine]
+      summary: Rahma Control Engine status (deterministic; no LLM)
+      operationId: getEngineStatus
+      responses:
+        "200":
+          description: Engine status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EngineStatus'
+
+  /api/privacy/status:
+    get:
+      tags: [privacy]
+      summary: Privacy notice + storage configured flag
+      operationId: getPrivacyStatus
+      responses:
+        "200":
+          description: Privacy status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrivacyStatus'
+  /api/privacy/child-safety:
+    get:
+      tags: [privacy]
+      summary: Child-safety statement (Arabic)
+      operationId: getPrivacyChildSafety
+      responses:
+        "200":
+          description: Statement
+          content: { application/json: { schema: { type: object } } }
+  /api/privacy/requests:
+    post:
+      tags: [privacy]
+      summary: Submit a privacy request (delete / export / correct / restrict / contact)
+      operationId: postPrivacyRequest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrivacyRequestInput'
+      responses:
+        "200":
+          description: Acknowledged; persisted only when DB is configured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrivacyRequestAck'
+        "400":
+          $ref: '#/components/responses/InvalidInput'
+
+  /api/terms/status:
+    get:
+      tags: [terms]
+      summary: Terms of service text
+      operationId: getTermsStatus
+      responses:
+        "200":
+          description: Terms
+          content: { application/json: { schema: { type: object } } }
+
+  /api/library/status:
+    get:
+      tags: [library]
+      summary: Library availability snapshot
+      operationId: getLibraryStatus
+      responses:
+        "200":
+          description: Library status
+          content: { application/json: { schema: { type: object } } }
+  /api/library/categories:
+    get:
+      tags: [library]
+      summary: Arabic categories
+      operationId: getLibraryCategories
+      responses:
+        "200":
+          description: Categories
+          content: { application/json: { schema: { type: object } } }
+  /api/library/items:
+    get:
+      tags: [library]
+      summary: Approved library items
+      operationId: listLibraryItems
+      parameters:
+        - in: query
+          name: category
+          required: false
+          schema: { type: string }
+      responses:
+        "200":
+          description: Items
+          content: { application/json: { schema: { type: object } } }
+  /api/library/documents:
+    get:
+      tags: [library]
+      summary: Approved documents
+      operationId: listLibraryDocuments
+      parameters:
+        - in: query
+          name: category
+          required: false
+          schema: { type: string }
+      responses:
+        "200":
+          description: Documents
+          content: { application/json: { schema: { type: object } } }
+  /api/library/search:
+    get:
+      tags: [library]
+      summary: Search approved content only
+      operationId: librarySearch
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema: { type: string, minLength: 1, maxLength: 200 }
+      responses:
+        "200":
+          description: Search hits
+          content: { application/json: { schema: { type: object } } }
+        "400":
+          $ref: '#/components/responses/InvalidInput'
+  /api/library/sources/status:
+    get:
+      tags: [library]
+      summary: Source counts by verification status
+      operationId: getLibrarySourcesStatus
+      responses:
+        "200":
+          description: Counts
+          content: { application/json: { schema: { type: object } } }
+
+  /api/public/sheikh-hasan/qa:
+    get:
+      tags: [sheikh-hasan-public]
+      summary: Public Q&A — published & cited answers only
+      operationId: listPublicQA
+      parameters:
+        - in: query
+          name: language
+          schema: { type: string, enum: [ar, en] }
+        - in: query
+          name: category
+          schema: { type: string }
+      responses:
+        "200":
+          description: Public Q&A list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicQAList'
+
+  /api/sheikh/questions:
+    post:
+      tags: [sheikh-hasan-admin]
+      summary: Submit a question (mobile user)
+      operationId: submitSheikhQuestion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [question_ar]
+              properties:
+                question_ar:    { type: string, minLength: 5, maxLength: 1000 }
+                language:       { type: string, enum: [ar, en] }
+                category_ar:    { type: string, enum: [salah,zakat,fasting,family,dua,quran,hadith,general] }
+                public_allowed: { type: boolean }
+      responses:
+        "200":
+          description: Question accepted (pending_review)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:            { type: boolean }
+                  status:        { type: string, enum: [pending_review] }
+                  question_id:   { type: string }
+                  safe_message_ar: { type: string }
+        "400":
+          $ref: '#/components/responses/InvalidInput'
+        "503":
+          $ref: '#/components/responses/ServiceNotConfigured'
+    get:
+      tags: [sheikh-hasan-admin]
+      security: [{ sheikhAuth: [] }]
+      summary: Sheikh queue (auth required)
+      operationId: listSheikhQuestions
+      responses:
+        "200":
+          description: Sheikh queue
+          content: { application/json: { schema: { type: object } } }
+        "401":
+          $ref: '#/components/responses/Unauthenticated'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "503":
+          $ref: '#/components/responses/ServiceNotConfigured'
+  /api/sheikh/questions/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+    get:
+      tags: [sheikh-hasan-admin]
+      security: [{ sheikhAuth: [] }]
+      summary: Question detail (sheikh-only; no user PII)
+      operationId: getSheikhQuestion
+      responses:
+        "200":
+          description: Detail
+          content: { application/json: { schema: { type: object } } }
+        "404":
+          description: Not found
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+  /api/sheikh/questions/{id}/answer:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+    post:
+      tags: [sheikh-hasan-admin]
+      security: [{ sheikhAuth: [] }]
+      summary: Sheikh draft answer (must include ≥1 citation)
+      operationId: postSheikhAnswer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [answer_ar, citations]
+              properties:
+                answer_ar:        { type: string, minLength: 1, maxLength: 8000 }
+                publication_mode: { type: string, enum: [private, public] }
+                citations:
+                  type: array
+                  minItems: 1
+                  maxItems: 16
+                  items:
+                    type: object
+                    required: [citation_type, citation_label]
+                    properties:
+                      citation_type:  { type: string, enum: [quran, hadith, fiqh, scholar_note] }
+                      citation_label: { type: string, minLength: 1, maxLength: 200 }
+                      citation_text:  { type: string, maxLength: 600 }
+                      citation_url:   { type: string, maxLength: 500 }
+      responses:
+        "200":
+          description: Draft saved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:                 { type: boolean }
+                  answer_id:          { type: string }
+                  citation_status:    { type: string }
+                  publication_status: { type: string, enum: [draft, answered_private, pending_moderation] }
+        "400":
+          description: insufficient citation / invalid body
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:              { type: boolean, enum: [false] }
+                  error:           { type: string }
+                  citation_status: { type: string, enum: [insufficient_citation] }
+                  safe_message_ar: { type: string }
+
+  /api/sheikh/answers/{id}/submit:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+    post:
+      tags: [sheikh-hasan-admin]
+      security: [{ sheikhAuth: [] }]
+      summary: Sheikh submits a draft for moderation
+      operationId: submitSheikhAnswer
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                citation_status:    { type: string }
+                publication_status: { type: string }
+      responses:
+        "200":
+          description: Moved to pending_moderation
+          content: { application/json: { schema: { type: object } } }
+        "400":
+          description: Refused (insufficient citation)
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+
+  /api/admin/sheikh/answers/{id}/approve:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+    post:
+      tags: [sheikh-hasan-admin]
+      security: [{ adminAuth: [] }]
+      summary: Content reviewer / admin approves (requires quran/hadith)
+      operationId: approveSheikhAnswer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                citation_status: { type: string }
+      responses:
+        "200":
+          description: Approved → published_public
+          content: { application/json: { schema: { type: object } } }
+        "400":
+          description: citation status not strong enough
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+  /api/admin/sheikh/answers/{id}/reject:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+    post:
+      tags: [sheikh-hasan-admin]
+      security: [{ adminAuth: [] }]
+      summary: Reviewer / admin rejects
+      operationId: rejectSheikhAnswer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason_ar]
+              properties:
+                reason_ar: { type: string, minLength: 3, maxLength: 600 }
+      responses:
+        "200":
+          description: Rejected
+          content: { application/json: { schema: { type: object } } }
+
+components:
+  securitySchemes:
+    sheikhAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token issued by the operator-chosen OIDC provider. Server enforces role=sheikh.
+    adminAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token issued by the operator-chosen OIDC provider. Server enforces role∈{admin,content_reviewer,moderator}.
+
+  schemas:
+    HealthOK:
+      type: object
+      properties:
+        ok:       { type: boolean, enum: [true] }
+        service:  { type: string, enum: [sakina-backend] }
+        status:   { type: string, enum: [healthy] }
+    ReadySnapshot:
+      type: object
+      properties:
+        ok:                { type: boolean }
+        production_ready:  { type: boolean }
+        blockers:
+          type: array
+          items: { type: string }
+        database:
+          type: object
+          properties:
+            configured: { type: boolean }
+            connected:  { type: boolean }
+            migration_table_exists:    { type: boolean }
+            applied_migrations_count:  { type: integer }
+            pending_migrations_count:  { type: integer, nullable: true }
+        auth:
+          type: object
+          properties:
+            configured: { type: boolean }
+            mode:       { type: string }
+        rag:
+          $ref: '#/components/schemas/RagStatus'
+    AuthStatus:
+      type: object
+      properties:
+        ok:              { type: boolean }
+        auth_configured: { type: boolean }
+        mode:            { type: string, enum: [not_configured, dev_local, external] }
+        provider:        { type: string, nullable: true }
+        sheikh_login_enabled: { type: boolean }
+        admin_login_enabled:  { type: boolean }
+        roles_supported:
+          type: array
+          items: { type: string }
+        oidc:
+          type: object
+          properties:
+            issuer_configured:        { type: boolean }
+            client_id_configured:     { type: boolean }
+            client_secret_configured: { type: boolean }
+        safe_message_ar: { type: string }
+    DbStatus:
+      type: object
+      properties:
+        ok:                       { type: boolean }
+        database_configured:      { type: boolean }
+        database_reachable:       { type: boolean }
+        migration_table_exists:   { type: boolean }
+        applied_migrations_count: { type: integer }
+        pending_migrations_count: { type: integer, nullable: true }
+        total_migration_files:    { type: integer }
+        last_error_redacted:      { type: string, nullable: true }
+        safe_message_ar:          { type: string }
+    RagStatus:
+      type: object
+      properties:
+        rag_enabled:           { type: boolean }
+        mode:                  { type: string, enum: [foundation, database, vector, mock] }
+        database_configured:   { type: boolean }
+        vector_configured:     { type: boolean }
+        documents_indexed:     { type: integer }
+        chunks_indexed:        { type: integer }
+        approved_sources:      { type: integer }
+        pending_review_sources:{ type: integer }
+        unverified_sources:    { type: integer }
+        blocked_sources:       { type: integer }
+        complete_database:     { type: boolean, enum: [false] }
+        safe_to_answer_from_rag: { type: boolean }
+        ingestion_supported:   { type: boolean }
+        seed_policy_exists:    { type: boolean }
+    RagSourcesStatus:
+      type: object
+      properties:
+        approved_sources:        { type: integer }
+        pending_review_sources:  { type: integer }
+        unverified_sources:      { type: integer }
+        blocked_sources:         { type: integer }
+        complete_database:       { type: boolean, enum: [false] }
+        ingestion_supported:     { type: boolean }
+        safe_message_ar:         { type: string }
+    RagQueryResponse:
+      type: object
+      properties:
+        ok:           { type: boolean }
+        answer_ar:    { type: string, nullable: true, description: "Always null until a generation layer is wired. Gate never writes prose." }
+        citations:
+          type: array
+          items:
+            type: object
+            properties:
+              source_type:       { type: string }
+              citation_label_ar: { type: string }
+              source_name_ar:    { type: string, nullable: true }
+              language:          { type: string }
+        safety_status: { type: string, enum: [cited, insufficient_sources, rag_unavailable] }
+        insufficient_sources_message_ar:
+          type: string
+          nullable: true
+        used_candidates: { type: integer }
+    EngineStatus:
+      type: object
+      properties:
+        ok:                          { type: boolean }
+        engine_implemented:          { type: boolean }
+        mode:                        { type: string, enum: [deterministic_rules] }
+        rag_registry_configured:     { type: boolean }
+        rag_retrieval_configured:    { type: boolean }
+    PrivacyStatus:
+      type: object
+      properties:
+        ok:                       { type: boolean }
+        privacy:                  { type: object }
+        storage_configured:       { type: boolean }
+        child_safety_available:   { type: boolean }
+        account_deletion_available: { type: boolean }
+        data_export_available:    { type: boolean }
+        contact_available:        { type: boolean }
+    PrivacyRequestInput:
+      type: object
+      required: [request_type, email]
+      properties:
+        request_type:
+          type: string
+          enum: [delete_account, data_export, correct_data, restrict_processing, contact]
+        email:     { type: string, format: email, minLength: 5, maxLength: 320 }
+        reason_ar: { type: string, maxLength: 1000 }
+    PrivacyRequestAck:
+      type: object
+      properties:
+        ok:           { type: boolean }
+        status:       { type: string, enum: [received, storage_not_configured] }
+        request_type: { type: string }
+        message_ar:   { type: string }
+        persisted:    { type: boolean }
+    PublicQAList:
+      type: object
+      properties:
+        ok:          { type: boolean }
+        items:       { type: array, items: { type: object } }
+        configured:  { type: boolean }
+    Error:
+      type: object
+      properties:
+        ok:              { type: boolean, enum: [false] }
+        error:           { type: string }
+        safe_message_ar: { type: string }
+
+  responses:
+    InvalidInput:
+      description: 400 invalid input
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthenticated:
+      description: 401 auth required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: 403 wrong role
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ServiceNotConfigured:
+      description: 503 service / auth / DB not configured
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+x-rahma:
+  honesty-rules:
+    - "production_ready=true is never claimed unless every blocker clears."
+    - "RAG endpoints never return a religious answer without a citation_label."
+    - "No raw email is ever stored or returned — only the sha-256 hash."
+    - "DSN values are never echoed in any response."
+    - "Public Q&A items show only published, cited answers."

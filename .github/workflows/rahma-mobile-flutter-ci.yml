@@ -1,0 +1,65 @@
+name: rahma-mobile-flutter-ci
+# Runs only when apps/mobile/pubspec.yaml exists.
+# Skips iOS unless macOS runner is available.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/mobile/**'
+      - '.github/workflows/rahma-mobile-flutter-ci.yml'
+  pull_request:
+    paths:
+      - 'apps/mobile/**'
+  workflow_dispatch: {}
+
+jobs:
+  flutter-ci:
+    name: Flutter analyze + test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Skip if pubspec missing
+        id: check
+        run: |
+          if [[ ! -f pubspec.yaml ]]; then
+            echo "Skipping: apps/mobile/pubspec.yaml missing."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Flutter
+        if: steps.check.outputs.skip != 'true'
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.x'
+          channel: stable
+
+      - name: Generate native shells (Android only on Ubuntu)
+        if: steps.check.outputs.skip != 'true'
+        run: flutter create . --platforms=android
+
+      - name: Pub get
+        if: steps.check.outputs.skip != 'true'
+        run: flutter pub get
+
+      - name: Analyze
+        if: steps.check.outputs.skip != 'true'
+        run: flutter analyze
+
+      - name: Test
+        if: steps.check.outputs.skip != 'true'
+        run: flutter test
+
+      - name: Refuse release build with empty RAHMA_API_BASE
+        if: steps.check.outputs.skip != 'true'
+        run: |
+          # We never auto-build a release in CI without a real domain.
+          # When the operator wires the staging / release flavor, a
+          # second workflow takes over with the signing keystore secrets.
+          echo "release build is gated on operator-supplied RAHMA_API_BASE; not run here."
