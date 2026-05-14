@@ -1,0 +1,67 @@
+# =============================================================================
+# rahma-db-seed-job.yaml.template
+#
+# One-shot Job that runs the seed runner against the cluster Postgres.
+# Operator-applied; template carries REPLACE_ME placeholders.
+# Reads DATABASE_URL from rahma-api-secrets. Never echoes the DSN.
+# =============================================================================
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: REPLACE_ME_JOB_NAME
+  namespace: rahma-api
+  labels:
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/component: db-seed
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/part-of: rahma
+        app.kubernetes.io/component: db-seed
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: seed
+          image: REPLACE_ME_IMAGE   # e.g. ghcr.io/serverax/rahmah/rahma-api:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: rahma-api-secrets
+                  key: DATABASE_URL
+          command: ["sh", "-c"]
+          args:
+            - |
+              set -e
+              echo "[seed-job] start $(date -u)"
+              if [ -f /app/../scripts/db/run-seeds.js ]; then
+                node /app/../scripts/db/run-seeds.js
+              else
+                cd /app && npm run db:seed
+              fi
+              echo "[seed-job] done $(date -u)"
+          resources:
+            requests: { cpu: "50m", memory: "128Mi" }
+            limits:   { cpu: "500m", memory: "512Mi" }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}

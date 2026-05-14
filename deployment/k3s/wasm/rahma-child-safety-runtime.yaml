@@ -1,0 +1,80 @@
+# =============================================================================
+# Rahma child-safety WASM runtime — REAL image manifest (operator-applied).
+#
+# This is the manifest that REPLACES the placeholder in
+# rahma-wasm-placeholders.yaml once the image is published.
+# It targets the same Service name (rahma-child-safety-wasm) so no
+# Service rewiring is needed.
+#
+# ClusterIP only via the existing Service. NEVER publicly exposed.
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rahma-child-safety-wasm
+  namespace: rahma-ai
+  labels:
+    app.kubernetes.io/name: rahma-child-safety-wasm
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/component: wasm-policy
+  annotations:
+    rahma.io/notice: "Real child-safety runtime bridge — replaces nginx placeholder once image is published."
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rahma-child-safety-wasm
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: rahma-child-safety-wasm
+        app.kubernetes.io/part-of: rahma
+        app.kubernetes.io/component: wasm-policy
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10005
+        runAsGroup: 10005
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: runtime
+          image: ghcr.io/serverax/rahmah/rahma-child-safety-wasm:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: PORT
+              value: "8080"
+            - name: HOST
+              value: "0.0.0.0"
+          resources:
+            requests: { cpu: "20m",  memory: "32Mi" }
+            limits:   { cpu: "300m", memory: "256Mi" }
+          readinessProbe:
+            httpGet: { path: /health, port: http }
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 6
+          livenessProbe:
+            httpGet: { path: /health, port: http }
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 6
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}

@@ -93,6 +93,18 @@ export default async function readyRoute(fastify) {
     const ragStatus = await buildRagStatus();
     const redis = redisStatus();
     const wasm = wasmStatus();
+    // Per-WASM-module surfaced flags for /ready v2 (Sprint 62).
+    const wasmByName = {};
+    for (const m of wasm.modules) {
+      wasmByName[m.name.replace(/-/g, '_')] = {
+        configured: m.configured,
+        reachable: m.reachable, // null until probe ships
+      };
+    }
+    const donationProvider = String(process.env.DONATION_PROVIDER || '').trim().toLowerCase();
+    const donationProviderConfigured =
+      ['stripe', 'paypal', 'manual_offline'].includes(donationProvider);
+    const islamicSourcesConfigured = ragStatus.approved_sources > 0;
     const blockers = [];
     if (!isAuthFoundationConfigured()) blockers.push('auth_not_configured');
     if (!db.configured) blockers.push('database_not_configured');
@@ -101,16 +113,19 @@ export default async function readyRoute(fastify) {
     if (!wasm.configured) blockers.push('wasm_not_configured');
     if (ragStatus.mode === 'foundation') blockers.push('rag_foundation_only');
     if (!isSheikhRepositoryConfigured()) blockers.push('sheikh_repository_not_configured');
-    if (ragStatus.approved_sources === 0) blockers.push('no_approved_islamic_sources');
+    if (!islamicSourcesConfigured) blockers.push('no_approved_islamic_sources');
+    if (!donationProviderConfigured) blockers.push('donations_provider_not_configured');
     const production_ready = blockers.length === 0;
     const build = buildIdentity();
 
     return {
       ok: true,
+      readiness_schema_version: '2',
       service: 'rahma-api',
       legacy_service_name: 'sakina-backend',
       platform: 'mobile-only',
       public_ingress: 'disabled',
+      public_ingress_state: { disabled: true, status: 'disabled' },
       version: build.version,
       git_commit: build.git_commit,
       production_ready,
@@ -122,7 +137,21 @@ export default async function readyRoute(fastify) {
         pending_migrations_count: null,
       },
       redis,
-      wasm,
+      wasm: {
+        ...wasm,
+        fatwa_policy_gate:     wasmByName.fatwa_policy_gate     || { configured: false, reachable: null },
+        quran_hadith_citation: wasmByName.quran_hadith_citation || { configured: false, reachable: null },
+        child_safety:          wasmByName.child_safety          || { configured: false, reachable: null },
+        content_rule_engine:   wasmByName.content_rule_engine   || { configured: false, reachable: null },
+      },
+      islamic_sources: {
+        configured: islamicSourcesConfigured,
+        approved_sources: ragStatus.approved_sources | 0,
+      },
+      donations: {
+        configured: donationProviderConfigured,
+        provider: donationProvider.length > 0 ? donationProvider : 'disabled',
+      },
       auth: {
         configured: isAuthFoundationConfigured(),
         mode: getAuthMode(),

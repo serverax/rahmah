@@ -1,0 +1,78 @@
+name: rahma-child-safety-image
+# Builds + publishes ghcr.io/serverax/rahmah/rahma-child-safety-wasm.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'wasm/child-safety/**'
+      - '.github/workflows/rahma-child-safety-image.yml'
+  pull_request:
+    paths:
+      - 'wasm/child-safety/**'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE: ghcr.io/${{ github.repository_owner }}/rahmah/rahma-child-safety-wasm
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install + test runtime bridge (Node tests)
+        working-directory: wasm/child-safety/server
+        run: |
+          npm install
+          npm test
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR (push only)
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build (PR — no push)
+        if: github.event_name == 'pull_request'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: wasm/child-safety/server/Dockerfile
+          push: false
+          tags: |
+            ${{ env.IMAGE }}:pr-${{ github.event.pull_request.number }}
+
+      - name: Build and push (main / manual)
+        if: github.event_name != 'pull_request'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: wasm/child-safety/server/Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:sha-${{ github.sha }}
+            ${{ env.IMAGE }}:latest
+          labels: |
+            org.opencontainers.image.title=Rahma child-safety WASM runtime bridge
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
