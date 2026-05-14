@@ -1,0 +1,58 @@
+name: rahma-wasm-build
+# Builds + tests the Rahma WASM policy workspace.
+# Native tests assert the JS-parity contract; WASM build produces the
+# `.wasm` artifacts that a future sidecar runtime will load.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'wasm-policy/**'
+      - '.github/workflows/rahma-wasm-build.yml'
+  pull_request:
+    paths:
+      - 'wasm-policy/**'
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    name: Native test + wasm32 build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: wasm-policy
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain (stable + wasm32 target)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+          components: rustfmt, clippy
+
+      - name: Cargo fmt
+        run: cargo fmt --all -- --check
+
+      - name: Cargo clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: Native tests
+        run: cargo test --workspace --release
+
+      - name: Build citation-gate (wasm32-unknown-unknown)
+        run: cargo build --release --target wasm32-unknown-unknown -p citation-gate
+
+      - name: Build child-safety (wasm32-unknown-unknown)
+        run: cargo build --release --target wasm32-unknown-unknown -p child-safety
+
+      - name: Upload WASM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: rahma-wasm-policy-${{ github.sha }}
+          path: |
+            wasm-policy/target/wasm32-unknown-unknown/release/citation_gate.wasm
+            wasm-policy/target/wasm32-unknown-unknown/release/child_safety.wasm
+          if-no-files-found: error
+          retention-days: 30
