@@ -4,7 +4,7 @@
 **Project:** Rahma/Sakina (mobile-only)
 **Repo:** `serverax/rahmah` · Branch `main`
 **Starting HEAD:** `0da4613`
-**Final HEAD:** `87d4a17` (Bundle 04 work + 2 post-bundle fixes: mobile app.dart bottom-nav shell + repair of pre-existing release-gate workflow YAML)
+**Final HEAD:** `142bfce` (Bundle 04 work + 3 post-bundle fixes: mobile `app.dart` bottom-nav shell · repair of pre-existing release-gate workflow YAML · child-safety runtime auto-listen guard)
 
 ## 1. Scope confirmation
 
@@ -120,21 +120,22 @@ Flutter tests + WASM bridge tests: run in CI workflows (no local SDK).
 
 ## 13. CI result
 
-On final HEAD `87d4a17` (push event):
+On final HEAD `142bfce` (push event):
 
 | Workflow | Conclusion |
 |---|---|
 | rahma-ci (backend lint+build+test) | **success** |
 | rahma-security-scan | **success** |
+| rahma-wasm-build | **success** |
 | rahma-infra-validate | **success** (first green ever; broken by YAML-indent bug since `c895ce2`, fixed in `eb83353` + `87d4a17`) |
 | rahma-release-readiness | **success** (first green ever; same root cause + scanner-tightening) |
-| rahma-mobile-flutter-ci | **success** (last green on `363a447`; path-filtered, not triggered by `87d4a17`) |
+| rahma-mobile-flutter-ci | **success** on `363a447` (path-filtered, not triggered by `142bfce`) |
 | backend-image-ci | last green on `1b18471` (path-filtered to `backend/app/**`) |
-| rahma-child-safety-image | re-triggered manually after the original run was cancelled mid-build; status **in_progress** at the time this report was written |
+| rahma-child-safety-image | **success** on `142bfce` — first successful build + push. The original `1b18471` and `87d4a17` runs hung at `npm test` because `src/index.js` unconditionally called `app.listen(8080)` on import; fixed by gating the listener on `import.meta.url === pathToFileURL(argv[1]).href`. |
 
 ## 14. Push result
 
-`87d4a17` pushed to `serverax/rahmah` `main`. Commit chain on top of the Bundle 04 initial push (`1b18471`):
+`142bfce` pushed to `serverax/rahmah` `main`. Commit chain on top of the Bundle 04 initial push (`1b18471`):
 
 - `521e07c` — fix(rahma-mobile-flutter-ci): pass `--project-name` + drop the auto-generated widget_test.dart.
 - `b8ec815` — fix(rahma-mobile): use `pumpAndSettle()` so async localization lookups complete before assertions.
@@ -142,10 +143,19 @@ On final HEAD `87d4a17` (push event):
 - `363a447` — fix(rahma-mobile): actually apply the bottom-nav shell to `apps/mobile/lib/app.dart` (earlier Write had silently failed).
 - `eb83353` — fix(workflows): repair pre-existing YAML-indent bug in `rahma-infra-validate.yml` + `rahma-release-readiness.yml`. Both had python heredoc / multi-line `python -c '...'` bodies at column 0, outside the `run: |` block-scalar indent. Both workflows had **never produced a green run** since they were introduced in `c895ce2`.
 - `87d4a17` — fix(workflows): tighten the now-running release-gate scanners to remove false positives (`POSTGRES_DB` / `POSTGRES_USER` are identifiers not credentials; exclude `test/` and the scanner workflow itself from the doc-claim scan).
+- `f89f9cd` — docs(bundle-04): interim CI-status record.
+- `142bfce` — fix(child-safety-runtime): only auto-listen when this file is the Node entrypoint; gate with `import.meta.url === pathToFileURL(argv[1]).href` instead of the previous `NODE_ENV !== 'test'` (which Node's test runner doesn't set, so importing `buildServer` from the test file pinned the listener open and hung CI).
 
 ## 15. Live cluster status
 
-Unchanged. Real `rahma-api:latest` on GHCR (last built on `1b18471`). Real `rahma-child-safety-wasm:latest`: build re-triggered by this bundle's closeout (original `1b18471` run was cancelled mid-build; manual `workflow_dispatch` issued against `87d4a17`). Cluster rollout: OPERATOR-PENDING for both images.
+Unchanged on the live K3s cluster. Real images published to GHCR (anon-pullable; verified via `https://ghcr.io/v2/.../manifests/latest`):
+
+| Image | Last green build | amd64 digest |
+|---|---|---|
+| `ghcr.io/serverax/rahmah/rahma-api:latest` | `1b18471` | `sha256:44b61cb0b447fd526d2ebc8388ea2d1c4c4ad588b1cc4e887465cbc14b3184a6` |
+| `ghcr.io/serverax/rahmah/rahma-child-safety-wasm:latest` | `142bfce` | `sha256:c3100eb1be9fbbde3d09fd0636d3374df2c1135293bfe942b04cc4f5a0139cbd` |
+
+Cluster rollout for both images: OPERATOR-PENDING.
 
 ## 16. Placeholder status
 
