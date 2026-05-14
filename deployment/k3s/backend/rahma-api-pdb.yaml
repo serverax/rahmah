@@ -1,0 +1,13 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: rahma-api
+  namespace: rahma-api
+  labels:
+    app.kubernetes.io/name: rahma-api
+    app.kubernetes.io/part-of: rahma
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rahma-api

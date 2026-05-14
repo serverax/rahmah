@@ -2,6 +2,32 @@
 
 This is the long-running plan document for the Sakina/Rahmah Islamic assistant app. Scope: **Rahma/Sakina only**. Repo: `serverax/rahmah`. Local: `F:/rahma`. Branch: `main`. IterLaw is a separate project at `C:/Users/kalsh/projects/iterlaw` and is **out of scope** for every plan item here.
 
+## Bundle 01 (Sprints 31–40) — current bundle
+
+This bundle is the **infrastructure foundation** layered on top of the Sprints 30–39 production-foundation work. It produces:
+
+| # | Goal |
+|---|---|
+| 31 | Repository scope guard + status docs |
+| 32 | K3s namespaces (rahma-web / rahma-api / rahma-data / rahma-ai / rahma-monitoring / rahma-security) + ConfigMap + secret template |
+| 33 | PostgreSQL + Redis internal-only data layer |
+| 34 | Backend API deployment manifests with strict securityContext |
+| 35 | Frontend / admin / mobile web deployment manifests |
+| 36 | Ingress + TLS (cert-manager) + DNS readiness docs |
+| 37 | Ask Sheikh Hasan admin workflow recap + verification |
+| 38 | Children's Islamic game foundation + safety docs |
+| 39 | CI/CD + QA + security guardrail scripts |
+| 40 | Deployment runbook + bundle closeout + push |
+
+After Bundle 01: Sprints 41–44 remain (live cluster deployment, mobile/PWA hardening, payments, final readiness audit).
+
+---
+
+Historical content (Sprint 3 baseline) preserved below:
+
+---
+
+
 ## 1. Vision
 
 Sakina/Rahmah is an Islamic assistant application with three pillars:

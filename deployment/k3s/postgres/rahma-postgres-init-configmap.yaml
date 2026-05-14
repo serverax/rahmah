@@ -1,0 +1,29 @@
+# =============================================================================
+# Rahma Postgres init ConfigMap — references to migration files only.
+# The actual SQL lives in backend/db/migrations/. This ConfigMap simply
+# enumerates the canonical migration order for operator visibility.
+# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rahma-postgres-init
+  namespace: rahma-data
+  labels:
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/component: database
+data:
+  README.md: |
+    Canonical migration order (apply via `npm run db:migrate` from the
+    backend, NOT via this ConfigMap):
+
+      001_sakina_foundation.sql
+      002_verified_islamic_sources.sql
+      003_ask_sheikh_hasan_public_qa.sql
+      004_islamic_rag_foundation.sql
+      005_family_child_safety.sql
+      006_charity_campaigns.sql
+      007_privacy_requests.sql
+      008_rahma_infra_alignment.sql    # added by Bundle 01 Sprint 33
+
+    Migrations live in `backend/db/migrations/`. The runner is at
+    `scripts/db/run-migrations.js` and refuses to run without DATABASE_URL.

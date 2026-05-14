@@ -1,0 +1,28 @@
+# =============================================================================
+# Let's Encrypt — production ClusterIssuer (HTTP-01 via Traefik).
+#
+# DO NOT apply blindly. Verify first:
+#   1. cert-manager is installed on the cluster (`kubectl get pods -n cert-manager`).
+#   2. No existing `letsencrypt-prod` ClusterIssuer already configured with a
+#      different email / solver — applying this file may overwrite that.
+#
+# Email below is a placeholder. Replace with the operator's contact address
+# before applying. Let's Encrypt expiration warnings go to this address.
+# =============================================================================
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+  labels:
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/managed-by: cert-manager
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: REPLACE_ME_operator@example.org
+    privateKeySecretRef:
+      name: letsencrypt-prod-account-key
+    solvers:
+      - http01:
+          ingress:
+            class: traefik

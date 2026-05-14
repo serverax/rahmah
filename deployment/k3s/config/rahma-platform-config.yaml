@@ -1,0 +1,49 @@
+# =============================================================================
+# Rahma — platform ConfigMap. NEVER contains secrets.
+# Replicated to namespaces that need it (rahma-api, rahma-web) by Kustomize
+# overlay (deferred) or by `kubectl create configmap --from-file`.
+# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rahma-platform-config
+  namespace: rahma-api
+  labels:
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/managed-by: k3s
+data:
+  APP_NAME: "Rahma"
+  APP_ENV: "production"
+  PUBLIC_APP_URL: "https://rahma.ordinoxai.com"
+  PUBLIC_API_URL: "https://api.rahma.ordinoxai.com"
+  ADMIN_URL: "https://admin.rahma.ordinoxai.com"
+  AI_INTERNAL_URL: "http://ollama.ordinox-ai.svc.cluster.local:11434"
+  DEFAULT_LANGUAGE: "ar"
+  ENABLE_ARABIC_RTL: "true"
+  ENABLE_ASK_SHEIKH_HASAN: "true"
+  ENABLE_CHILDREN_ISLAMIC_GAME: "true"
+  ENABLE_QURAN_FEATURES: "true"
+  ENABLE_HADITH_FEATURES: "true"
+  ENABLE_DUA_FEATURES: "true"
+  ENABLE_DONATION_FEATURES: "true"
+  # Backend safety flags — match the backend's env-driven contract.
+  SCHOLAR_ANSWER_CITATION_REQUIRED: "true"
+  PUBLIC_ANSWER_MODERATION_REQUIRED: "true"
+  APP_STORE_COMPLIANCE_MODE: "true"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rahma-platform-config
+  namespace: rahma-web
+  labels:
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/managed-by: k3s
+data:
+  APP_NAME: "Rahma"
+  APP_ENV: "production"
+  PUBLIC_APP_URL: "https://rahma.ordinoxai.com"
+  PUBLIC_API_URL: "https://api.rahma.ordinoxai.com"
+  ADMIN_URL: "https://admin.rahma.ordinoxai.com"
+  DEFAULT_LANGUAGE: "ar"
+  ENABLE_ARABIC_RTL: "true"

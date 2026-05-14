@@ -1,5 +1,26 @@
 # Sakina/Rahmah Project Status
 
+Last updated: 2026-05-14 (Bundle 01 — Sprints 31–40 in progress).
+
+## Bundle 01 (Sprints 31–40) snapshot
+
+- Live endpoint probe (all 200): `/health`, `/ready`, `/api/auth/status`, `/api/db/status`, `/api/rag/status`, `/api/engine/status`, `/api/privacy/status`, `/api/terms/status`, `/api/public/sheikh-hasan/qa`, `/api/library/categories`, `/api/library/sources/status`, `/api/rag/sources/status`.
+- `/ready` → `production_ready: false` + 5 blockers.
+- Backend tests: **384/384 PASS** at HEAD `427099f` (see `reports/RAHMA_SPRINTS_30_TO_39_BUNDLE_REPORT.md`).
+- Web tests: **8/8 PASS**.
+- K3s master `138.201.253.56`: **UNREACHABLE** (SSH timing out).
+- K3s worker `138.201.202.174`: reachable; agent-only; no admin kubeconfig.
+- Local kubectl context: `aks-iterlaw-we-prod` — **FORBIDDEN** by saved memory; no cluster ops attempted.
+- Docker daemon: not running → no image build attempted.
+
+See `SAKINA_PROJECT_MASTER_PLAN.md` for the 44-sprint roadmap and `reports/RAHMA_BUNDLE_01_SPRINTS_31_40_FINAL_REPORT.md` (when written) for the closing evidence block.
+
+---
+
+Earlier content (Sprint 3 baseline) preserved below for historical reference:
+
+---
+
 Last updated: 2026-05-13 (Sprint 3 — Project plan, app-store compliance, and Ask Sheikh Hasan foundation).
 
 ## 1. Scope Lock

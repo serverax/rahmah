@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rahma-api
+  namespace: rahma-api
+  labels:
+    app.kubernetes.io/name: rahma-api
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/component: api
+spec:
+  type: ClusterIP            # internal only; public access via ingress
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: rahma-api

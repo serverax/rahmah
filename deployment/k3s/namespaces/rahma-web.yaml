@@ -1,0 +1,15 @@
+# =============================================================================
+# Rahma — rahma-web namespace (public web frontend / mobile web shell).
+# Apply ONLY against a verified Sakina-safe context. NEVER apply against
+# aks-iterlaw-we-prod or any cluster matching the FORBIDDEN_CONTEXT_RE.
+# =============================================================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rahma-web
+  labels:
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/managed-by: k3s
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
