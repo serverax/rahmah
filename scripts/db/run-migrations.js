@@ -41,6 +41,13 @@ async function main() {
     process.exitCode = 2;
     return;
   }
+  // Refuse obvious placeholder DSNs so an operator never accidentally points
+  // the runner at the literal template value.
+  if (/CHANGE_ME|REPLACE_ME|PLACEHOLDER/i.test(dsn)) {
+    console.error('[migrations] DATABASE_URL appears to be a placeholder — refusing to run.');
+    process.exitCode = 2;
+    return;
+  }
 
   let pool;
   try {

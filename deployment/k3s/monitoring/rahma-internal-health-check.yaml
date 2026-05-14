@@ -41,17 +41,35 @@ spec:
               args:
                 - |
                   set -e
-                  echo "[health] $(date -u) — probing internal API"
-                  curl -sS -m 5 -o /tmp/api.json -w "api http_status=%{http_code} time=%{time_total}s\n" \
+                  echo "[health] $(date -u) — probing internal API /health"
+                  curl -sS -m 5 -o /tmp/api.json -w "api_health http_status=%{http_code} time=%{time_total}s\n" \
                        http://rahma-api.rahma-api.svc.cluster.local/health || true
                   echo "--- /health body (first 256 bytes) ---"
                   head -c 256 /tmp/api.json || true
+                  echo
+                  echo "[health] $(date -u) — probing internal API /ready"
+                  curl -sS -m 5 -o /tmp/ready.json -w "api_ready http_status=%{http_code} time=%{time_total}s\n" \
+                       http://rahma-api.rahma-api.svc.cluster.local/ready || true
+                  echo "--- /ready body (first 512 bytes) ---"
+                  head -c 512 /tmp/ready.json || true
                   echo
                   echo "[health] $(date -u) — probing WASM placeholders"
                   for svc in rahma-fatwa-policy-gate-wasm rahma-quran-hadith-citation-wasm rahma-child-safety-wasm rahma-content-rule-engine-wasm; do
                     curl -sS -m 3 -o /dev/null -w "${svc} http_status=%{http_code}\n" \
                          "http://${svc}.rahma-ai.svc.cluster.local:8080/" || true
                   done
+                  echo "[health] $(date -u) — probing Postgres TCP (rahma-data:5432)"
+                  if nc -z -w 3 rahma-postgres.rahma-data.svc.cluster.local 5432 2>/dev/null; then
+                    echo "postgres_tcp status=open"
+                  else
+                    echo "postgres_tcp status=closed"
+                  fi
+                  echo "[health] $(date -u) — probing Redis TCP (rahma-data:6379)"
+                  if nc -z -w 3 rahma-redis.rahma-data.svc.cluster.local 6379 2>/dev/null; then
+                    echo "redis_tcp status=open"
+                  else
+                    echo "redis_tcp status=closed"
+                  fi
               resources:
                 requests: { cpu: "10m", memory: "16Mi" }
                 limits:   { cpu: "100m", memory: "64Mi" }

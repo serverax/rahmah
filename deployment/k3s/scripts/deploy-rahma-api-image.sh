@@ -16,12 +16,14 @@ red()    { printf "\033[31m%s\033[0m\n" "$*"; }
 green()  { printf "\033[32m%s\033[0m\n" "$*"; }
 yellow() { printf "\033[33m%s\033[0m\n" "$*"; }
 
-IMAGE=${1:-}
+DEFAULT_IMAGE='ghcr.io/serverax/rahmah/rahma-api:latest'
+IMAGE=${1:-$DEFAULT_IMAGE}
 if [[ -z "$IMAGE" ]]; then
-  red "Usage: $0 <image-ref>"
-  red "Example: $0 ghcr.io/serverax/rahmah/rahma-api:latest"
+  red "Usage: $0 [image-ref]"
+  red "Default: $DEFAULT_IMAGE"
   exit 1
 fi
+yellow "Target image: $IMAGE"
 
 cd "$(dirname "$0")/../../.." || exit 1
 
@@ -48,6 +50,8 @@ if [[ -n "$ING" ]]; then
   exit 1
 fi
 
+CURRENT_IMAGE=$(kubectl -n rahma-api get deploy rahma-api -o jsonpath='{.spec.template.spec.containers[0].image}' 2>/dev/null || true)
+yellow "Current image: ${CURRENT_IMAGE:-unknown}"
 yellow "Setting image: rahma-api/rahma-api → $IMAGE"
 kubectl -n rahma-api set image deployment/rahma-api rahma-api="$IMAGE" --record=false
 
@@ -60,17 +64,27 @@ if ! kubectl -n rahma-api rollout status deployment/rahma-api --timeout=180s; th
 fi
 green "Rollout succeeded."
 
-# Internal health probe (best-effort). Uses an ephemeral pod so we never
-# expose the service externally.
-yellow "Running an internal /health probe..."
-if kubectl -n rahma-api run rahma-probe \
+# Internal health + ready probes (best-effort). Uses an ephemeral pod so we
+# never expose the service externally. NEVER prints DSN / secret data.
+yellow "Running internal /health + /ready probes..."
+kubectl -n rahma-api run rahma-probe \
     --rm -i --restart=Never \
     --image=alpine/curl:8.10.1 \
-    -- sh -c "curl -sS -m 5 -o /dev/null -w 'http_status=%{http_code}\n' http://rahma-api.rahma-api.svc.cluster.local/health" 2>/dev/null \
-    | grep -E 'http_status='; then
-  green "Internal health probe captured (see line above)."
-else
-  yellow "Internal health probe could not capture status — verify manually."
+    -- sh -c "
+        echo '--- /health ---';
+        curl -sS -m 5 -w '\nhttp_status=%{http_code}\n' http://rahma-api.rahma-api.svc.cluster.local/health || true;
+        echo '';
+        echo '--- /ready (first 800 bytes) ---';
+        curl -sS -m 5 http://rahma-api.rahma-api.svc.cluster.local/ready | head -c 800 || true;
+        echo '';
+    " 2>/dev/null || yellow "Internal probe could not capture output — verify manually."
+
+# Defensive: refuse to leave the rollout silently breaking the no-ingress rule.
+if kubectl get ingress -n rahma-api 2>/dev/null | grep -q rahma; then
+  red "POST-CHECK FAILED: a Rahma ingress appeared in rahma-api after rollout."
+  red "Rahma must remain mobile-only. Investigate immediately."
+  exit 3
 fi
 
 green "==== rahma-api image rolled to: $IMAGE ===="
+green "Final image: $(kubectl -n rahma-api get deploy rahma-api -o jsonpath='{.spec.template.spec.containers[0].image}')"

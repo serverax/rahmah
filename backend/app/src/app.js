@@ -16,6 +16,7 @@ import sheikhWorkflowRoute, { sheikhAdminRoute } from './routes/sheikh-workflow.
 import mobileRoute from './routes/mobile.js';
 import donationsRoute from './routes/donations.js';
 import sheikhLoginRoute from './routes/sheikh-login.js';
+import contentSourcesRoute from './routes/content-sources.js';
 
 export function buildApp(opts = {}) {
   const app = Fastify({
@@ -42,6 +43,7 @@ export function buildApp(opts = {}) {
   app.register(mobileRoute, { prefix: '/api' });
   app.register(donationsRoute, { prefix: '/api/donations' });
   app.register(sheikhLoginRoute, { prefix: '/api/sheikh' });
+  app.register(contentSourcesRoute, { prefix: '/api/content' });
 
   return app;
 }
