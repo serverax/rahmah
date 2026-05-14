@@ -1,15 +1,14 @@
 /// Rahma mobile app root widget — Arabic-RTL, single public endpoint.
 ///
-/// The router is intentionally minimal: a small fixed set of screens. No
-/// public website, no public admin dashboard. The app shell renders even
-/// when the API is not configured — most screens fall back to offline /
-/// "not yet configured" copy.
+/// Light + dark themes via [ThemeMode.system]. Bottom-nav shell wraps
+/// the 5 primary tabs; deep routes (e.g. /game, /donations) are
+/// stack-pushed from the relevant tab.
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'nav/bottom_nav.dart';
 import 'screens/ask_sheikh_screen.dart';
 import 'screens/children_game_screen.dart';
 import 'screens/donation_screen.dart';
@@ -19,12 +18,26 @@ import 'screens/home_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/quran_screen.dart';
 import 'screens/settings_screen.dart';
+import 'theme/rahma_theme.dart';
 
-class RahmaApp extends StatelessWidget {
+class RahmaApp extends StatefulWidget {
   const RahmaApp({super.key});
+  @override
+  State<RahmaApp> createState() => _RahmaAppState();
+}
+
+class _RahmaAppState extends State<RahmaApp> {
+  int _tab = 0;
 
   @override
   Widget build(BuildContext context) {
+    final tabs = <Widget>[
+      const HomeScreen(),
+      const DuaScreen(),
+      const AskSheikhScreen(),
+      const QuranScreen(),
+      const SettingsScreen(),
+    ];
     return MaterialApp(
       title: 'Rahma',
       debugShowCheckedModeBanner: false,
@@ -35,25 +48,25 @@ class RahmaApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+      themeMode: ThemeMode.system,
+      theme: RahmaTheme.light(),
+      darkTheme: RahmaTheme.dark(),
       builder: (context, child) => Directionality(
         textDirection: TextDirection.rtl,
         child: child ?? const SizedBox.shrink(),
       ),
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0F766E)),
+      home: Scaffold(
+        body: tabs[_tab],
+        bottomNavigationBar: RahmaBottomNav(
+          currentIndex: _tab,
+          onTap: (i) => setState(() => _tab = i),
+        ),
       ),
-      initialRoute: '/onboarding',
       routes: {
         '/onboarding': (_) => const OnboardingScreen(),
-        '/home':       (_) => const HomeScreen(),
-        '/quran':      (_) => const QuranScreen(),
         '/hadith':     (_) => const HadithScreen(),
-        '/dua':        (_) => const DuaScreen(),
-        '/ask':        (_) => const AskSheikhScreen(),
         '/game':       (_) => const ChildrenGameScreen(),
         '/donations':  (_) => const DonationScreen(),
-        '/settings':   (_) => const SettingsScreen(),
       },
     );
   }
