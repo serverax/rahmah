@@ -19,8 +19,12 @@ FAIL=0
 pass() { echo "[k3s-verify] PASS: $1"; }
 fail() { echo "[k3s-verify] FAIL: $1" >&2; FAIL=1; }
 
-# 1. Required namespaces
-REQUIRED_NS=(rahma-web rahma-api rahma-data rahma-ai rahma-monitoring rahma-security)
+# 1. Required namespaces (Rahma is mobile-only — NO rahma-web namespace)
+REQUIRED_NS=(rahma-api rahma-data rahma-ai rahma-monitoring rahma-security)
+# Explicit refusal: rahma-web must NOT exist as a namespace manifest.
+if [[ -f "deployment/k3s/namespaces/rahma-web.yaml" ]]; then
+  fail "deployment/k3s/namespaces/rahma-web.yaml exists; Rahma is mobile-only (no public web)."
+fi
 for ns in "${REQUIRED_NS[@]}"; do
   if [[ ! -f "deployment/k3s/namespaces/${ns}.yaml" ]]; then
     fail "namespace manifest missing: deployment/k3s/namespaces/${ns}.yaml"

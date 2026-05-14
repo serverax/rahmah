@@ -9,10 +9,10 @@ This bundle is the **infrastructure foundation** layered on top of the Sprints 3
 | # | Goal |
 |---|---|
 | 31 | Repository scope guard + status docs |
-| 32 | K3s namespaces (rahma-web / rahma-api / rahma-data / rahma-ai / rahma-monitoring / rahma-security) + ConfigMap + secret template |
+| 32 | K3s namespaces (rahma-api / rahma-data / rahma-ai / rahma-monitoring / rahma-security — mobile-only, no rahma-web) + ConfigMap + secret template |
 | 33 | PostgreSQL + Redis internal-only data layer |
 | 34 | Backend API deployment manifests with strict securityContext |
-| 35 | Frontend / admin / mobile web deployment manifests |
+| 35 | (REVISED: mobile-only) `apps/web/` retained as Arabic-RTL developer preview ONLY; no K3s frontend deployment |
 | 36 | Ingress + TLS (cert-manager) + DNS readiness docs |
 | 37 | Ask Sheikh Hasan admin workflow recap + verification |
 | 38 | Children's Islamic game foundation + safety docs |

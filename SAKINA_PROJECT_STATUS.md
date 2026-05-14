@@ -2,6 +2,12 @@
 
 Last updated: 2026-05-14 (Bundle 01 — Sprints 31–40 in progress).
 
+## Mobile-only correction (post-bundle-01)
+
+**Rahma is mobile-app-only.** There is no public website and no public admin web dashboard. The ONLY public endpoint is `api.<final-rahma-domain>` (placeholder: `api.rahma.example`). The 5 production namespaces are: `rahma-api`, `rahma-data`, `rahma-ai`, `rahma-monitoring`, `rahma-security`. `rahma-web` has been removed.
+
+See `reports/RAHMA_BUNDLE_01_MOBILE_ONLY_CORRECTION.md`.
+
 ## Bundle 01 (Sprints 31–40) snapshot
 
 - Live endpoint probe (all 200): `/health`, `/ready`, `/api/auth/status`, `/api/db/status`, `/api/rag/status`, `/api/engine/status`, `/api/privacy/status`, `/api/terms/status`, `/api/public/sheikh-hasan/qa`, `/api/library/categories`, `/api/library/sources/status`, `/api/rag/sources/status`.

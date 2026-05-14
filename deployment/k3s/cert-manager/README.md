@@ -45,9 +45,12 @@ Apply the ingress manifests under `deployment/k3s/ingress/`. cert-manager
 will automatically create a `Certificate` resource for each `tls:` block
 and request the cert via HTTP-01.
 
-DNS pre-requisites: the public A/CNAME records for
-`rahma.ordinoxai.com` and `api.rahma.ordinoxai.com` must already point at
-the cluster ingress IP, or HTTP-01 will fail.
+DNS pre-requisite: the public A/CNAME record for the final API host
+(temporary placeholder `api.rahma.example`) must already point at the
+cluster ingress IP, or HTTP-01 will fail.
+
+Rahma is mobile-only — there is no public website to issue a cert for,
+only the API host.
 
 ## Safety
 

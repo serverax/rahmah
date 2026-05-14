@@ -1,7 +1,11 @@
 # =============================================================================
-# Rahma — platform ConfigMap. NEVER contains secrets.
-# Replicated to namespaces that need it (rahma-api, rahma-web) by Kustomize
-# overlay (deferred) or by `kubectl create configmap --from-file`.
+# Rahma — platform ConfigMap (mobile-app-only target).
+#
+# Rahma is mobile-only. There is NO public website and NO admin web dashboard.
+# The only public endpoint is the API host below.
+#
+# `api.rahma.example` is a PLACEHOLDER for the eventual production hostname.
+# Operator must replace it once the final domain is chosen and DNS is verified.
 # =============================================================================
 apiVersion: v1
 kind: ConfigMap
@@ -14,9 +18,9 @@ metadata:
 data:
   APP_NAME: "Rahma"
   APP_ENV: "production"
-  PUBLIC_APP_URL: "https://rahma.ordinoxai.com"
-  PUBLIC_API_URL: "https://api.rahma.ordinoxai.com"
-  ADMIN_URL: "https://admin.rahma.ordinoxai.com"
+  # Only the API is public. PLACEHOLDER until operator confirms final domain.
+  PUBLIC_API_URL: "https://api.rahma.example"
+  # Internal-only AI gateway — never publicly exposed.
   AI_INTERNAL_URL: "http://ollama.ordinox-ai.svc.cluster.local:11434"
   DEFAULT_LANGUAGE: "ar"
   ENABLE_ARABIC_RTL: "true"
@@ -30,20 +34,3 @@ data:
   SCHOLAR_ANSWER_CITATION_REQUIRED: "true"
   PUBLIC_ANSWER_MODERATION_REQUIRED: "true"
   APP_STORE_COMPLIANCE_MODE: "true"
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: rahma-platform-config
-  namespace: rahma-web
-  labels:
-    app.kubernetes.io/part-of: rahma
-    app.kubernetes.io/managed-by: k3s
-data:
-  APP_NAME: "Rahma"
-  APP_ENV: "production"
-  PUBLIC_APP_URL: "https://rahma.ordinoxai.com"
-  PUBLIC_API_URL: "https://api.rahma.ordinoxai.com"
-  ADMIN_URL: "https://admin.rahma.ordinoxai.com"
-  DEFAULT_LANGUAGE: "ar"
-  ENABLE_ARABIC_RTL: "true"

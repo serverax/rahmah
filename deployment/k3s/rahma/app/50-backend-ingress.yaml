@@ -1,14 +1,13 @@
 # =============================================================================
-# Rahma backend Ingress — DO NOT APPLY until both are true:
+# Rahma backend Ingress (LEGACY older manifest — superseded by
+# deployment/k3s/ingress/rahma-api-ingress.yaml in the canonical bundle path).
 #
-#   1. A DNS A/AAAA record for the hostname below resolves to the K3s
-#      ingress IP (Traefik svclb on the target cluster).
-#   2. cert-manager + a ClusterIssuer are confirmed on the target cluster
-#      OR the operator explicitly accepts HTTP-only for staging.
+# This file is kept for historical / kustomize-compatibility reasons only.
+# Operators should apply the canonical manifest, NOT this one.
 #
-# The current production DNS (`sakina.ordinoxai.com`) returned NXDOMAIN at
-# the time this manifest was written. Operator must create the record before
-# applying.
+# Rahma is mobile-app-only: there is no public website. The ONLY public
+# endpoint is `api.<final-rahma-domain>`. `api.rahma.example` is a
+# PLACEHOLDER until the operator confirms the production domain.
 # =============================================================================
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -27,7 +26,7 @@ metadata:
     # cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   rules:
-    - host: sakina.ordinoxai.com   # PLACEHOLDER — operator-owned hostname
+    - host: api.rahma.example   # PLACEHOLDER — operator replaces with final domain
       http:
         paths:
           - path: /api
@@ -39,5 +38,5 @@ spec:
                   number: 3000
   # tls:
   #   - hosts:
-  #       - sakina.ordinoxai.com
+  #       - api.rahma.example
   #     secretName: rahma-backend-tls

@@ -1,27 +1,29 @@
-# Rahma — Infrastructure Variable Inventory
+# Rahma — Infrastructure Variable Inventory (Mobile-App Only)
 
 **Date:** 2026-05-14
-**Scope:** Rahma/Sakina only — never includes real secret values.
+**Scope:** Rahma/Sakina only — mobile-app target. No public website, no admin dashboard.
+Never includes real secret values.
 
-## Namespaces
+## Namespaces (5 total)
 
 | Name | Purpose |
 |---|---|
-| `rahma-web` | Public web frontend (Arabic-RTL static + minimal Node server) |
-| `rahma-api` | Backend Fastify API (`sakina-backend` image) |
+| `rahma-api` | Backend Fastify API serving the mobile app (`sakina-backend` image) |
 | `rahma-data` | PostgreSQL + Redis StatefulSets (internal only) |
-| `rahma-ai` | AI worker pods (Ollama draft, embeddings worker, WASM policy worker) — internal only |
-| `rahma-monitoring` | Prometheus / Loki / Grafana when added |
-| `rahma-security` | Falco / runtime-security workloads when added |
+| `rahma-ai` | WASM / AI / RAG worker pods (Ollama draft, embeddings worker, WASM policy worker) — internal only |
+| `rahma-monitoring` | Future monitoring stack (Prometheus / Loki / Grafana) |
+| `rahma-security` | Future security workloads (Falco templates etc.) |
 
-## Public domains (Cloudflare → cluster ingress)
+**No `rahma-web` namespace.** Rahma is mobile-only.
+
+## Public endpoint (single)
 
 | Host | Target service | Notes |
 |---|---|---|
-| `rahma.ordinoxai.com` | `rahma-web.rahma-web.svc.cluster.local:80` | public web |
-| `api.rahma.ordinoxai.com` | `rahma-api.rahma-api.svc.cluster.local:80` | public API |
-| `admin.rahma.ordinoxai.com` | (admin service when split out) | admin only, auth-gated |
-| `ai.rahma.ordinoxai.com` | NOT public | DO NOT expose Ollama publicly |
+| `api.<final-rahma-domain>` (placeholder: `api.rahma.example`) | `rahma-api.rahma-api.svc.cluster.local:80` | the ONLY public endpoint |
+
+No web / admin / ai public hosts exist. The mobile app talks to the API
+host directly.
 
 ## Internal service DNS
 
@@ -29,15 +31,14 @@
 |---|---|---|
 | Postgres | `rahma-postgres.rahma-data.svc.cluster.local` | 5432 |
 | Redis | `rahma-redis.rahma-data.svc.cluster.local` | 6379 |
-| Backend API | `rahma-api.rahma-api.svc.cluster.local` | 80 → 3000 |
-| Frontend | `rahma-web.rahma-web.svc.cluster.local` | 80 → 8080 |
+| Backend API (internal) | `rahma-api.rahma-api.svc.cluster.local` | 80 → 3000 |
 | AI gateway (shared, NOT touched) | `ollama.ordinox-ai.svc.cluster.local` | 11434 |
 
 ## Expected ConfigMap
 
 | Name | Namespaces | Contents |
 |---|---|---|
-| `rahma-platform-config` | `rahma-api`, `rahma-web` | `APP_*`, `PUBLIC_*_URL`, feature flags |
+| `rahma-platform-config` | `rahma-api` | `APP_*`, `PUBLIC_API_URL`, feature flags |
 
 ## Expected Secret names (NEVER committed, applied via `kubectl create secret`)
 
@@ -46,18 +47,20 @@
 | `rahma-api-secrets` | `rahma-api` | `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET`, `SESSION_SECRET`, `SHEIKH_ALLOWED_EMAIL_HASHES`, `ADMIN_ALLOWED_EMAIL_HASHES`, `ADMIN_EMAIL`, `ADMIN_PASSWORD_HASH`, `SHEIKH_HASAN_EMAIL`, `SHEIKH_HASAN_PASSWORD_HASH` |
 | `rahma-postgres-secret` | `rahma-data` | `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` |
 | `rahma-redis-secret` | `rahma-data` | `REDIS_PASSWORD` |
-| `letsencrypt-prod-account-key` | `cert-manager` | ACME account key (managed by cert-manager itself) |
-| `rahma-web-tls` | `rahma-web` | issued by cert-manager |
-| `rahma-api-tls` | `rahma-api` | issued by cert-manager |
+| `rahma-api-tls` | `rahma-api` | issued by cert-manager (operator-chosen ClusterIssuer) |
+| ClusterIssuer account key | `cert-manager` | managed by cert-manager itself — **operator-owned, do not touch from this repo** |
 
 ## Container images
 
 | Image | Source |
 |---|---|
 | `ghcr.io/serverax/rahmah/sakina-backend:main` | `.github/workflows/backend-image-ci.yml` on push to main |
-| `ghcr.io/serverax/rahmah/rahma-web:main` | (workflow not yet wired — Sprint 41 candidate) |
 | `postgres:16.4-alpine` | upstream |
 | `redis:7.4-alpine` | upstream |
+
+No `rahma-web` image is built or deployed. `apps/web/` exists as a
+developer-only Arabic-RTL preview scaffold; it is NOT a deployed
+artefact.
 
 ## Environment-flag matrix (operator-controlled at apply time)
 
@@ -70,7 +73,7 @@
 | `PUBLIC_ANSWER_MODERATION_REQUIRED` | `true` | require admin/reviewer approval |
 | `APP_STORE_COMPLIANCE_MODE` | `true` | enforce account-deletion / data-export / reporting paths |
 | `ASK_SHEIKH_HASAN_ENABLED` | `true` | feature flag for the workflow |
-| `PUBLIC_SHEIKH_QA_ENABLED` | `true` | public read-only Q&A |
+| `PUBLIC_SHEIKH_QA_ENABLED` | `true` | public read-only Q&A (served via mobile API only) |
 | `LIBRARY_ENABLED` | `true` | Islamic library section |
 
 ## NEVER stored in this repo
@@ -82,3 +85,11 @@
 - Real email addresses for admin/sheikh
 - Real kubeconfigs / SSH keys / Hetzner API tokens
 - Real WhatsApp / payment provider tokens
+
+## NEVER modified from this repo
+
+- Traefik configuration
+- cert-manager core install
+- NetworkPolicy resources owned by another tenant
+- Firewall / UFW / iptables rules
+- SSH server configuration on any node
