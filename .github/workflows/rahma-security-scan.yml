@@ -100,6 +100,7 @@ jobs:
             | grep -vE '^\./\.github/workflows/rahma-security-scan\.yml' \
             | grep -vE '^\./scripts/guard/verify-rahma-scope\.sh' \
             | grep -vE '^\./scripts/security/rahma-(secret|k8s-safety)-scan\.sh' \
+            | grep -vE '^\./scripts/security/rahma-release-security-gate\.sh' \
             | grep -vE '^\./scripts/deploy/verify-rahma-(cluster|repo)\.sh' \
             | grep -vE '^\./scripts/k3s/(deploy|delete)-sakina-staging\.sh' \
             | grep -vE '^\./deployment/k3s/scripts/(deploy|verify|rollback)-rahma-mobile-infra\.sh' \
