@@ -18,6 +18,7 @@
  */
 
 import Fastify from 'fastify';
+import { pathToFileURL } from 'node:url';
 import { evaluateChildContent } from './policy.js';
 
 const PORT = Number(process.env.PORT || 8080);
@@ -56,7 +57,14 @@ export function buildServer() {
   return app;
 }
 
-if (process.env.NODE_ENV !== 'test') {
+// Only auto-listen when this file is the Node entrypoint
+// (`node src/index.js` / `npm start`). When imported by a test file
+// (`node --test test/runtime.test.js`), do nothing — otherwise the
+// listener pins the process open and the test runner hangs.
+const isEntrypoint =
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isEntrypoint) {
   const app = buildServer();
   app.listen({ port: PORT, host: HOST }).catch((err) => {
     // Never include token / DSN / body content here.
