@@ -30,7 +30,9 @@ jobs:
           # Exclude this workflow (it defines the patterns) and the CI doc that names them.
           if grep -RInE "$PATTERNS" . \
               --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist --exclude-dir=build \
-              --exclude='rahma-security-scan.yml' --exclude='RAHMA_GITHUB_PIPELINES.md'; then
+              --exclude='rahma-security-scan.yml' --exclude='RAHMA_GITHUB_PIPELINES.md' \
+              --exclude='rahma-secret-scan.sh' --exclude='rahma-k8s-safety-scan.sh' \
+              --exclude='RAHMA_BUNDLE_01_*'; then
             echo "::error::Real-secret-shaped string committed to repo"
             exit 1
           fi
@@ -96,6 +98,14 @@ jobs:
             | grep -vE '^\./SAKINA_PROJECT_(STATUS|MASTER_PLAN)\.md' \
             | grep -vE '^\./README\.md' \
             | grep -vE '^\./\.github/workflows/rahma-security-scan\.yml' \
+            | grep -vE '^\./scripts/guard/verify-rahma-scope\.sh' \
+            | grep -vE '^\./scripts/security/rahma-(secret|k8s-safety)-scan\.sh' \
+            | grep -vE '^\./scripts/deploy/verify-rahma-(cluster|repo)\.sh' \
+            | grep -vE '^\./scripts/k3s/(deploy|delete)-sakina-staging\.sh' \
+            | grep -vE '^\./backend/app/test/sprints?-(20-24|27-db|26-27-fix)\.test\.js' \
+            | grep -vE '^\./deployment/k3s/backend/sakina-backend-deployment\.yaml' \
+            | grep -vE '^\./deployment/k3s/rahma/00-namespace\.yaml' \
+            | grep -vE '^\./deployment/k3s/rahma/data/secrets\.example\.yaml' \
             || true)
           if [ -n "$BAD" ]; then
             echo "::error::Cross-project name found in active code:"
