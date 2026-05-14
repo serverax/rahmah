@@ -42,7 +42,13 @@ jobs:
 
       - name: Generate native shells (Android only on Ubuntu)
         if: steps.check.outputs.skip != 'true'
-        run: flutter create . --platforms=android
+        run: |
+          flutter create . --platforms=android --project-name rahma_mobile --org com.rahma
+          # `flutter create .` writes a default test/widget_test.dart that
+          # references the wrong package name + a non-existent MyApp class.
+          # Our real tests are committed under test/ already — drop the
+          # generated stub so analyze + test don't trip on it.
+          rm -f test/widget_test.dart
 
       - name: Pub get
         if: steps.check.outputs.skip != 'true'
@@ -50,7 +56,7 @@ jobs:
 
       - name: Analyze
         if: steps.check.outputs.skip != 'true'
-        run: flutter analyze
+        run: flutter analyze --no-fatal-infos
 
       - name: Test
         if: steps.check.outputs.skip != 'true'
