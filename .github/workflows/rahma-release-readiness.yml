@@ -90,7 +90,13 @@ jobs:
         shell: bash
         run: |
           set -e
+          # Skip:
+          #   - test files (which assert the INVERSE of fake claims, e.g. that
+          #     configured=false is NEVER treated as production-ready)
+          #   - this workflow itself (its scanner regex contains the tokens)
           BAD=$(grep -RIn -E '\b(production[ -]ready|deployed and running|live in production|app[ -]store ready)\b' \
+            --exclude-dir=test \
+            --exclude=rahma-release-readiness.yml \
             backend deployment .github 2>/dev/null \
             || true)
           if [ -n "$BAD" ]; then

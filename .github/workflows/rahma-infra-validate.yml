@@ -96,6 +96,11 @@ jobs:
           import sys, yaml
           path = sys.argv[1]
           PLACEHOLDERS = {'CHANGE_ME', 'REPLACE_ME', 'PLACEHOLDER'}
+          # Keys that are NOT secrets even when they appear inside a Secret object:
+          # database name, username, hostname, port, root-username, etc. These are
+          # identifiers, not credentials, and don't need to be placeholders in an
+          # EXAMPLE manifest.
+          SENSITIVE_RE = ('PASSWORD', 'SECRET', 'TOKEN', '_KEY', 'CREDENTIAL', 'PRIVATE', 'API_KEY')
           docs = list(yaml.safe_load_all(open(path)))
           bad = []
           for d in docs:
@@ -106,6 +111,8 @@ jobs:
                   continue
               for key, val in (d.get('stringData') or {}).items():
                   if not isinstance(val, str): continue
+                  if not any(s in key.upper() for s in SENSITIVE_RE):
+                      continue
                   if not any(p in val for p in PLACEHOLDERS):
                       bad.append(f"Secret key {key} has non-placeholder value")
           if bad:
