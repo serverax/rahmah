@@ -4,7 +4,7 @@
 **Project:** Rahma/Sakina (mobile-only)
 **Repo:** `serverax/rahmah` · Branch `main`
 **Starting HEAD:** `0da4613`
-**Final HEAD:** captured after push
+**Final HEAD:** `87d4a17` (Bundle 04 work + 2 post-bundle fixes: mobile app.dart bottom-nav shell + repair of pre-existing release-gate workflow YAML)
 
 ## 1. Scope confirmation
 
@@ -120,15 +120,32 @@ Flutter tests + WASM bridge tests: run in CI workflows (no local SDK).
 
 ## 13. CI result
 
-Captured after push.
+On final HEAD `87d4a17` (push event):
+
+| Workflow | Conclusion |
+|---|---|
+| rahma-ci (backend lint+build+test) | **success** |
+| rahma-security-scan | **success** |
+| rahma-infra-validate | **success** (first green ever; broken by YAML-indent bug since `c895ce2`, fixed in `eb83353` + `87d4a17`) |
+| rahma-release-readiness | **success** (first green ever; same root cause + scanner-tightening) |
+| rahma-mobile-flutter-ci | **success** (last green on `363a447`; path-filtered, not triggered by `87d4a17`) |
+| backend-image-ci | last green on `1b18471` (path-filtered to `backend/app/**`) |
+| rahma-child-safety-image | re-triggered manually after the original run was cancelled mid-build; status **in_progress** at the time this report was written |
 
 ## 14. Push result
 
-Captured after push.
+`87d4a17` pushed to `serverax/rahmah` `main`. Commit chain on top of the Bundle 04 initial push (`1b18471`):
+
+- `521e07c` — fix(rahma-mobile-flutter-ci): pass `--project-name` + drop the auto-generated widget_test.dart.
+- `b8ec815` — fix(rahma-mobile): use `pumpAndSettle()` so async localization lookups complete before assertions.
+- `fe6b708` — fix(rahma-mobile): assert against `BottomNavigationBar` (framework type), not `RahmaBottomNav`.
+- `363a447` — fix(rahma-mobile): actually apply the bottom-nav shell to `apps/mobile/lib/app.dart` (earlier Write had silently failed).
+- `eb83353` — fix(workflows): repair pre-existing YAML-indent bug in `rahma-infra-validate.yml` + `rahma-release-readiness.yml`. Both had python heredoc / multi-line `python -c '...'` bodies at column 0, outside the `run: |` block-scalar indent. Both workflows had **never produced a green run** since they were introduced in `c895ce2`.
+- `87d4a17` — fix(workflows): tighten the now-running release-gate scanners to remove false positives (`POSTGRES_DB` / `POSTGRES_USER` are identifiers not credentials; exclude `test/` and the scanner workflow itself from the doc-claim scan).
 
 ## 15. Live cluster status
 
-Unchanged. Real `rahma-api:latest` on GHCR. Real `rahma-child-safety-wasm:latest`: NOT YET BUILT (CI build triggered by this push). Cluster rollout: OPERATOR-PENDING.
+Unchanged. Real `rahma-api:latest` on GHCR (last built on `1b18471`). Real `rahma-child-safety-wasm:latest`: build re-triggered by this bundle's closeout (original `1b18471` run was cancelled mid-build; manual `workflow_dispatch` issued against `87d4a17`). Cluster rollout: OPERATOR-PENDING for both images.
 
 ## 16. Placeholder status
 
