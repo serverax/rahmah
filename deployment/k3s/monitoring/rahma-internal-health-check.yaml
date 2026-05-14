@@ -48,7 +48,7 @@ spec:
                   head -c 256 /tmp/api.json || true
                   echo
                   echo "[health] $(date -u) — probing WASM placeholders"
-                  for svc in rahma-wasm-citation rahma-wasm-child-safety rahma-wasm-fatwa-gate rahma-wasm-rule-engine; do
+                  for svc in rahma-fatwa-policy-gate-wasm rahma-quran-hadith-citation-wasm rahma-child-safety-wasm rahma-content-rule-engine-wasm; do
                     curl -sS -m 3 -o /dev/null -w "${svc} http_status=%{http_code}\n" \
                          "http://${svc}.rahma-ai.svc.cluster.local:8080/" || true
                   done

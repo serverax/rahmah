@@ -52,7 +52,10 @@ export default async function readyRoute(fastify) {
 
     return {
       ok: true,
-      service: 'sakina-backend',
+      service: 'rahma-api',
+      legacy_service_name: 'sakina-backend',
+      platform: 'mobile-only',
+      public_ingress: 'disabled',
       production_ready,
       blockers,
       database: {

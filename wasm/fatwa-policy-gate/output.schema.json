@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rahma.example/wasm/fatwa-policy-gate/output.schema.json",
+  "title": "fatwa-policy-gate output",
+  "type": "object",
+  "required": ["decision", "reason"],
+  "additionalProperties": false,
+  "properties": {
+    "decision": { "type": "string", "enum": ["allow_publish", "block", "needs_scholar_review"] },
+    "reason":   { "type": "string" }
+  }
+}

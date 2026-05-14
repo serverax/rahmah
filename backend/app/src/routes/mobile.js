@@ -35,7 +35,8 @@ export default async function mobileRoute(fastify) {
       public_ingress_disabled: true,
       database: { configured: isDatabaseConfigured() },
       redis: { configured: Boolean(process.env.REDIS_URL) },
-      wasm: { configured: false, modules: ['quran-hadith-citation', 'child-safety', 'fatwa-policy-gate', 'content-rule-engine'] },
+      wasm: { configured: false, modules: ['fatwa-policy-gate', 'quran-hadith-citation', 'child-safety', 'content-rule-engine'] },
+      public_ingress: 'disabled',
       auth: { configured: isAuthConfigured(), mode: getAuthMode() },
       rag: { mode: rag.mode, approved_sources: rag.approved_sources | 0 },
       features: {

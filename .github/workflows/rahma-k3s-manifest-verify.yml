@@ -1,0 +1,39 @@
+name: rahma-k3s-manifest-verify
+# Read-only safety scans of Rahma K3s manifests + scope/secret/k8s-safety scans.
+# Never touches a cluster.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'deployment/k3s/**'
+      - 'scripts/guard/**'
+      - 'scripts/security/**'
+      - '.github/workflows/rahma-k3s-manifest-verify.yml'
+  pull_request:
+    paths:
+      - 'deployment/k3s/**'
+      - 'scripts/guard/**'
+      - 'scripts/security/**'
+  workflow_dispatch: {}
+
+jobs:
+  manifest-verify:
+    name: K3s manifest + safety scans
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Scope guard
+        run: bash scripts/guard/verify-rahma-scope.sh
+
+      - name: K3s manifest verify
+        run: bash deployment/k3s/scripts/verify-rahma-manifests.sh
+
+      - name: K8s safety scan
+        run: bash scripts/security/rahma-k8s-safety-scan.sh
+
+      - name: Secret scan
+        run: bash scripts/security/rahma-secret-scan.sh

@@ -9,7 +9,8 @@ test('GET /health returns ok=true with required service identity', async () => {
     assert.equal(res.statusCode, 200);
     const body = res.json();
     assert.equal(body.ok, true);
-    assert.equal(body.service, 'sakina-backend');
+    assert.equal(body.service, 'rahma-api');
+    assert.equal(body.legacy_service_name, 'sakina-backend');
     assert.equal(body.status, 'healthy');
   } finally {
     await app.close();

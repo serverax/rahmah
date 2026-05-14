@@ -1,0 +1,47 @@
+name: rahma-backend-ci
+# Lint + build + test the Rahma mobile backend (Fastify ESM).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/app/**'
+      - 'backend/db/**'
+      - '.github/workflows/rahma-backend-ci.yml'
+  pull_request:
+    paths:
+      - 'backend/app/**'
+      - 'backend/db/**'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  backend-ci:
+    name: Backend lint + build + test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend/app
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies (npm ci)
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build (syntax check)
+        run: npm run build
+
+      - name: Test
+        run: npm test

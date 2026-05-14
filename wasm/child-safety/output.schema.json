@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rahma.example/wasm/child-safety/output.schema.json",
+  "title": "child-safety output",
+  "type": "object",
+  "required": ["decision"],
+  "additionalProperties": false,
+  "properties": {
+    "decision":         { "type": "string", "enum": ["allow", "block"] },
+    "reason":           { "type": ["string", "null"] },
+    "sensitive_topic":  { "type": ["string", "null"] }
+  }
+}

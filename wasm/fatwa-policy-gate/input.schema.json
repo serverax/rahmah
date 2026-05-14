@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rahma.example/wasm/fatwa-policy-gate/input.schema.json",
+  "title": "fatwa-policy-gate input",
+  "type": "object",
+  "required": ["has_scholar_approval", "has_verified_quran_or_hadith_citation", "publication_mode_public"],
+  "additionalProperties": false,
+  "properties": {
+    "has_scholar_approval":                   { "type": "boolean" },
+    "has_verified_quran_or_hadith_citation":  { "type": "boolean" },
+    "publication_mode_public":                { "type": "boolean" }
+  }
+}

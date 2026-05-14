@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rahma.example/wasm/quran-hadith-citation/output.schema.json",
+  "title": "quran-hadith-citation output",
+  "type": "object",
+  "required": ["citation_status", "can_publish_public", "can_publish_private"],
+  "additionalProperties": false,
+  "properties": {
+    "citation_status": {
+      "type": "string",
+      "enum": [
+        "quran_cited",
+        "hadith_cited",
+        "quran_and_hadith_cited",
+        "scholar_advice_needs_review",
+        "insufficient_citation"
+      ]
+    },
+    "can_publish_public":  { "type": "boolean" },
+    "can_publish_private": { "type": "boolean" },
+    "reason":              { "type": ["string", "null"] }
+  }
+}

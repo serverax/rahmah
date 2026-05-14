@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rahma.example/wasm/quran-hadith-citation/input.schema.json",
+  "title": "quran-hadith-citation input (array of citation rows)",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["citation_type", "citation_label"],
+    "additionalProperties": false,
+    "properties": {
+      "citation_type":  { "type": "string", "enum": ["quran", "hadith", "fiqh", "scholar_note"] },
+      "citation_label": { "type": "string", "minLength": 1, "maxLength": 200 },
+      "citation_text":  { "type": ["string", "null"], "maxLength": 600 },
+      "citation_url":   { "type": ["string", "null"], "maxLength": 500 }
+    }
+  }
+}

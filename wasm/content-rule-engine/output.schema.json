@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rahma.example/wasm/content-rule-engine/output.schema.json",
+  "title": "content-rule-engine output",
+  "type": "object",
+  "required": ["show_in_public_list", "citation_required", "public_visible", "private_visible", "reason"],
+  "additionalProperties": false,
+  "properties": {
+    "show_in_public_list": { "type": "boolean" },
+    "citation_required":   { "type": "boolean", "const": true },
+    "public_visible":      { "type": "boolean" },
+    "private_visible":     { "type": "boolean" },
+    "reason":              { "type": "string" }
+  }
+}

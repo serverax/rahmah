@@ -1,0 +1,44 @@
+# =============================================================================
+# Rahma API ingress — DO NOT APPLY.
+#
+# This file is parked in docs/future/ because Rahma's public API exposure is
+# DEFERRED until the operator picks the final production domain. Apply ONLY
+# after:
+#   - Final domain chosen (NOT api.rahma.example, NOT any OrdinoxAI domain).
+#   - DNS A/CNAME record points at the cluster ingress IP.
+#   - cert-manager + the operator's chosen ClusterIssuer Ready on the
+#     target cluster.
+#   - The placeholder host and `REPLACE_ME_clusterissuer` below have been
+#     edited to the real values.
+#
+# Until then this manifest stays here — NOT under deployment/k3s/ — so
+# `kubectl apply -f deployment/k3s/...` cannot pick it up by accident.
+# =============================================================================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rahma-api
+  namespace: rahma-api
+  labels:
+    app.kubernetes.io/part-of: rahma
+  annotations:
+    cert-manager.io/cluster-issuer: "REPLACE_ME_clusterissuer"
+    traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - REPLACE_ME_FINAL_API_HOST
+      secretName: rahma-api-tls
+  rules:
+    - host: REPLACE_ME_FINAL_API_HOST
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rahma-api
+                port:
+                  number: 80

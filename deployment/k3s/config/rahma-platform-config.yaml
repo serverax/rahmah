@@ -1,11 +1,11 @@
 # =============================================================================
-# Rahma — platform ConfigMap (mobile-app-only target).
+# Rahma — platform ConfigMap (mobile-app-only, no public exposure).
 #
-# Rahma is mobile-only. There is NO public website and NO admin web dashboard.
-# The only public endpoint is the API host below.
-#
-# `api.rahma.example` is a PLACEHOLDER for the eventual production hostname.
-# Operator must replace it once the final domain is chosen and DNS is verified.
+# Rahma is mobile-only. The mobile app talks to the API via an internal
+# Service DNS while public exposure is deferred. PUBLIC_API_URL is
+# intentionally UNSET to avoid baking a placeholder hostname into the
+# cluster. When the operator chooses the final domain, this ConfigMap
+# is updated and re-applied; not before.
 # =============================================================================
 apiVersion: v1
 kind: ConfigMap
@@ -18,10 +18,15 @@ metadata:
 data:
   APP_NAME: "Rahma"
   APP_ENV: "production"
-  # Only the API is public. PLACEHOLDER until operator confirms final domain.
-  PUBLIC_API_URL: "https://api.rahma.example"
+  # Internal-only API URL (in-cluster Service DNS). This is what other Rahma
+  # workloads use; mobile traffic terminates at the future ingress.
+  INTERNAL_API_URL: "http://rahma-api.rahma-api.svc.cluster.local"
   # Internal-only AI gateway — never publicly exposed.
   AI_INTERNAL_URL: "http://ollama.ordinox-ai.svc.cluster.local:11434"
+  # Public API URL is INTENTIONALLY UNSET. Will be set when the operator
+  # picks the final production domain; until then mobile app builds must
+  # NOT bake a hostname into the binary.
+  PUBLIC_INGRESS_ENABLED: "false"
   DEFAULT_LANGUAGE: "ar"
   ENABLE_ARABIC_RTL: "true"
   ENABLE_ASK_SHEIKH_HASAN: "true"

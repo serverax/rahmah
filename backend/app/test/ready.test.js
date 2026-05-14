@@ -13,7 +13,10 @@ test('GET /ready exposes ibadat safety flags', async () => {
     assert.equal(res.statusCode, 200);
     const body = res.json();
     assert.equal(body.ok, true);
-    assert.equal(body.service, 'sakina-backend');
+    assert.equal(body.service, 'rahma-api');
+    assert.equal(body.legacy_service_name, 'sakina-backend');
+    assert.equal(body.platform, 'mobile-only');
+    assert.equal(body.public_ingress, 'disabled');
     assert.equal(typeof body.database, 'object');
     assert.equal(typeof body.database.configured, 'boolean');
     assert.equal(typeof body.database.connected, 'boolean');

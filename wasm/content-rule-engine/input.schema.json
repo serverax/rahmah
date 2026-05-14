@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rahma.example/wasm/content-rule-engine/input.schema.json",
+  "title": "content-rule-engine input",
+  "type": "object",
+  "required": ["verification_status", "has_citation", "is_published", "is_test_fixture"],
+  "additionalProperties": false,
+  "properties": {
+    "verification_status": { "type": "string", "enum": ["approved", "pending_review", "rejected", "unverified"] },
+    "has_citation":        { "type": "boolean" },
+    "is_published":        { "type": "boolean" },
+    "is_test_fixture":     { "type": "boolean" }
+  }
+}

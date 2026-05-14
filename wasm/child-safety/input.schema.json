@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rahma.example/wasm/child-safety/input.schema.json",
+  "title": "child-safety input",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "body_ar":  { "type": "string", "minLength": 1, "maxLength": 4000 },
+    "age_band": { "type": "string", "enum": ["4-6", "7-9", "10-12", "13+"] },
+    "topic_tags": {
+      "type": "array",
+      "items": { "type": "string", "maxLength": 64 },
+      "maxItems": 32
+    }
+  }
+}
