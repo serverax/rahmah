@@ -102,6 +102,7 @@ jobs:
             | grep -vE '^\./scripts/security/rahma-(secret|k8s-safety)-scan\.sh' \
             | grep -vE '^\./scripts/deploy/verify-rahma-(cluster|repo)\.sh' \
             | grep -vE '^\./scripts/k3s/(deploy|delete)-sakina-staging\.sh' \
+            | grep -vE '^\./deployment/k3s/scripts/(deploy|verify|rollback)-rahma-mobile-infra\.sh' \
             | grep -vE '^\./backend/app/test/sprints?-(20-24|27-db|26-27-fix)\.test\.js' \
             | grep -vE '^\./deployment/k3s/backend/sakina-backend-deployment\.yaml' \
             | grep -vE '^\./deployment/k3s/rahma/00-namespace\.yaml' \
