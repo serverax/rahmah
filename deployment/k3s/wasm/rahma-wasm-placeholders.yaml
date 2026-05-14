@@ -1,0 +1,204 @@
+# =============================================================================
+# Rahma WASM policy placeholders — internal ClusterIP services in rahma-ai.
+#
+# The four crates live under wasm/. Real .wasm images are pending (CI workflow
+# rahma-wasm-build produces the .wasm artifacts; a runtime image must be
+# operator-chosen before these placeholders are swapped). Until then, this
+# file declares the four Services + minimal placeholder Deployments so the
+# cluster matches the agreed inventory.
+#
+# ClusterIP only. NO public exposure. NEVER reachable from outside the cluster.
+# =============================================================================
+---
+# 1. quran-hadith-citation
+apiVersion: v1
+kind: Service
+metadata:
+  name: rahma-wasm-citation
+  namespace: rahma-ai
+  labels:
+    app.kubernetes.io/name: rahma-wasm-citation
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/component: wasm-policy
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: rahma-wasm-citation
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rahma-wasm-citation
+  namespace: rahma-ai
+  labels:
+    app.kubernetes.io/name: rahma-wasm-citation
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/component: wasm-policy
+  annotations:
+    rahma.io/notice: "PLACEHOLDER — wasm/quran-hadith-citation .wasm pending real runtime image"
+spec:
+  replicas: 1
+  selector: { matchLabels: { app.kubernetes.io/name: rahma-wasm-citation } }
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: rahma-wasm-citation
+        app.kubernetes.io/part-of: rahma
+        app.kubernetes.io/component: wasm-policy
+    spec:
+      automountServiceAccountToken: false
+      securityContext: { runAsNonRoot: true, seccompProfile: { type: RuntimeDefault } }
+      containers:
+        - name: placeholder
+          image: nginxinc/nginx-unprivileged:1.27-alpine
+          imagePullPolicy: IfNotPresent
+          ports: [{ name: http, containerPort: 8080, protocol: TCP }]
+          resources: { requests: { cpu: "10m", memory: "16Mi" }, limits: { cpu: "100m", memory: "64Mi" } }
+          readinessProbe: { httpGet: { path: /, port: http }, initialDelaySeconds: 3, periodSeconds: 5 }
+          securityContext: { allowPrivilegeEscalation: false, capabilities: { drop: ["ALL"] } }
+---
+# 2. child-safety
+apiVersion: v1
+kind: Service
+metadata:
+  name: rahma-wasm-child-safety
+  namespace: rahma-ai
+  labels:
+    app.kubernetes.io/name: rahma-wasm-child-safety
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/component: wasm-policy
+spec:
+  type: ClusterIP
+  ports: [{ name: http, port: 8080, targetPort: http, protocol: TCP }]
+  selector: { app.kubernetes.io/name: rahma-wasm-child-safety }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rahma-wasm-child-safety
+  namespace: rahma-ai
+  labels:
+    app.kubernetes.io/name: rahma-wasm-child-safety
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/component: wasm-policy
+  annotations:
+    rahma.io/notice: "PLACEHOLDER — wasm/child-safety .wasm pending real runtime image"
+spec:
+  replicas: 1
+  selector: { matchLabels: { app.kubernetes.io/name: rahma-wasm-child-safety } }
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: rahma-wasm-child-safety
+        app.kubernetes.io/part-of: rahma
+        app.kubernetes.io/component: wasm-policy
+    spec:
+      automountServiceAccountToken: false
+      securityContext: { runAsNonRoot: true, seccompProfile: { type: RuntimeDefault } }
+      containers:
+        - name: placeholder
+          image: nginxinc/nginx-unprivileged:1.27-alpine
+          imagePullPolicy: IfNotPresent
+          ports: [{ name: http, containerPort: 8080, protocol: TCP }]
+          resources: { requests: { cpu: "10m", memory: "16Mi" }, limits: { cpu: "100m", memory: "64Mi" } }
+          readinessProbe: { httpGet: { path: /, port: http }, initialDelaySeconds: 3, periodSeconds: 5 }
+          securityContext: { allowPrivilegeEscalation: false, capabilities: { drop: ["ALL"] } }
+---
+# 3. fatwa-policy-gate
+apiVersion: v1
+kind: Service
+metadata:
+  name: rahma-wasm-fatwa-gate
+  namespace: rahma-ai
+  labels:
+    app.kubernetes.io/name: rahma-wasm-fatwa-gate
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/component: wasm-policy
+spec:
+  type: ClusterIP
+  ports: [{ name: http, port: 8080, targetPort: http, protocol: TCP }]
+  selector: { app.kubernetes.io/name: rahma-wasm-fatwa-gate }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rahma-wasm-fatwa-gate
+  namespace: rahma-ai
+  labels:
+    app.kubernetes.io/name: rahma-wasm-fatwa-gate
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/component: wasm-policy
+  annotations:
+    rahma.io/notice: "PLACEHOLDER — wasm/fatwa-policy-gate .wasm pending real runtime image"
+spec:
+  replicas: 1
+  selector: { matchLabels: { app.kubernetes.io/name: rahma-wasm-fatwa-gate } }
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: rahma-wasm-fatwa-gate
+        app.kubernetes.io/part-of: rahma
+        app.kubernetes.io/component: wasm-policy
+    spec:
+      automountServiceAccountToken: false
+      securityContext: { runAsNonRoot: true, seccompProfile: { type: RuntimeDefault } }
+      containers:
+        - name: placeholder
+          image: nginxinc/nginx-unprivileged:1.27-alpine
+          imagePullPolicy: IfNotPresent
+          ports: [{ name: http, containerPort: 8080, protocol: TCP }]
+          resources: { requests: { cpu: "10m", memory: "16Mi" }, limits: { cpu: "100m", memory: "64Mi" } }
+          readinessProbe: { httpGet: { path: /, port: http }, initialDelaySeconds: 3, periodSeconds: 5 }
+          securityContext: { allowPrivilegeEscalation: false, capabilities: { drop: ["ALL"] } }
+---
+# 4. content-rule-engine
+apiVersion: v1
+kind: Service
+metadata:
+  name: rahma-wasm-rule-engine
+  namespace: rahma-ai
+  labels:
+    app.kubernetes.io/name: rahma-wasm-rule-engine
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/component: wasm-policy
+spec:
+  type: ClusterIP
+  ports: [{ name: http, port: 8080, targetPort: http, protocol: TCP }]
+  selector: { app.kubernetes.io/name: rahma-wasm-rule-engine }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rahma-wasm-rule-engine
+  namespace: rahma-ai
+  labels:
+    app.kubernetes.io/name: rahma-wasm-rule-engine
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/component: wasm-policy
+  annotations:
+    rahma.io/notice: "PLACEHOLDER — wasm/content-rule-engine .wasm pending real runtime image"
+spec:
+  replicas: 1
+  selector: { matchLabels: { app.kubernetes.io/name: rahma-wasm-rule-engine } }
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: rahma-wasm-rule-engine
+        app.kubernetes.io/part-of: rahma
+        app.kubernetes.io/component: wasm-policy
+    spec:
+      automountServiceAccountToken: false
+      securityContext: { runAsNonRoot: true, seccompProfile: { type: RuntimeDefault } }
+      containers:
+        - name: placeholder
+          image: nginxinc/nginx-unprivileged:1.27-alpine
+          imagePullPolicy: IfNotPresent
+          ports: [{ name: http, containerPort: 8080, protocol: TCP }]
+          resources: { requests: { cpu: "10m", memory: "16Mi" }, limits: { cpu: "100m", memory: "64Mi" } }
+          readinessProbe: { httpGet: { path: /, port: http }, initialDelaySeconds: 3, periodSeconds: 5 }
+          securityContext: { allowPrivilegeEscalation: false, capabilities: { drop: ["ALL"] } }

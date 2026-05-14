@@ -1,11 +1,11 @@
 [package]
-name = "citation-gate"
+name = "fatwa-policy-gate"
 version = "0.1.0"
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 publish = false
-description = "Deterministic Rahma citation-requirement policy (Rust + WASM port of citation-requirement.js)"
+description = "Rahma fatwa-policy gate (FOUNDATION — refuses every public fatwa answer until a real scholar approval is wired)"
 
 [lib]
 crate-type = ["cdylib", "rlib"]

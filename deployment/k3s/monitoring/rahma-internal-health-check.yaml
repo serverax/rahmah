@@ -1,0 +1,68 @@
+# =============================================================================
+# Rahma internal health-check CronJob.
+#
+# Runs every 5 minutes inside the cluster. Curls the internal Service DNS for
+# the API and prints the response to the job log. No public exposure. No
+# alerting hooked up yet (Prometheus/Alertmanager join in rahma-monitoring
+# in a later sprint).
+# =============================================================================
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: rahma-internal-health-check
+  namespace: rahma-monitoring
+  labels:
+    app.kubernetes.io/name: rahma-internal-health-check
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/component: monitoring
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      ttlSecondsAfterFinished: 3600
+      template:
+        spec:
+          restartPolicy: Never
+          automountServiceAccountToken: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10003
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: probe
+              image: alpine/curl:8.10.1
+              imagePullPolicy: IfNotPresent
+              command: ["sh", "-c"]
+              args:
+                - |
+                  set -e
+                  echo "[health] $(date -u) — probing internal API"
+                  curl -sS -m 5 -o /tmp/api.json -w "api http_status=%{http_code} time=%{time_total}s\n" \
+                       http://rahma-api.rahma-api.svc.cluster.local/health || true
+                  echo "--- /health body (first 256 bytes) ---"
+                  head -c 256 /tmp/api.json || true
+                  echo
+                  echo "[health] $(date -u) — probing WASM placeholders"
+                  for svc in rahma-wasm-citation rahma-wasm-child-safety rahma-wasm-fatwa-gate rahma-wasm-rule-engine; do
+                    curl -sS -m 3 -o /dev/null -w "${svc} http_status=%{http_code}\n" \
+                         "http://${svc}.rahma-ai.svc.cluster.local:8080/" || true
+                  done
+              resources:
+                requests: { cpu: "10m", memory: "16Mi" }
+                limits:   { cpu: "100m", memory: "64Mi" }
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
+              volumeMounts:
+                - name: tmp
+                  mountPath: /tmp
+          volumes:
+            - name: tmp
+              emptyDir: {}

@@ -1,0 +1,95 @@
+# =============================================================================
+# Rahma Postgres backup — daily logical dump via `pg_dump` to a PVC.
+#
+# Internal only. CronJob runs in rahma-data, writes to a dedicated PVC.
+# Image: postgres:16.4-alpine (we already trust this for the live DB image).
+# Connection uses the rahma-postgres-secret created by operator.
+# =============================================================================
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rahma-postgres-backup-pvc
+  namespace: rahma-data
+  labels:
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/component: backup
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: rahma-postgres-backup
+  namespace: rahma-data
+  labels:
+    app.kubernetes.io/name: rahma-postgres-backup
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/component: backup
+spec:
+  schedule: "15 2 * * *"           # 02:15 UTC daily
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      ttlSecondsAfterFinished: 86400
+      template:
+        spec:
+          restartPolicy: OnFailure
+          automountServiceAccountToken: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 999
+            runAsGroup: 999
+            fsGroup: 999
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: pg-dump
+              image: postgres:16.4-alpine
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: PGHOST
+                  value: rahma-postgres.rahma-data.svc.cluster.local
+                - name: PGPORT
+                  value: "5432"
+                - name: PGUSER
+                  valueFrom: { secretKeyRef: { name: rahma-postgres-secret, key: POSTGRES_USER } }
+                - name: PGPASSWORD
+                  valueFrom: { secretKeyRef: { name: rahma-postgres-secret, key: POSTGRES_PASSWORD } }
+                - name: PGDATABASE
+                  valueFrom: { secretKeyRef: { name: rahma-postgres-secret, key: POSTGRES_DB } }
+              command: ["sh", "-c"]
+              args:
+                - |
+                  set -e
+                  TS=$(date -u +%Y%m%d-%H%M%S)
+                  OUT="/backups/rahma-${TS}.sql.gz"
+                  pg_dump --no-owner --no-acl | gzip -c > "$OUT"
+                  ls -lh /backups | tail -20
+                  # Retention: keep the last 14 daily backups
+                  find /backups -maxdepth 1 -name 'rahma-*.sql.gz' -mtime +14 -delete
+              resources:
+                requests: { cpu: "50m", memory: "64Mi" }
+                limits:   { cpu: "500m", memory: "256Mi" }
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
+              volumeMounts:
+                - name: backups
+                  mountPath: /backups
+                - name: tmp
+                  mountPath: /tmp
+          volumes:
+            - name: backups
+              persistentVolumeClaim:
+                claimName: rahma-postgres-backup-pvc
+            - name: tmp
+              emptyDir: {}

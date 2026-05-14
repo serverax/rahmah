@@ -13,6 +13,7 @@ import privacyRoute from './routes/privacy.js';
 import authRoute from './routes/auth.js';
 import dbRoute from './routes/db.js';
 import sheikhWorkflowRoute, { sheikhAdminRoute } from './routes/sheikh-workflow.js';
+import mobileRoute from './routes/mobile.js';
 
 export function buildApp(opts = {}) {
   const app = Fastify({
@@ -36,6 +37,7 @@ export function buildApp(opts = {}) {
   app.register(dbRoute, { prefix: '/api/db' });
   app.register(sheikhWorkflowRoute, { prefix: '/api/sheikh' });
   app.register(sheikhAdminRoute, { prefix: '/api/admin/sheikh' });
+  app.register(mobileRoute, { prefix: '/api' });
 
   return app;
 }

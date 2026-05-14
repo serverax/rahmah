@@ -1,8 +1,10 @@
 [workspace]
 resolver = "2"
 members = [
-  "crates/citation-gate",
-  "crates/child-safety",
+  "quran-hadith-citation",
+  "child-safety",
+  "fatwa-policy-gate",
+  "content-rule-engine",
 ]
 
 [workspace.package]

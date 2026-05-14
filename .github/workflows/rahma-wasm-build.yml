@@ -7,11 +7,11 @@ on:
   push:
     branches: [main]
     paths:
-      - 'wasm-policy/**'
+      - 'wasm/**'
       - '.github/workflows/rahma-wasm-build.yml'
   pull_request:
     paths:
-      - 'wasm-policy/**'
+      - 'wasm/**'
   workflow_dispatch: {}
 
 jobs:
@@ -21,7 +21,7 @@ jobs:
     timeout-minutes: 15
     defaults:
       run:
-        working-directory: wasm-policy
+        working-directory: wasm
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,18 +41,20 @@ jobs:
       - name: Native tests
         run: cargo test --workspace --release
 
-      - name: Build citation-gate (wasm32-unknown-unknown)
-        run: cargo build --release --target wasm32-unknown-unknown -p citation-gate
-
-      - name: Build child-safety (wasm32-unknown-unknown)
-        run: cargo build --release --target wasm32-unknown-unknown -p child-safety
+      - name: Build all crates for wasm32-unknown-unknown
+        run: |
+          for crate in quran-hadith-citation child-safety fatwa-policy-gate content-rule-engine; do
+            cargo build --release --target wasm32-unknown-unknown -p "$crate"
+          done
 
       - name: Upload WASM artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: rahma-wasm-policy-${{ github.sha }}
+          name: rahma-wasm-${{ github.sha }}
           path: |
-            wasm-policy/target/wasm32-unknown-unknown/release/citation_gate.wasm
-            wasm-policy/target/wasm32-unknown-unknown/release/child_safety.wasm
+            wasm/target/wasm32-unknown-unknown/release/quran_hadith_citation.wasm
+            wasm/target/wasm32-unknown-unknown/release/child_safety.wasm
+            wasm/target/wasm32-unknown-unknown/release/fatwa_policy_gate.wasm
+            wasm/target/wasm32-unknown-unknown/release/content_rule_engine.wasm
           if-no-files-found: error
           retention-days: 30

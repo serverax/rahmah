@@ -1,0 +1,83 @@
+# =============================================================================
+# Rahma security-scan placeholder CronJob.
+#
+# Internal-only daily image-vuln scan. Today the job runs a TRIVY scan
+# against the public sakina-backend image tag. The real image-signing /
+# admission-policy stack lives in a later sprint.
+#
+# Reads the image reference from a ConfigMap so the operator can roll it
+# without re-applying the CronJob.
+# =============================================================================
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rahma-security-scan-config
+  namespace: rahma-security
+  labels:
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/component: security
+data:
+  TARGET_IMAGE: "ghcr.io/serverax/rahmah/sakina-backend:main"
+  SEVERITY: "HIGH,CRITICAL"
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: rahma-security-scan
+  namespace: rahma-security
+  labels:
+    app.kubernetes.io/name: rahma-security-scan
+    app.kubernetes.io/part-of: rahma
+    app.kubernetes.io/component: security
+spec:
+  schedule: "30 3 * * *"      # 03:30 UTC daily
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      ttlSecondsAfterFinished: 86400
+      template:
+        spec:
+          restartPolicy: OnFailure
+          automountServiceAccountToken: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10004
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: trivy
+              image: aquasec/trivy:0.55.2
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: TARGET_IMAGE
+                  valueFrom: { configMapKeyRef: { name: rahma-security-scan-config, key: TARGET_IMAGE } }
+                - name: SEVERITY
+                  valueFrom: { configMapKeyRef: { name: rahma-security-scan-config, key: SEVERITY } }
+                - name: TRIVY_CACHE_DIR
+                  value: /tmp/.trivy
+              command: ["sh", "-c"]
+              args:
+                - |
+                  set -e
+                  echo "[security-scan] $(date -u) — scanning $TARGET_IMAGE"
+                  trivy image --severity "$SEVERITY" --ignore-unfixed \
+                              --no-progress --exit-code 0 \
+                              --format table "$TARGET_IMAGE"
+              resources:
+                requests: { cpu: "100m", memory: "256Mi" }
+                limits:   { cpu: "1",    memory: "1Gi" }
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
+              volumeMounts:
+                - name: cache
+                  mountPath: /tmp
+          volumes:
+            - name: cache
+              emptyDir: {}
