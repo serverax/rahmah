@@ -1,0 +1,16 @@
+{
+  "name": "rahma-rule-engine-runtime",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Rahma content-rule-engine WASM runtime bridge. HTTP wrapper that exposes GET /health + POST /evaluate. Currently runs the deterministic JS port in-process; will load content_rule_engine.wasm in a later sprint.",
+  "engines": { "node": ">=20.0.0" },
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test":  "node --test test/runtime.test.js"
+  },
+  "dependencies": {
+    "fastify": "^5.0.0"
+  }
+}
