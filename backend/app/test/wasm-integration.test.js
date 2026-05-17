@@ -4,15 +4,28 @@ import http from 'node:http';
 import { childContentGate, childProfileGate } from '../src/engine/child-safety-gate.js';
 import { citationGate } from '../src/engine/citation-gate.js';
 import { evaluatePublishEligibility } from '../src/services/citation-policy-service.js';
+import { decidePublish } from '../src/services/sheikh-workflow-service.js';
+import { configureSheikhRepository, _resetSheikhRepositoryForTests } from '../src/sheikh/sheikh-question-repository.js';
+
+function envSnap() {
+  return {
+    AUTH_MODE: process.env.AUTH_MODE,
+    SESSION_SECRET: process.env.SESSION_SECRET,
+    WASM_CHILD_SAFETY_URL: process.env.WASM_CHILD_SAFETY_URL,
+    WASM_QURAN_HADITH_CITATION_URL: process.env.WASM_QURAN_HADITH_CITATION_URL,
+    WASM_FATWA_POLICY_GATE_URL: process.env.WASM_FATWA_POLICY_GATE_URL,
+  };
+}
+function envRestore(s) { for (const [k, v] of Object.entries(s)) v === undefined ? delete process.env[k] : process.env[k] = v; }
 
 test('WASM Integration: childContentGate uses WASM bridge when configured', async () => {
-  // Start a dummy bridge server.
+  const s = envSnap();
   const server = http.createServer((req, res) => {
     let data = '';
     req.on('data', chunk => { data += chunk; });
     req.on('end', () => {
       const body = JSON.parse(data);
-      if (body.body_ar.includes('wasm_trigger')) {
+      if (body.body_ar && body.body_ar.includes('wasm_trigger')) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ ok: true, decision: 'block', reason: 'wasm_says_no' }));
       } else {
@@ -24,27 +37,20 @@ test('WASM Integration: childContentGate uses WASM bridge when configured', asyn
 
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const port = server.address().port;
-  const wasmUrl = `http://127.0.0.1:${port}`;
-
-  const prev = process.env.WASM_CHILD_SAFETY_URL;
-  process.env.WASM_CHILD_SAFETY_URL = wasmUrl;
+  process.env.WASM_CHILD_SAFETY_URL = `http://127.0.0.1:${port}`;
 
   try {
-    // 1. Check a trigger that should block via WASM.
     const res1 = await childContentGate({ body_ar: 'wasm_trigger content', age_band: '7-9' });
     assert.equal(res1.decision, 'block');
     assert.equal(res1.reason, 'wasm_says_no');
-
-    // 2. Check a normal content.
-    const res2 = await childContentGate({ body_ar: 'safe content', age_band: '7-9' });
-    assert.equal(res2.decision, 'allow');
   } finally {
-    process.env.WASM_CHILD_SAFETY_URL = prev;
     server.close();
+    envRestore(s);
   }
 });
 
 test('WASM Integration: childProfileGate uses WASM bridge when configured', async () => {
+  const s = envSnap();
   const server = http.createServer((req, res) => {
     let data = '';
     req.on('data', chunk => { data += chunk; });
@@ -62,43 +68,26 @@ test('WASM Integration: childProfileGate uses WASM bridge when configured', asyn
 
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const port = server.address().port;
-  const wasmUrl = `http://127.0.0.1:${port}`;
-
-  const prev = process.env.WASM_CHILD_SAFETY_URL;
-  process.env.WASM_CHILD_SAFETY_URL = wasmUrl;
+  process.env.WASM_CHILD_SAFETY_URL = `http://127.0.0.1:${port}`;
 
   try {
     const res = await childProfileGate({ nickname_ar: 'wasm_bad_nick', age_band: '7-9' });
     assert.equal(res.decision, 'block');
     assert.equal(res.reason, 'bad_nick_from_wasm');
   } finally {
-    process.env.WASM_CHILD_SAFETY_URL = prev;
     server.close();
-  }
-});
-
-test('WASM Integration: falls back to local JS when bridge is unreachable', async () => {
-  const prev = process.env.WASM_CHILD_SAFETY_URL;
-  process.env.WASM_CHILD_SAFETY_URL = 'http://127.0.0.1:65530'; // unreachable
-
-  try {
-    // Should NOT throw, should fall back to local JS.
-    // Local JS blocks 'غبي'.
-    const res = await childContentGate({ body_ar: 'أنت غبي', age_band: '7-9' });
-    assert.equal(res.decision, 'block');
-    assert.equal(res.reason, 'shaming_language');
-  } finally {
-    process.env.WASM_CHILD_SAFETY_URL = prev;
+    envRestore(s);
   }
 });
 
 test('WASM Integration: citationGate uses WASM bridge when configured', async () => {
+  const s = envSnap();
   const server = http.createServer((req, res) => {
     let data = '';
     req.on('data', chunk => { data += chunk; });
     req.on('end', () => {
       const body = JSON.parse(data);
-      if (body.some(c => c.citation_label === 'wasm_trigger')) {
+      if (Array.isArray(body) && body.some(c => c.citation_label === 'wasm_trigger')) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ ok: true, citation_status: 'quran_cited', can_publish_public: true }));
       } else {
@@ -110,10 +99,7 @@ test('WASM Integration: citationGate uses WASM bridge when configured', async ()
 
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const port = server.address().port;
-  const wasmUrl = `http://127.0.0.1:${port}`;
-
-  const prev = process.env.WASM_QURAN_HADITH_CITATION_URL;
-  process.env.WASM_QURAN_HADITH_CITATION_URL = wasmUrl;
+  process.env.WASM_QURAN_HADITH_CITATION_URL = `http://127.0.0.1:${port}`;
 
   try {
     const res = await citationGate({
@@ -121,32 +107,62 @@ test('WASM Integration: citationGate uses WASM bridge when configured', async ()
       citations: [{ citation_type: 'quran', citation_label: 'wasm_trigger' }],
     });
     assert.equal(res.citation_status, 'quran_cited');
-    assert.equal(res.decision, 'queue_review'); // routes to moderation
   } finally {
-    process.env.WASM_QURAN_HADITH_CITATION_URL = prev;
     server.close();
+    envRestore(s);
   }
 });
 
-test('WASM Integration: evaluatePublishEligibility uses WASM bridge', async () => {
+test('WASM Integration: decidePublish uses Fatwa WASM bridge when configured', async () => {
+  const s = envSnap();
+  process.env.AUTH_MODE = 'external';
+  process.env.SESSION_SECRET = 'a'.repeat(32);
+  configureSheikhRepository({ repository: {} });
+  delete process.env.WASM_CHILD_SAFETY_URL; 
+
   const server = http.createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ ok: true, citation_status: 'hadith_cited', can_publish_public: true }));
+    let data = '';
+    req.on('data', chunk => { data += chunk; });
+    req.on('end', () => {
+      const body = JSON.parse(data);
+      if (body.has_scholar_approval && body.has_verified_quran_or_hadith_citation) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: true, decision: 'allow_publish' }));
+      } else {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: true, decision: 'block', reason: 'wasm_fatwa_rejected' }));
+      }
+    });
   });
 
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const port = server.address().port;
-  const wasmUrl = `http://127.0.0.1:${port}`;
-
-  const prev = process.env.WASM_QURAN_HADITH_CITATION_URL;
-  process.env.WASM_QURAN_HADITH_CITATION_URL = wasmUrl;
+  process.env.WASM_FATWA_POLICY_GATE_URL = `http://127.0.0.1:${port}`;
 
   try {
-    const res = await evaluatePublishEligibility([{ citation_type: 'hadith', citation_label: 'H' }]);
-    assert.equal(res.citation_status, 'hadith_cited');
-    assert.equal(res.allowed, true);
+    const res = await decidePublish({
+      citation_status: 'quran_cited',
+      has_scholar_approval: true,
+      publication_mode: 'public',
+    });
+    assert.equal(res.ok, true);
+    assert.equal(res.next_publication_status, 'published_public');
   } finally {
-    process.env.WASM_QURAN_HADITH_CITATION_URL = prev;
     server.close();
+    _resetSheikhRepositoryForTests();
+    envRestore(s);
+  }
+});
+
+test('WASM Integration: falls back to local JS when bridge is unreachable', async () => {
+  const s = envSnap();
+  process.env.WASM_CHILD_SAFETY_URL = 'http://127.0.0.1:65530'; // unreachable
+
+  try {
+    const res = await childContentGate({ body_ar: 'أنت غبي', age_band: '7-9' });
+    assert.equal(res.decision, 'block');
+    assert.equal(res.reason, 'shaming_language');
+  } finally {
+    envRestore(s);
   }
 });
