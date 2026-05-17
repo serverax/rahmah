@@ -3,53 +3,92 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>رحمة — إجابات الشيخ حسن</title>
-  <link rel="stylesheet" href="/assets/styles.css" />
+  <title>رحمة — إجابات موثقة</title>
+  <meta name="rahma-api-base" content="" />
+  <!-- Use the new premium 3D design system -->
+  <link rel="stylesheet" href="/assets/test-ui.css" />
 </head>
 <body>
-  <div class="app-shell">
+  <div class="mobile-viewport">
     <header class="app-header">
-      <h1>إجابات الشيخ حسن</h1>
-      <div class="header-sub">إجابات مراجَعة تظهر مع مصادرها من القرآن والحديث.</div>
+      <a href="/" style="color: white; text-decoration: none; display: block; margin-bottom: 10px;">&larr; العودة</a>
+      <h1>إجابات موثقة</h1>
+      <div class="header-sub">فتاوى وإجابات معتمدة من الشيخ حسن.</div>
     </header>
-    <main class="app-main">
-      <div id="answersList" aria-live="polite"><div class="state-loading">جارٍ التحميل...</div></div>
+
+    <main class="app-main" style="padding: 20px; padding-bottom: 100px;">
+      
+      <div class="backend-status" data-rahma-status aria-live="polite"></div>
+
+      <div class="input-3d" style="display: flex; gap: 10px; align-items: center;">
+        <span>🔍</span>
+        <input type="text" placeholder="ابحث في الإجابات..." style="border: none; background: transparent; outline: none; width: 100%; font-family: inherit;">
+      </div>
+
+      <div id="answersList" class="mt-24">
+        <div class="state-loading">جارٍ تحميل الإجابات...</div>
+      </div>
+
     </main>
+
+    <!-- Bottom Navigation -->
     <nav class="app-bottom-nav" aria-label="التنقل السفلي">
-      <a href="/">الرئيسية</a>
-      <a href="/ask.html">اسأل</a>
-      <a href="/answers.html" class="active">الإجابات</a>
-      <a href="/library.html">المكتبة</a>
-      <a href="/privacy.html">الخصوصية</a>
+      <a href="/">
+        <span class="nav-icon">🏠</span>
+        <span>الرئيسية</span>
+      </a>
+      <a href="/ask.html">
+        <span class="nav-icon">💬</span>
+        <span>اسأل</span>
+      </a>
+      <a href="/answers.html" class="active">
+        <span class="nav-icon">📝</span>
+        <span>الإجابات</span>
+      </a>
+      <a href="/library.html">
+        <span class="nav-icon">📚</span>
+        <span>المكتبة</span>
+      </a>
+      <a href="/privacy.html">
+        <span class="nav-icon">🛡️</span>
+        <span>الخصوصية</span>
+      </a>
     </nav>
   </div>
+  
   <script src="/assets/app.js"></script>
   <script>
-    (async () => {
-      const root = document.getElementById('answersList');
-      const r = await window.Rahma.fetchJson('/api/public/sheikh-hasan/qa');
-      if (!r.ok) {
-        window.Rahma.renderArabicState(root, 'error', 'تعذّر تحميل الإجابات.');
-        return;
-      }
-      const items = (r.body && Array.isArray(r.body.items)) ? r.body.items : [];
-      if (items.length === 0) {
-        window.Rahma.renderArabicState(root, 'empty', 'لا توجد إجابات منشورة بعد. تابعوا قريباً بإذن الله.');
-        return;
-      }
-      root.innerHTML = items.map((it) => `
-        <a class="card" href="/answer.html?slug=${encodeURIComponent(it.slug)}">
-          <div class="card-title">${escapeHtml(it.title || '')}</div>
-          <div class="card-body">
-            <span class="chip chip-success">${escapeHtml(it.category || 'عام')}</span>
-            <span class="chip chip-moderation">${escapeHtml(it.language || 'ar')}</span>
+    (async function () {
+      const listEl = document.getElementById('answersList');
+      if (!window.Rahma) return;
+      const R = window.Rahma;
+      try {
+        const res = await R.fetchJson('/api/ask-sheikh/public');
+        if (!res.ok) {
+          listEl.innerHTML = `<div class="state-error">تعذّر تحميل الإجابات. ${res.error || ''}</div>`;
+          return;
+        }
+        const items = Array.isArray(res.body.items) ? res.body.items : [];
+        if (items.length === 0) {
+          listEl.innerHTML = `<div class="state-empty">لا توجد إجابات منشورة حالياً.</div>`;
+          return;
+        }
+        listEl.innerHTML = items.map(a => `
+          <div class="card-3d" style="margin-bottom: 16px;">
+            <div style="color: var(--rahma-emerald); font-weight: 600; margin-bottom: 8px;">سؤال:</div>
+            <p style="margin-top: 0; font-family: var(--font-heading); font-size: 1.2rem;">${R.escapeHtml(a.question)}</p>
+            <hr style="border: 0; border-top: 1px dashed rgba(15,118,110,0.2); margin: 12px 0;">
+            <div style="color: var(--rahma-emerald-dark); font-weight: 600; margin-bottom: 8px;">إجابة الشيخ حسن:</div>
+            <p style="margin-top: 0;">${R.escapeHtml(a.answer)}</p>
+            <div style="margin-top: 12px; font-size: 0.8rem; color: var(--rahma-ink-muted);">
+              التصنيف: ${R.escapeHtml(a.category || 'عام')}
+            </div>
           </div>
-        </a>
-      `).join('');
+        `).join('');
+      } catch (err) {
+        listEl.innerHTML = `<div class="state-error">تعذّر الاتصال بالخادم.</div>`;
+      }
     })();
-    function escapeHtml(s) {
-      return String(s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    }
   </script>
 </body>
 </html>

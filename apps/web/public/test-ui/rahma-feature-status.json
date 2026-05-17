@@ -1,0 +1,162 @@
+{
+  "features": [
+    {
+      "id": "home_dashboard",
+      "name_ar": "الرئيسية",
+      "name_en": "Home Screen",
+      "status": "PARTIAL",
+      "what_works": "UI scaffolding, bottom navigation, category cards.",
+      "what_does_not_work": "Next prayer calculation missing. Daily ayah content missing.",
+      "required_to_finish": "Integrate prayer calculation engine. Populate library with verified daily content.",
+      "dependencies": ["prayer_times", "islamic_library"],
+      "test_command": "flutter test",
+      "last_verified_at": "2026-05-17T00:00:00Z"
+    },
+    {
+      "id": "ask_sheikh_hasan",
+      "name_ar": "اسأل الشيخ حسن",
+      "name_en": "Ask Sheikh Hasan",
+      "status": "PARTIAL",
+      "what_works": "V4 Bilingual workflow, DB storage, Admin approval gate, Citation requirements.",
+      "what_does_not_work": "Push notifications for question updates.",
+      "required_to_finish": "FCM/APNs integration and async notification queue processing.",
+      "dependencies": ["azan_alerts"],
+      "test_command": "npm test",
+      "last_verified_at": "2026-05-17T00:00:00Z"
+    },
+    {
+      "id": "quran_reader",
+      "name_ar": "قارئ القرآن",
+      "name_en": "Quran Reader",
+      "status": "PARTIAL",
+      "what_works": "UI scaffolding for Surah list.",
+      "what_does_not_work": "Actual Quran text rendering, search, bookmarking, reading progress.",
+      "required_to_finish": "Verified Quran corpus ingestion, native text/PDF renderer wiring.",
+      "dependencies": ["verified_corpus"],
+      "test_command": "flutter test",
+      "last_verified_at": "2026-05-17T00:00:00Z"
+    },
+    {
+      "id": "quran_audio",
+      "name_ar": "صوت القرآن",
+      "name_en": "Quran Audio",
+      "status": "PARTIAL",
+      "what_works": "Design documents and UI placeholder.",
+      "what_does_not_work": "Audio streaming, play/pause controls, reciter selection.",
+      "required_to_finish": "Approved audio provider API integration, mobile audio player plugin.",
+      "dependencies": ["audio_provider"],
+      "test_command": "flutter test",
+      "last_verified_at": "2026-05-17T00:00:00Z"
+    },
+    {
+      "id": "prayer_times",
+      "name_ar": "مواقيت الصلاة",
+      "name_en": "Prayer Times",
+      "status": "PARTIAL",
+      "what_works": "Settings UI toggles.",
+      "what_does_not_work": "Real-time calculation, GPS coordinate fetching.",
+      "required_to_finish": "Geolocation plugin wiring, Prayer calculation engine implementation.",
+      "dependencies": ["geolocation_plugin"],
+      "test_command": "flutter test",
+      "last_verified_at": "2026-05-17T00:00:00Z"
+    },
+    {
+      "id": "azan_alerts",
+      "name_ar": "تنبيهات الأذان",
+      "name_en": "Azan Alerts",
+      "status": "PENDING",
+      "what_works": "Settings UI toggles, native permission manifest.",
+      "what_does_not_work": "Actual notification scheduling, APNs/FCM delivery.",
+      "required_to_finish": "APNs certificates, FCM setup, local notification plugin wiring.",
+      "dependencies": ["push_certificates", "prayer_times"],
+      "test_command": "flutter test",
+      "last_verified_at": "2026-05-17T00:00:00Z"
+    },
+    {
+      "id": "mosque_finder",
+      "name_ar": "مكتشف المساجد",
+      "name_en": "Mosque Finder",
+      "status": "PARTIAL",
+      "what_works": "UI scaffolding.",
+      "what_does_not_work": "Map rendering, nearby search API.",
+      "required_to_finish": "Map provider API key, native map plugin wiring.",
+      "dependencies": ["map_api_key", "geolocation_plugin"],
+      "test_command": "flutter test",
+      "last_verified_at": "2026-05-17T00:00:00Z"
+    },
+    {
+      "id": "children_game",
+      "name_ar": "لعبة الأطفال",
+      "name_en": "Children Islamic Game",
+      "status": "PARTIAL",
+      "what_works": "Deterministic scoring, WASM safety gate, basic scenarios.",
+      "what_does_not_work": "Extensive scenario database, age categorization.",
+      "required_to_finish": "Populate and review large scenario database.",
+      "dependencies": ["content_review"],
+      "test_command": "npm test",
+      "last_verified_at": "2026-05-17T00:00:00Z"
+    },
+    {
+      "id": "islamic_library",
+      "name_ar": "المكتبة الإسلامية",
+      "name_en": "Islamic Library",
+      "status": "PARTIAL",
+      "what_works": "Category browsing, draft/published visibility rules.",
+      "what_does_not_work": "Full approved content corpus.",
+      "required_to_finish": "Ingest and approve verified Islamic books and articles.",
+      "dependencies": ["verified_corpus"],
+      "test_command": "npm test",
+      "last_verified_at": "2026-05-17T00:00:00Z"
+    },
+    {
+      "id": "rag_engine",
+      "name_ar": "محرك RAG",
+      "name_en": "RAG Engine",
+      "status": "PARTIAL",
+      "what_works": "Source registry, ingestion logic, citation metadata.",
+      "what_does_not_work": "Real vector database connection.",
+      "required_to_finish": "Deploy and configure production Vector DB.",
+      "dependencies": ["vector_db"],
+      "test_command": "npm test",
+      "last_verified_at": "2026-05-17T00:00:00Z"
+    },
+    {
+      "id": "wasm_guard",
+      "name_ar": "حارس السلامة (WASM)",
+      "name_en": "WASM Safety Guard",
+      "status": "PARTIAL",
+      "what_works": "Rust source code, Node.js bridges, JS fallback logic.",
+      "what_does_not_work": "Locally built .wasm artifacts.",
+      "required_to_finish": "Install Rust toolchain and build artifacts locally (CI builds work).",
+      "dependencies": ["rust_toolchain"],
+      "test_command": "npm test",
+      "last_verified_at": "2026-05-17T00:00:00Z"
+    },
+    {
+      "id": "admin_oversight",
+      "name_ar": "إشراف الإدارة",
+      "name_en": "Admin Oversight",
+      "status": "PARTIAL",
+      "what_works": "API routes for approval/rejection, audit logging.",
+      "what_does_not_work": "Comprehensive mobile/web dashboard UI for admins.",
+      "required_to_finish": "Build advanced admin dashboard views.",
+      "dependencies": [],
+      "test_command": "npm test",
+      "last_verified_at": "2026-05-17T00:00:00Z"
+    },
+    {
+      "id": "app_store_readiness",
+      "name_ar": "جاهزية المتجر",
+      "name_en": "App Store Readiness",
+      "status": "PENDING",
+      "what_works": "In-app privacy, account deletion, compliance docs.",
+      "what_does_not_work": "Public privacy URL, real developer accounts.",
+      "required_to_finish": "Host public pages, create Apple/Google developer accounts.",
+      "dependencies": ["public_hosting", "developer_accounts"],
+      "test_command": "n/a",
+      "last_verified_at": "2026-05-17T00:00:00Z"
+    }
+  ],
+  "overall_verdict": "PARTIAL",
+  "summary": "Repository logic is mostly complete, but several core mobile features (GPS, Audio, Notifications) and content databases require final wiring and operator credentials to reach full production PASS status."
+}

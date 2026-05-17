@@ -3,66 +3,126 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>رحمة — رحلة الحسنات</title>
-  <link rel="stylesheet" href="/assets/styles.css" />
+  <title>رحمة — رحلة الحسنات للأطفال</title>
+  <meta name="rahma-api-base" content="" />
+  <!-- Use the new premium 3D design system -->
+  <link rel="stylesheet" href="/assets/test-ui.css" />
+  <style>
+    /* Playful specific overrides for the children's game */
+    .child-card {
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+      border: 2px solid #86efac;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 10px 25px rgba(22, 101, 52, 0.15), inset 0 2px 4px rgba(255,255,255,0.8);
+      position: relative;
+      overflow: hidden;
+      margin-top: 20px;
+    }
+    .score-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--rahma-gold);
+      color: var(--rahma-ink);
+      font-weight: bold;
+      font-size: 1.2rem;
+      padding: 8px 16px;
+      border-radius: 999px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .scenario-text {
+      font-size: 1.4rem;
+      color: var(--rahma-emerald-dark);
+      font-family: var(--font-heading);
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+    .choice-btn {
+      width: 100%;
+      padding: 16px;
+      margin-bottom: 12px;
+      background: white;
+      border: 2px solid var(--rahma-emerald-light);
+      border-radius: 16px;
+      font-size: 1.1rem;
+      color: var(--rahma-emerald-dark);
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      transition: all 0.2s;
+    }
+    .choice-btn:active {
+      transform: translateY(2px) scale(0.98);
+      background: #f0fdf4;
+    }
+  </style>
 </head>
 <body>
-  <div class="app-shell">
+  <div class="mobile-viewport">
     <header class="app-header">
+      <a href="/" style="color: white; text-decoration: none; display: block; margin-bottom: 10px;">&larr; العودة</a>
       <h1>رحلة الحسنات</h1>
-      <div class="header-sub">رحلة لطيفة تختار فيها العمل الصالح وتجمع نجوم الحسنات.</div>
+      <div class="header-sub">هيا نتعلم الأخلاق الإسلامية الجميلة!</div>
     </header>
-    <main class="app-main">
-      <div class="card">
-        <div class="card-title">نجوم الحسنات</div>
-        <div class="card-body" id="scoreBox"><span class="chip chip-success">٠ نجمة</span></div>
+
+    <main class="app-main" style="padding: 20px; padding-bottom: 100px;">
+      
+      <!-- Parent Notice -->
+      <div style="background: rgba(15, 118, 110, 0.05); border-radius: 12px; padding: 12px; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 10px;">
+        <span style="font-size: 1.2rem;">👨‍👩‍👧</span>
+        <p style="margin: 0; font-size: 0.8rem; color: var(--rahma-ink-muted);">
+          <strong>ملاحظة للأهل:</strong> هذا المحتوى خاضع لمراجعة حارس السلامة. لا نجمع أي بيانات شخصية، ولا توجد آليات إدمانية.
+        </p>
       </div>
-      <div id="game" class="mt-16" aria-live="polite"><div class="state-loading">جارٍ تحميل الرحلة...</div></div>
-      <div class="mt-16">
-        <button class="btn" id="btnNext">السيناريو التالي</button>
-        <a class="btn btn-secondary" href="/child-progress.html">عرض التقدم</a>
-        <button class="btn btn-secondary" id="btnReset">إعادة بدء الرحلة</button>
+
+      <div style="text-align: center; margin-bottom: 20px;">
+        <div class="score-badge">🌟 الحسنات: <span id="scoreDisplay">0</span></div>
       </div>
-      <p class="muted center mt-16">لا نطلب أي بيانات شخصية. التقدم محفوظ داخل جهازك فقط.</p>
+
+      <div class="backend-status" data-rahma-status aria-live="polite"></div>
+
+      <!-- Game Container -->
+      <div id="gameContainer" class="child-card">
+        <div class="state-loading">جاري تحميل السيناريو...</div>
+      </div>
+
     </main>
+
+    <!-- Bottom Navigation -->
     <nav class="app-bottom-nav" aria-label="التنقل السفلي">
-      <a href="/">الرئيسية</a>
-      <a href="/ask.html">اسأل</a>
-      <a href="/answers.html">الإجابات</a>
-      <a href="/library.html">المكتبة</a>
-      <a href="/privacy.html">الخصوصية</a>
+      <a href="/">
+        <span class="nav-icon">🏠</span>
+        <span>الرئيسية</span>
+      </a>
+      <a href="/ask.html">
+        <span class="nav-icon">💬</span>
+        <span>اسأل</span>
+      </a>
+      <a href="/answers.html">
+        <span class="nav-icon">📝</span>
+        <span>الإجابات</span>
+      </a>
+      <a href="/library.html">
+        <span class="nav-icon">📚</span>
+        <span>المكتبة</span>
+      </a>
+      <a href="/privacy.html">
+        <span class="nav-icon">🛡️</span>
+        <span>الخصوصية</span>
+      </a>
     </nav>
   </div>
+  
   <script src="/assets/app.js"></script>
   <script src="/assets/hasanat-game.js"></script>
   <script>
-    (async () => {
-      const root = document.getElementById('game');
-      const score = document.getElementById('scoreBox');
-      let scenarios = await window.HasanatGame.loadScenarios();
-      let progress = window.HasanatGame.loadLocalProgress();
-      function updateScore() {
-        score.innerHTML = `<span class="chip chip-success">${progress.stars | 0} نجمة</span>
-          <span class="chip chip-moderation">المكتمل: ${(progress.completed || []).length}</span>`;
-      }
-      function showNext() {
-        const s = window.HasanatGame.pickNext(scenarios, progress);
-        window.HasanatGame.renderScenario(root, s, (sc, idx) => {
-          const r = window.HasanatGame.handleAnswer(progress, sc, idx);
-          window.HasanatGame.renderGentleFeedback(root, sc, r.correct);
-          updateScore();
-        });
-      }
-      document.getElementById('btnNext').addEventListener('click', showNext);
-      document.getElementById('btnReset').addEventListener('click', () => {
-        window.HasanatGame.resetProgress();
-        progress = window.HasanatGame.loadLocalProgress();
-        updateScore();
-        showNext();
-      });
-      updateScore();
-      showNext();
-    })();
+    if (window.HasanatGame) {
+      window.HasanatGame.init(
+        document.getElementById('gameContainer'),
+        document.getElementById('scoreDisplay')
+      );
+    }
   </script>
 </body>
 </html>

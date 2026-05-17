@@ -3,56 +3,103 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>رحمة — الصفحة الرئيسية</title>
+  <title>رحمة — الرئيسية</title>
   <meta name="description" content="تطبيق رحمة الإسلامي: إجابات الشيخ موثقة، مكتبة محتوى آمنة للأطفال، صدقة جارية شفافة." />
   <meta name="rahma-api-base" content="" />
-  <link rel="stylesheet" href="/assets/styles.css" />
+  <!-- Use the new premium 3D design system -->
+  <link rel="stylesheet" href="/assets/test-ui.css" />
 </head>
 <body>
-  <div class="app-shell">
+  <div class="mobile-viewport">
     <header class="app-header">
-      <h1>رحمة</h1>
-      <div class="header-sub">تطبيق إسلامي للأسرة — إجابات موثقة وآمنة للأطفال</div>
+      <h1>السلام عليكم ورحمة الله</h1>
+      <div class="header-sub">مرحباً بك في تطبيق رحمة</div>
     </header>
-    <main class="app-main">
-      <section>
-        <h2>الصفحة الرئيسية</h2>
-        <p class="muted">مرحباً بكم. اختاروا ما يناسبكم من البطاقات التالية.</p>
-        <div class="backend-status" data-rahma-status aria-live="polite"></div>
+
+    <main class="app-main" style="padding-bottom: 100px;">
+      <!-- Premium Prayer Card -->
+      <section class="prayer-card">
+        <div class="next-prayer">الصلاة القادمة: العصر</div>
+        <div class="time">03:45 PM</div>
+        <div style="font-size: 0.9rem; opacity: 0.8;">باقي ساعة و ١٥ دقيقة</div>
       </section>
-      <section class="card-grid">
-        <a class="card" href="/ask.html">
-          <div class="card-title">اسأل الشيخ حسن</div>
-          <div class="card-body">اكتبوا سؤالكم الشرعي، يصلكم الجواب بإذن الله مع مصادره.</div>
+
+      <!-- Backend Status -->
+      <div style="padding: 0 20px;">
+        <div class="backend-status" data-rahma-status aria-live="polite"></div>
+      </div>
+
+      <!-- Feature Grid -->
+      <section class="feature-grid">
+        <a href="/ask.html" class="feature-btn">
+          <div class="icon">💬</div>
+          <span>اسأل الشيخ حسن</span>
         </a>
-        <a class="card" href="/answers.html">
-          <div class="card-title">إجابات موثقة</div>
-          <div class="card-body">تصفّحوا الإجابات المنشورة مع القرآن والحديث وأقوال أهل العلم.</div>
+        <a href="/answers.html" class="feature-btn">
+          <div class="icon">📝</div>
+          <span>إجابات موثقة</span>
         </a>
-        <a class="card" href="/child.html">
-          <div class="card-title">رحلة الحسنات للأطفال</div>
-          <div class="card-body">وضع آمن للأطفال بإشراف ولي الأمر — بلا دردشة وبلا بيانات شخصية.</div>
+        <a href="/quran.html" class="feature-btn">
+          <div class="icon">📖</div>
+          <span>القرآن الكريم</span>
         </a>
-        <a class="card" href="/library.html">
-          <div class="card-title">أذكار وأدعية</div>
-          <div class="card-body">مكتبة مصادر إسلامية تمر بمراجعة قبل النشر.</div>
+        <a href="/audio.html" class="feature-btn">
+          <div class="icon">🔊</div>
+          <span>صوت القرآن</span>
         </a>
-        <a class="card" href="/sadaqah.html">
-          <div class="card-title">الصدقة الجارية</div>
-          <div class="card-body">حملات خير بشفافية كاملة. لا نظهر إيصال نجاح وهمياً.</div>
+        <a href="/prayer.html" class="feature-btn">
+          <div class="icon">🕋</div>
+          <span>مواقيت الصلاة</span>
         </a>
-        <a class="card" href="/privacy.html">
-          <div class="card-title">الخصوصية والأمان</div>
-          <div class="card-body">سياستنا في حماية بياناتكم وحماية الأطفال.</div>
+        <a href="/mosque.html" class="feature-btn">
+          <div class="icon">📍</div>
+          <span>أقرب مسجد</span>
         </a>
+        <a href="/child-game.html" class="feature-btn">
+          <div class="icon">🌟</div>
+          <span>رحلة الحسنات للأطفال</span>
+        </a>
+        <a href="/sadaqah.html" class="feature-btn">
+          <div class="icon">🤝</div>
+          <span>الصدقة الجارية</span>
+        </a>
+        <a href="/library.html" class="feature-btn" style="grid-column: span 2;">
+          <div class="icon">📚</div>
+          <span>المكتبة والأذكار</span>
+        </a>
+      </section>
+
+      <!-- Daily Content Card -->
+      <section style="padding: 0 20px 20px;">
+        <div class="card-3d">
+          <h3 style="color: var(--rahma-emerald); font-family: var(--font-heading); margin-top: 0;">دعاء اليوم</h3>
+          <p class="ayah-text" style="font-size: 1.4rem;">"رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ"</p>
+        </div>
       </section>
     </main>
+
+    <!-- Bottom Navigation -->
     <nav class="app-bottom-nav" aria-label="التنقل السفلي">
-      <a href="/">الرئيسية</a>
-      <a href="/ask.html">اسأل</a>
-      <a href="/answers.html">الإجابات</a>
-      <a href="/library.html">المكتبة</a>
-      <a href="/privacy.html">الخصوصية</a>
+      <a href="/" class="active">
+        <span class="nav-icon">🏠</span>
+        <span>الرئيسية</span>
+      </a>
+      <a href="/ask.html">
+        <span class="nav-icon">💬</span>
+        <span>اسأل</span>
+      </a>
+      <a href="/answers.html">
+        <span class="nav-icon">📝</span>
+        <span>الإجابات</span>
+      </a>
+      <a href="/library.html">
+        <span class="nav-icon">📚</span>
+        <span>المكتبة</span>
+      </a>
+      <a href="/privacy.html">
+        <span class="nav-icon">🛡️</span>
+        <span>الخصوصية والأمان</span>
+      </a>
     </nav>
   </div>
   <script src="/assets/app.js"></script>

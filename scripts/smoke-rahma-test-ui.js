@@ -20,7 +20,7 @@ const BASE_URL = `http://localhost:${PORT}`;
 const CHECKS = [
   { path: '/test-ui/index.html', expected: 'Rahma Local Test UI' },
   { path: '/test-ui/status.html', expected: 'PASS' },
-  { path: '/assets/test-ui.css', expected: '--rahma-primary' }
+  { path: '/assets/test-ui.css', expected: '--rahma-emerald' }
 ];
 
 async function isPortOpen(port) {
