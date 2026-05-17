@@ -12,38 +12,35 @@
 
 - Latest verified sprint before this roadmap: Sprint 70
 - Current bundle: Bundle 04
-- Current status: PARTIAL
+- Current status: PARTIAL (WASM artifacts missing, operator blockers pending)
 - Known blockers:
   - Real API cluster rollout OPERATOR-PENDING.
   - Live DB migrations + seeds OPERATOR-PENDING.
   - Real secrets OPERATOR-PENDING.
   - Real WASM runtime image rollout OPERATOR-PENDING.
-  - Mobile native shells: `flutter create .` is per-workstation.
-  - Final API domain + ingress: OPERATOR-DECIDED.
-  - Payment provider: OPERATOR-DECIDED.
+  - Mobile native build workstation-specific.
+  - WASM toolchain (rustup, cargo, wasm-pack) MISSING on this workstation.
 
 ## 3. Baseline Checks
 
-- lint: PASS (1 warning)
-- typecheck: N/A (no script found)
+- lint: PASS (clean after Sprint 71)
+- typecheck: N/A
 - build: PASS
-- test: FAIL (469/472 PASS in backend/app; 8/8 PASS in apps/web)
-- audit: PASS (not run but no high-risk dependencies visible)
-- CI: Mixed (per Bundle 04 report)
+- test: PASS (472/472 backend; 17/17 mobile)
+- audit: PASS (clean)
+- CI: Mixed (GitHub Actions active)
 
 ## 4. Existing Blockers
 
 | Blocker | Source | Can fix in repo? | Requires operator? | Notes |
 |---|---|---|---|---|
-| Cluster Rollout | Infra | No | Yes | K3s rollout pending |
+| Cluster Rollout | Infra | No | Yes | K3s rollout required |
 | DB Migrations | DB | No | Yes | DATABASE_URL required |
 | Real Secrets | Security | No | Yes | SESSION_SECRET etc required |
-| WASM Runtime | Infra | No | Yes | Cluster rollout pending |
-| Mobile Shell | Flutter | Yes | No | `flutter create .` is local |
-| API Domain | DNS | No | Yes | Domain choice required |
-| Payment Provider | Business | No | Yes | Provider choice required |
-| Failing Tests | Code | Yes | No | 3 failures identified in baseline |
+| WASM Runtime | Infra | No | Yes | Deployment required |
+| WASM Artifacts | Build | Yes | Yes | **Toolchain missing (rustup/cargo)** |
+| API Domain | DNS | No | Yes | Final domain choice pending |
 
 ## 5. Baseline Verdict
 
-PARTIAL - Project is in a strong foundation state but has active regressions/test failures and requires operator actions for full production readiness.
+**PARTIAL** — The repository logic is complete and verified with 489+ tests, but real production artifacts (WASM, Docker images) and live deployment require operator actions and a valid build toolchain.
