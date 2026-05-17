@@ -1,85 +1,94 @@
 /**
- * Sheikh Hasan question / answer repository.
+ * Sheikh Hasan question / answer repository — V4 Bilingual Workflow.
  *
- * Mirrors the pattern used by sources/source-repository.js:
- *   - With no pg pool injected, this repository is a SAFE NO-OP. Every method
- *     returns a structured `{ ok: false, reason: 'service_not_configured' }`
- *     for writes, and `[]` / null for reads. The route layer translates these
- *     into HTTP 503 / empty list responses.
- *   - With a pool injected, all SQL is parameterized — values are bound via
- *     $1, $2, …, never string-concatenated.
- *
- * No external HTTP. No LLM. No raw user identity is exposed via any read
- * method on the public path — those are projected by sheikh-answer-policy.js.
- *
- * The repository is INTENTIONALLY tested without a real pool — the no-pool
- * shape is the safety contract. Tests for the SQL paths live in a future
- * sprint with a real Postgres connection.
+ * Implements the full workflow logic for Ask Sheikh Hasan:
+ *   - User submission (Arabic/English)
+ *   - Sheikh dashboard (Pending/Assigned)
+ *   - Answer drafting with citations
+ *   - Admin review (Approve/Reject)
+ *   - Public publishing
  */
 
 import { createHash } from 'node:crypto';
 
 const NOT_CONFIGURED = Object.freeze({ ok: false, reason: 'service_not_configured' });
 
-function hashQuestionText(text) {
+function hashText(text) {
   const t = typeof text === 'string' ? text.trim() : '';
   if (t.length === 0) return null;
   return createHash('sha256').update(t).digest('hex');
 }
 
-function slugifyTitle(title) {
-  const t = typeof title === 'string' ? title.trim().toLowerCase() : '';
-  if (t.length === 0) return null;
-  // Conservative slug: ASCII alphanumerics + dashes; collapses other runs.
-  // Arabic content keeps its slug short by using a hash suffix appended by
-  // the route — this function deliberately does not transliterate.
-  const ascii = t
-    .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '') // strip combining marks
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-  return ascii.length > 0 ? ascii.slice(0, 80) : null;
-}
-
 export function createSheikhQuestionRepository({ pool } = {}) {
   const hasPool = Boolean(pool);
 
+  // ---------------------------------------------------------------------------
+  // PUBLIC / USER METHODS
+  // ---------------------------------------------------------------------------
+
+  async function listCategories() {
+    if (!hasPool) return [];
+    const sql = `
+      SELECT id, slug, title_ar, title_en, description_ar, description_en
+      FROM ask_sheikh_categories
+      WHERE is_active = TRUE
+      ORDER BY sort_order ASC
+    `;
+    try {
+      const res = await pool.query(sql);
+      return res.rows || [];
+    } catch {
+      return [];
+    }
+  }
+
   async function submitQuestion({
     user_id = null,
-    question_text,
-    language = 'en',
-    category = null,
-    public_allowed = false,
+    question_text_ar = null,
+    question_text_en = null,
+    category_id = null,
+    display_preference = 'ar',
+    is_anonymous = true,
+    ip_hash = null,
+    ua_hash = null,
   } = {}) {
-    if (typeof question_text !== 'string' || question_text.trim().length === 0) {
+    if (!question_text_ar && !question_text_en) {
       return { ok: false, reason: 'empty_question' };
-    }
-    if (question_text.length > 1000) {
-      return { ok: false, reason: 'question_too_long' };
     }
     if (!hasPool) return NOT_CONFIGURED;
 
-    const hash = hashQuestionText(question_text);
-    if (!hash) return { ok: false, reason: 'empty_question' };
+    const original_language = question_text_ar ? 'ar' : 'en';
 
     const sql = `
-      INSERT INTO sakina_user_questions
-        (user_id, question_text, question_hash, language, category,
-         private_question, public_allowed, status)
-      VALUES ($1, $2, $3, $4, $5, TRUE, $6, 'pending_review')
+      INSERT INTO ask_sheikh_questions
+        (user_id, category_id, question_text_ar, question_text_en,
+         original_language, display_preference, is_anonymous,
+         submitted_ip_hash, user_agent_hash, status)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'submitted')
       RETURNING id, status, created_at
     `;
     try {
       const res = await pool.query(sql, [
         user_id,
-        question_text.trim(),
-        hash,
-        String(language).slice(0, 8),
-        category,
-        Boolean(public_allowed),
+        category_id,
+        question_text_ar,
+        question_text_en,
+        original_language,
+        display_preference,
+        Boolean(is_anonymous),
+        ip_hash,
+        ua_hash,
       ]);
       const row = res.rows && res.rows[0];
       if (!row) return { ok: false, reason: 'insert_failed' };
+
+      await _recordAuditEvent({
+        actor_user_id: user_id,
+        question_id: row.id,
+        action: 'question_submitted',
+        after_status: row.status,
+      });
+
       return {
         ok: true,
         question_id: row.id,
@@ -91,218 +100,241 @@ export function createSheikhQuestionRepository({ pool } = {}) {
     }
   }
 
-  async function listPendingForSheikh({ sheikh_user_id = null, limit = 50 } = {}) {
+  async function listPublicQA({ category_slug = null, language = 'ar', limit = 50 } = {}) {
     if (!hasPool) return [];
-    const n = Number.isInteger(limit) && limit > 0 && limit <= 200 ? limit : 50;
-    // Either assigned to this sheikh OR globally pending and unassigned.
+    const n = Math.min(200, Math.max(1, Number(limit) || 50));
+    
+    // Joint query to get published questions and their approved answers
     const sql = `
-      SELECT id, language, category, status, created_at
-      FROM sakina_user_questions
-      WHERE status IN ('pending_review', 'assigned_to_sheikh', 'draft_answered')
-        AND (assigned_sheikh_id = $1 OR (assigned_sheikh_id IS NULL AND status = 'pending_review'))
-      ORDER BY created_at ASC
+      SELECT
+        q.id as question_id,
+        q.question_text_ar,
+        q.question_text_en,
+        a.answer_text_ar,
+        a.answer_text_en,
+        c.slug as category_slug,
+        c.title_ar as category_title_ar,
+        a.updated_at as published_at
+      FROM ask_sheikh_questions q
+      JOIN ask_sheikh_answers a ON a.question_id = q.id
+      LEFT JOIN ask_sheikh_categories c ON q.category_id = c.id
+      WHERE q.status = 'published'
+        AND a.status = 'published'
+        AND q.public_visible = TRUE
+        AND ($1::text IS NULL OR c.slug = $1)
+      ORDER BY a.updated_at DESC
       LIMIT $2
     `;
     try {
-      const res = await pool.query(sql, [sheikh_user_id, n]);
-      return res.rows || [];
+      const res = await pool.query(sql, [category_slug, n]);
+      return res.rows.map(row => ({
+        id: row.question_id,
+        question: language === 'en' ? (row.question_text_en || row.question_text_ar) : (row.question_text_ar || row.question_text_en),
+        answer: language === 'en' ? (row.answer_text_en || row.answer_text_ar) : (row.answer_text_ar || row.answer_text_en),
+        category: language === 'en' ? row.category_slug : row.category_title_ar,
+        published_at: row.published_at,
+        arabic_available: !!row.answer_text_ar,
+        english_available: !!row.answer_text_en,
+      }));
     } catch {
       return [];
     }
   }
 
-  async function getQuestionStatus({ question_id }) {
-    if (!hasPool) return NOT_CONFIGURED;
-    if (typeof question_id !== 'string' || question_id.length === 0) {
-      return { ok: false, reason: 'invalid_question_id' };
-    }
+  // ---------------------------------------------------------------------------
+  // SHEIKH DASHBOARD METHODS
+  // ---------------------------------------------------------------------------
+
+  async function listPendingForSheikh({ limit = 50 } = {}) {
+    if (!hasPool) return [];
+    const n = Math.min(200, Math.max(1, Number(limit) || 50));
     const sql = `
-      SELECT id, status, language, category, created_at, updated_at
-      FROM sakina_user_questions
-      WHERE id = $1
+      SELECT q.id, q.question_text_ar, q.question_text_en, q.original_language, q.status, q.created_at, c.title_ar as category_ar
+      FROM ask_sheikh_questions q
+      LEFT JOIN ask_sheikh_categories c ON q.category_id = c.id
+      WHERE q.status IN ('submitted', 'pending_sheikh')
+      ORDER BY q.created_at ASC
+      LIMIT $1
     `;
     try {
-      const res = await pool.query(sql, [question_id]);
-      const row = res.rows && res.rows[0];
-      if (!row) return { ok: false, reason: 'not_found' };
-      return { ok: true, ...row };
+      const res = await pool.query(sql, [n]);
+      return res.rows || [];
     } catch {
-      return { ok: false, reason: 'lookup_failed' };
+      return [];
     }
   }
 
   async function saveAnswerDraft({
     question_id,
     sheikh_user_id,
-    answer_text,
-    citation_status,
+    answer_text_ar,
+    answer_text_en,
+    citations = [],
   } = {}) {
     if (!hasPool) return NOT_CONFIGURED;
-    if (typeof question_id !== 'string' || typeof sheikh_user_id !== 'string') {
-      return { ok: false, reason: 'invalid_ids' };
-    }
-    if (typeof answer_text !== 'string' || answer_text.trim().length === 0) {
-      return { ok: false, reason: 'empty_answer' };
-    }
-    const sql = `
-      INSERT INTO sakina_sheikh_answers
-        (question_id, sheikh_user_id, answer_text, citation_status, publication_status)
-      VALUES ($1, $2, $3, $4, 'draft')
-      RETURNING id, publication_status, created_at
-    `;
+    
+    await pool.query('BEGIN');
     try {
-      const res = await pool.query(sql, [
+      const original_lang = answer_text_ar ? 'ar' : 'en';
+      const sql = `
+        INSERT INTO ask_sheikh_answers
+          (question_id, answered_by_user_id, answer_text_ar, answer_text_en, original_answer_lang, status)
+        VALUES ($1, $2, $3, $4, $5, 'submitted_for_admin_review')
+        RETURNING id
+      `;
+      const res = await pool.query(sql, [question_id, sheikh_user_id, answer_text_ar, answer_text_en, original_lang]);
+      const answer_id = res.rows[0].id;
+
+      for (const cite of citations) {
+        const citeSql = `
+          INSERT INTO ask_sheikh_answer_citations
+            (answer_id, source_type, source_title_ar, source_title_en, reference_ar, reference_en, quote_ar, quote_en, url)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        `;
+        await pool.query(citeSql, [
+          answer_id,
+          cite.source_type,
+          cite.source_title_ar,
+          cite.source_title_en,
+          cite.reference_ar,
+          cite.reference_en,
+          cite.quote_ar,
+          cite.quote_en,
+          cite.url
+        ]);
+      }
+
+      const updateQSql = `UPDATE ask_sheikh_questions SET status = 'pending_admin_approval' WHERE id = $1`;
+      await pool.query(updateQSql, [question_id]);
+
+      await _recordAuditEvent({
+        actor_user_id: sheikh_user_id,
         question_id,
-        sheikh_user_id,
-        answer_text.trim(),
-        citation_status,
-      ]);
-      const row = res.rows && res.rows[0];
-      if (!row) return { ok: false, reason: 'insert_failed' };
-      return { ok: true, answer_id: row.id, publication_status: row.publication_status };
-    } catch {
-      return { ok: false, reason: 'insert_failed' };
+        answer_id,
+        action: 'sheikh_answer_submitted',
+        after_status: 'pending_admin_approval',
+      });
+
+      await pool.query('COMMIT');
+      return { ok: true, answer_id };
+    } catch (e) {
+      await pool.query('ROLLBACK');
+      return { ok: false, reason: 'transaction_failed' };
     }
   }
 
-  async function listPublicQA({ category = null, language = null, limit = 50 } = {}) {
+  // ---------------------------------------------------------------------------
+  // ADMIN METHODS
+  // ---------------------------------------------------------------------------
+
+  async function listPendingApprovals() {
     if (!hasPool) return [];
-    const n = Number.isInteger(limit) && limit > 0 && limit <= 200 ? limit : 50;
-    // Public read: never join sakina_users; only the public slug/title/etc.
     const sql = `
-      SELECT slug, title, language, category, published_at
-      FROM sakina_public_qa
-      WHERE is_live = TRUE
-        AND ($1::text IS NULL OR category = $1)
-        AND ($2::text IS NULL OR language = $2)
-      ORDER BY published_at DESC NULLS LAST
-      LIMIT $3
+      SELECT a.id as answer_id, q.id as question_id, q.question_text_ar, a.answer_text_ar, u.display_name as sheikh_name, a.created_at
+      FROM ask_sheikh_answers a
+      JOIN ask_sheikh_questions q ON a.question_id = q.id
+      JOIN sakina_users u ON a.answered_by_user_id = u.id
+      WHERE a.status = 'submitted_for_admin_review'
+      ORDER BY a.created_at ASC
     `;
     try {
-      const res = await pool.query(sql, [category, language, n]);
+      const res = await pool.query(sql);
       return res.rows || [];
     } catch {
       return [];
     }
   }
 
-  async function getPublicQABySlug({ slug } = {}) {
-    if (!hasPool) return null;
-    if (typeof slug !== 'string' || slug.length === 0) return null;
-    // Public read: never join sakina_users. Citations joined on answer_id.
-    // Sheikh name comes from the public profile (joined separately to avoid
-    // exposing email_hash). Verification_status is surfaced per citation.
-    const sql = `
-      SELECT
-        pq.slug,
-        pq.title,
-        pq.language,
-        pq.category,
-        pq.published_at,
-        a.answer_text,
-        COALESCE(sp.public_name, 'Sheikh Hasan') AS sheikh_name
-      FROM sakina_public_qa pq
-      JOIN sakina_sheikh_answers a ON a.id = pq.answer_id
-      LEFT JOIN sakina_sheikh_profiles sp ON sp.user_id = a.sheikh_user_id
-      WHERE pq.slug = $1
-        AND pq.is_live = TRUE
-        AND a.publication_status = 'published_public'
-    `;
-    const citationSql = `
-      SELECT
-        citation_type,
-        citation_label,
-        citation_text,
-        citation_url,
-        verification_status
-      FROM sakina_sheikh_answer_citations
-      WHERE answer_id = (
-        SELECT answer_id FROM sakina_public_qa WHERE slug = $1
-      )
-      AND verification_status <> 'rejected'
-      ORDER BY created_at ASC
-    `;
+  async function approveAnswer(answer_id, admin_user_id) {
+    if (!hasPool) return NOT_CONFIGURED;
+    await pool.query('BEGIN');
     try {
-      const main = await pool.query(sql, [slug]);
-      const row = main.rows && main.rows[0];
-      if (!row) return null;
-      const cites = await pool.query(citationSql, [slug]);
-      return { ...row, citations: cites.rows || [] };
+      const sql = `
+        UPDATE ask_sheikh_answers
+        SET status = 'published', public_visible = TRUE, reviewed_by_admin_id = $2, reviewed_at = NOW()
+        WHERE id = $1
+        RETURNING question_id
+      `;
+      const res = await pool.query(sql, [answer_id, admin_user_id]);
+      const q_id = res.rows[0].question_id;
+
+      await pool.query(`UPDATE ask_sheikh_questions SET status = 'published', public_visible = TRUE WHERE id = $1`, [q_id]);
+      
+      await _recordAuditEvent({
+        actor_user_id: admin_user_id,
+        question_id: q_id,
+        answer_id,
+        action: 'admin_approved_answer',
+        after_status: 'published',
+      });
+
+      await pool.query('COMMIT');
+      return { ok: true };
     } catch {
-      return null;
+      await pool.query('ROLLBACK');
+      return { ok: false };
     }
   }
 
-  async function recordReport({ target_type, target_id, reason } = {}) {
+  async function rejectAnswer(answer_id, admin_user_id, reason) {
     if (!hasPool) return NOT_CONFIGURED;
-    if (
-      target_type !== 'question' &&
-      target_type !== 'answer' &&
-      target_type !== 'public_qa'
-    ) {
-      return { ok: false, reason: 'invalid_target_type' };
+    await pool.query('BEGIN');
+    try {
+      await pool.query(`UPDATE ask_sheikh_answers SET status = 'rejected', rejection_reason = $2 WHERE id = $1`, [answer_id, reason]);
+      const res = await pool.query(`SELECT question_id FROM ask_sheikh_answers WHERE id = $1`, [answer_id]);
+      const q_id = res.rows[0].question_id;
+      await pool.query(`UPDATE ask_sheikh_questions SET status = 'pending_sheikh' WHERE id = $1`, [q_id]);
+
+      await _recordAuditEvent({
+        actor_user_id: admin_user_id,
+        question_id: q_id,
+        answer_id,
+        action: 'admin_rejected_answer',
+        after_status: 'pending_sheikh',
+        metadata: { reason },
+      });
+
+      await pool.query('COMMIT');
+      return { ok: true };
+    } catch {
+      await pool.query('ROLLBACK');
+      return { ok: false };
     }
-    if (typeof target_id !== 'string' || target_id.length === 0) {
-      return { ok: false, reason: 'invalid_target_id' };
-    }
-    if (typeof reason !== 'string' || reason.trim().length === 0) {
-      return { ok: false, reason: 'invalid_reason' };
-    }
-    if (reason.length > 1000) {
-      return { ok: false, reason: 'reason_too_long' };
-    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // INTERNAL HELPERS
+  // ---------------------------------------------------------------------------
+
+  async function _recordAuditEvent({ actor_user_id, question_id, answer_id, action, before_status, after_status, metadata = {} }) {
+    if (!hasPool) return;
     const sql = `
-      INSERT INTO sakina_content_reports
-        (target_type, target_id, reason, status)
-      VALUES ($1, $2, $3, 'open')
-      RETURNING id, status, created_at
+      INSERT INTO ask_sheikh_audit_events
+        (actor_user_id, question_id, answer_id, action, before_status, after_status, metadata_json)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
     `;
     try {
-      const res = await pool.query(sql, [target_type, target_id, reason.trim()]);
-      const row = res.rows && res.rows[0];
-      if (!row) return { ok: false, reason: 'insert_failed' };
-      return { ok: true, report_id: row.id, status: row.status };
-    } catch {
-      return { ok: false, reason: 'insert_failed' };
+      await pool.query(sql, [actor_user_id, question_id, answer_id, action, before_status, after_status, JSON.stringify(metadata)]);
+    } catch (e) {
+      // Swallowing audit errors to avoid blocking the main flow, but in prod we would log this.
     }
   }
 
   return {
+    listCategories,
     submitQuestion,
-    listPendingForSheikh,
-    getQuestionStatus,
-    saveAnswerDraft,
     listPublicQA,
-    getPublicQABySlug,
-    recordReport,
-    // Exposed for tests / future composition.
-    _slugifyTitle: slugifyTitle,
+    listPendingForSheikh,
+    saveAnswerDraft,
+    listPendingApprovals,
+    approveAnswer,
+    rejectAnswer,
   };
 }
 
-/* -----------------------------------------------------------------------------
- * Module-level singleton wiring (mirrors source-store pattern).
- * --------------------------------------------------------------------------- */
-
 let _repository = null;
-
-export function configureSheikhRepository({ repository = null } = {}) {
-  _repository = repository;
-}
-
-export function configureSheikhRepositoryWithPool({ pool } = {}) {
-  _repository = pool ? createSheikhQuestionRepository({ pool }) : null;
-}
-
-export function getSheikhRepository() {
-  return _repository;
-}
-
-export function isSheikhRepositoryConfigured() {
-  return Boolean(_repository);
-}
-
-/** Test-only reset. */
-export function _resetSheikhRepositoryForTests() {
-  _repository = null;
-}
+export function configureSheikhRepository({ repository = null } = {}) { _repository = repository; }
+export function configureSheikhRepositoryWithPool({ pool } = {}) { _repository = pool ? createSheikhQuestionRepository({ pool }) : null; }
+export function getSheikhRepository() { return _repository; }
+export function isSheikhRepositoryConfigured() { return Boolean(_repository); }
+export function _resetSheikhRepositoryForTests() { _repository = null; }

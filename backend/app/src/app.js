@@ -19,6 +19,7 @@ import sheikhLoginRoute from './routes/sheikh-login.js';
 import contentSourcesRoute from './routes/content-sources.js';
 import authSessionRoute, { deviceRegistrationRoute } from './routes/auth-session.js';
 import mobileSyncRoute from './routes/mobile-sync.js';
+import askSheikhV4Route from './routes/ask-sheikh-v4.js';
 
 export function buildApp(opts = {}) {
   const app = Fastify({
@@ -49,6 +50,7 @@ export function buildApp(opts = {}) {
   app.register(authSessionRoute, { prefix: '/api/auth' });
   app.register(deviceRegistrationRoute, { prefix: '/api/device' });
   app.register(mobileSyncRoute, { prefix: '/api/mobile' });
+  app.register(askSheikhV4Route, { prefix: '/api/ask-sheikh' });
 
   return app;
 }

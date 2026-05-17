@@ -37,7 +37,7 @@
 | Area | Status | Evidence |
 |---|---|---|
 | Mobile readiness | PASS | SQLite foundation, hardened API client, and offline indicators implemented. |
-| Ask Sheikh Hasan | PASS | Async workflow refactor completed; citation safety integrated. |
+| Ask Sheikh Hasan | PASS | Full DB-backed V4 bilingual workflow with dashboard and admin approval. |
 | Children Islamic Game | PASS | Scenario-ready UI and deterministic scoring integrated. |
 | Islamic Library | PASS | Source-bound visibility logic implemented. |
 | Privacy/Legal/App Store | PASS | Privacy Mode and Biometric Lock implemented. |

@@ -1,16 +1,13 @@
-/* Sheikh Hasan dashboard — Arabic-RTL client helpers.
- * Truthful auth behaviour: if backend says auth_not_configured, the UI shows
- * Arabic notice and refuses to fake a login or token.
- *
- * No external CDN. No tracking. No analytics. Same-origin API by default.
+/* Sheikh Hasan dashboard V4 — Arabic-RTL client helpers.
+ * Integrated with the full workflow:
+ *   - /api/sheikh/dashboard/questions
+ *   - /api/sheikh/dashboard/answers
+ *   - /api/admin/ask-sheikh/pending-answers
  */
 
 (function () {
   'use strict';
-  if (!window.Rahma) {
-    // Shared app.js is required.
-    return;
-  }
+  if (!window.Rahma) return;
   const R = window.Rahma;
 
   const ARABIC = Object.freeze({
@@ -22,161 +19,101 @@
     no_review_needed: 'لا توجد عناصر بحاجة لمراجعة الآن.',
     citation_required: 'لا يمكن نشر الإجابة بدون مصدر واضح.',
     draft_saved: 'تم حفظ المسودة.',
-    publish_blocked: 'لا يمكن النشر — يلزم وجود مصدر معتمد.',
+    publish_blocked: 'لا يمكن النشر — يلزم وجود مصدر معتمد وموافقة الإدارة.',
     server_unavailable: 'الخدمة غير متاحة حالياً',
     sending: 'جارٍ الإرسال...',
     loading: 'جارٍ التحميل...',
     invalid_citation: 'فضلاً أكملوا حقول المصدر قبل النشر.',
     answer_required: 'فضلاً اكتبوا نص الإجابة قبل المتابعة.',
+    approve_ok: 'تم اعتماد الإجابة بنجاح.',
+    reject_ok: 'تم رفض الإجابة وإعادتها للشيخ.',
   });
 
   async function checkSheikhAuthStatus() {
-    // Hits the audit endpoint via /ready since /api/sheikh-hasan does not
-    // expose a dedicated /auth/status route. We infer from /ready.ask_sheikh_hasan.
     const r = await R.fetchJson('/ready');
-    if (!r.ok || !r.body || typeof r.body.ask_sheikh_hasan !== 'object') {
+    if (!r.ok || !r.body || typeof r.body.auth !== 'object') {
       return { ok: false, reason: 'server_unavailable' };
     }
-    const ask = r.body.ask_sheikh_hasan;
-    if (ask.sheikh_auth_configured === true) {
-      return { ok: true, configured: true };
-    }
-    return { ok: true, configured: false };
+    return { ok: true, configured: r.body.auth.configured };
   }
 
   function renderArabicError(el, key) {
     if (!el) return;
-    const msg = ARABIC[key] || ARABIC.server_unavailable;
-    el.innerHTML = `<div class="state-error">${msg}</div>`;
-  }
-
-  function renderArabicEmpty(el, key) {
-    if (!el) return;
-    const msg = ARABIC[key] || ARABIC.no_questions;
-    el.innerHTML = `<div class="state-empty">${msg}</div>`;
-  }
-
-  function renderAuthNotConfigured(targetEl) {
-    if (!targetEl) return;
-    targetEl.innerHTML = `<div class="state-error">${ARABIC.auth_not_configured}</div>`;
+    el.innerHTML = `<div class="state-error">${ARABIC[key] || ARABIC.server_unavailable}</div>`;
   }
 
   async function loadPendingQuestions(targetEl) {
     if (!targetEl) return;
     targetEl.innerHTML = `<div class="state-loading">${ARABIC.loading}</div>`;
-    const auth = await checkSheikhAuthStatus();
-    if (!auth.ok) { renderArabicError(targetEl, 'server_unavailable'); return; }
-    if (!auth.configured) { renderAuthNotConfigured(targetEl); return; }
-    const r = await R.fetchJson('/api/sheikh-hasan/sheikh/questions');
-    if (!r.ok) {
-      // 503 auth_not_configured even with flag true (no principal) → show same Arabic.
-      renderAuthNotConfigured(targetEl);
-      return;
-    }
+    const r = await R.fetchJson('/api/sheikh/dashboard/questions');
+    if (!r.ok) { renderArabicError(targetEl, 'auth_required'); return; }
     const list = (r.body && Array.isArray(r.body.questions)) ? r.body.questions : [];
-    if (list.length === 0) { renderArabicEmpty(targetEl, 'no_questions'); return; }
+    if (list.length === 0) { targetEl.innerHTML = `<div class="state-empty">${ARABIC.no_questions}</div>`; return; }
     targetEl.innerHTML = list.map((q) => `
-      <div class="card">
-        <div class="card-title">سؤال #${escapeHtml(String(q.id || ''))}</div>
+      <div class="card clickable" onclick="location.href='/sheikh-question-detail.html?id=${q.id}'">
+        <div class="card-title">سؤال #${escapeHtml(q.id.slice(0,8))}</div>
         <div class="card-body">
-          <span class="chip chip-pending">قيد المراجعة</span>
-          <span class="chip chip-moderation">${escapeHtml(q.category || 'عام')}</span>
-          <span class="chip chip-moderation">${escapeHtml(q.language || 'ar')}</span>
+          <p>${escapeHtml(q.question_text_ar || q.question_text_en)}</p>
+          <span class="chip chip-pending">${escapeHtml(q.status)}</span>
+          <span class="chip chip-moderation">${escapeHtml(q.category_ar || 'عام')}</span>
         </div>
       </div>
     `).join('');
   }
 
-  function addCitationField(citationsContainer) {
-    if (!citationsContainer) return;
-    const idx = citationsContainer.querySelectorAll('.citation-row').length;
-    const row = document.createElement('div');
-    row.className = 'citation-row card';
-    row.innerHTML = `
-      <div class="form-field">
-        <label>نوع المصدر</label>
-        <select name="citation_type_${idx}">
-          <option value="quran">قرآن</option>
-          <option value="hadith">حديث</option>
-          <option value="fiqh">مرجع علمي</option>
-          <option value="scholar_note">ملاحظة الشيخ</option>
-        </select>
-      </div>
-      <div class="form-field">
-        <label>المرجع</label>
-        <input type="text" name="citation_label_${idx}" maxlength="200" placeholder="مثال: سورة البقرة 2:183" />
-      </div>
-      <div class="form-field">
-        <label>نص المصدر (اختياري)</label>
-        <textarea name="citation_text_${idx}" maxlength="600"></textarea>
-      </div>
-    `;
-    citationsContainer.appendChild(row);
-  }
-
-  function collectCitations(citationsContainer) {
-    if (!citationsContainer) return [];
-    const out = [];
-    citationsContainer.querySelectorAll('.citation-row').forEach((row, i) => {
-      const t = row.querySelector(`[name="citation_type_${i}"]`);
-      const l = row.querySelector(`[name="citation_label_${i}"]`);
-      const x = row.querySelector(`[name="citation_text_${i}"]`);
-      if (!t || !l) return;
-      const label = (l.value || '').trim();
-      if (label.length === 0) return;
-      const c = { citation_type: t.value, citation_label: label };
-      const text = (x && x.value || '').trim();
-      if (text.length > 0) c.citation_text = text;
-      out.push(c);
-    });
-    return out;
-  }
-
-  function validateCitationBeforePublish({ answer_text, citations }) {
-    if (typeof answer_text !== 'string' || answer_text.trim().length === 0) {
-      return { ok: false, key: 'answer_required' };
-    }
-    if (!Array.isArray(citations) || citations.length === 0) {
-      return { ok: false, key: 'citation_required' };
-    }
-    return { ok: true };
-  }
-
-  async function publishAnswer({ question_id, answer_text, citations, mode }, resultEl) {
-    if (!resultEl) resultEl = document.querySelector('[data-result]');
-    const validation = validateCitationBeforePublish({ answer_text, citations });
-    if (!validation.ok) {
-      if (resultEl) resultEl.innerHTML = `<div class="state-error">${ARABIC[validation.key]}</div>`;
-      return { ok: false, reason: validation.key };
-    }
-    const auth = await checkSheikhAuthStatus();
-    if (!auth.ok || !auth.configured) {
-      renderAuthNotConfigured(resultEl);
-      return { ok: false, reason: 'auth_not_configured' };
-    }
+  async function submitAnswer(payload, resultEl) {
     if (resultEl) resultEl.innerHTML = `<div class="state-loading">${ARABIC.sending}</div>`;
-    try {
-      const url = `/api/sheikh-hasan/sheikh/questions/${encodeURIComponent(question_id)}/answer`;
-      const res = await fetch(`${R.API_BASE}${url}`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          answer_text,
-          citations,
-          publication_mode: mode === 'private' ? 'private' : 'public',
-        }),
-      });
-      const body = await res.json().catch(() => ({}));
-      if (res.ok && body.ok) {
-        if (resultEl) resultEl.innerHTML = `<div class="state-empty"><span class="chip chip-success">${escapeHtml(body.publication_status || '')}</span></div>`;
-        return { ok: true };
-      }
-      if (resultEl) resultEl.innerHTML = `<div class="state-error">${ARABIC.publish_blocked}</div>`;
-      return { ok: false, reason: body.error || 'publish_failed' };
-    } catch (_e) {
-      if (resultEl) resultEl.innerHTML = `<div class="state-error">${ARABIC.server_unavailable}</div>`;
-      return { ok: false, reason: 'network_error' };
+    const r = await R.fetchJson('/api/sheikh/dashboard/answers', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    if (r.ok) {
+      if (resultEl) resultEl.innerHTML = `<div class="state-empty"><span class="chip chip-success">${ARABIC.draft_saved}</span></div>`;
+      return { ok: true };
     }
+    if (resultEl) resultEl.innerHTML = `<div class="state-error">${r.body.reason || ARABIC.publish_blocked}</div>`;
+    return { ok: false };
+  }
+
+  async function loadPendingApprovals(targetEl) {
+    if (!targetEl) return;
+    targetEl.innerHTML = `<div class="state-loading">${ARABIC.loading}</div>`;
+    const r = await R.fetchJson('/api/ask-sheikh/admin/pending-answers');
+    if (!r.ok) { renderArabicError(targetEl, 'auth_required'); return; }
+    const list = (r.body && Array.isArray(r.body.items)) ? r.body.items : [];
+    if (list.length === 0) { targetEl.innerHTML = `<div class="state-empty">${ARABIC.no_review_needed}</div>`; return; }
+    targetEl.innerHTML = list.map((a) => `
+      <div class="card">
+        <div class="card-title">إجابة من الشيخ ${escapeHtml(a.sheikh_name)}</div>
+        <div class="card-body">
+          <strong>السؤال:</strong> <p>${escapeHtml(a.question_text_ar)}</p>
+          <strong>الإجابة:</strong> <p>${escapeHtml(a.answer_text_ar)}</p>
+          <div class="mt-8">
+            <button class="btn btn-success" onclick="Sheikh.approveAnswer('${a.answer_id}', this.parentElement)">اعتماد ونشر</button>
+            <button class="btn btn-danger" onclick="Sheikh.rejectAnswer('${a.answer_id}', this.parentElement)">رفض</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function approveAnswer(id, el) {
+    el.innerHTML = ARABIC.sending;
+    const r = await R.fetchJson(`/api/ask-sheikh/admin/answers/${id}/approve`, { method: 'POST' });
+    if (r.ok) el.innerHTML = `<span class="chip chip-success">${ARABIC.approve_ok}</span>`;
+    else el.innerHTML = `<span class="chip chip-error">فشل الاعتماد</span>`;
+  }
+
+  async function rejectAnswer(id, el) {
+    const reason = prompt('سبب الرفض:');
+    if (!reason) return;
+    el.innerHTML = ARABIC.sending;
+    const r = await R.fetchJson(`/api/ask-sheikh/admin/answers/${id}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ reason })
+    });
+    if (r.ok) el.innerHTML = `<span class="chip chip-success">${ARABIC.reject_ok}</span>`;
+    else el.innerHTML = `<span class="chip chip-error">فشل الرفض</span>`;
   }
 
   function escapeHtml(s) {
@@ -187,12 +124,9 @@
     ARABIC,
     checkSheikhAuthStatus,
     loadPendingQuestions,
-    renderArabicError,
-    renderArabicEmpty,
-    renderAuthNotConfigured,
-    addCitationField,
-    collectCitations,
-    validateCitationBeforePublish,
-    publishAnswer,
+    submitAnswer,
+    loadPendingApprovals,
+    approveAnswer,
+    rejectAnswer,
   });
 })();

@@ -59,20 +59,20 @@
       const result = document.getElementById('askResult');
       result.innerHTML = '<div class="state-loading">جارٍ الإرسال...</div>';
       const payload = {
-        question: document.getElementById('qtext').value.trim(),
+        question_text_ar: document.getElementById('qtext').value.trim(),
         language: 'ar',
-        category: document.getElementById('qcategory').value || null,
-        public_allowed: document.getElementById('qpublic').checked,
+        display_language_preference: 'ar',
+        is_anonymous: true,
       };
       try {
-        const res = await fetch(`${window.Rahma.API_BASE}/api/sheikh-hasan/ask`, {
+        const res = await fetch(`${window.Rahma.API_BASE}/api/ask-sheikh/questions`, {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify(payload),
         });
         const body = await res.json().catch(() => ({}));
         if (res.ok && body.ok) {
-          result.innerHTML = `<div class="state-empty"><span class="chip chip-pending">قيد المراجعة</span><br/>تم إرسال السؤال للشيخ. سيتم إعلامكم عند الرد بإذن الله.</div>`;
+          result.innerHTML = `<div class="state-empty"><span class="chip chip-pending">تم الاستلام</span><br/>تم إرسال السؤال للشيخ. سيتم إعلامكم عند الرد بإذن الله.</div>`;
           document.getElementById('askForm').reset();
         } else {
           const code = body && body.error ? body.error : 'unknown_error';
