@@ -26,9 +26,9 @@ export function decideListPending() {
   return Object.freeze({ ok: true, action: 'fetch_from_repository' });
 }
 
-export function decideAnswerDraft({ citations, publication_mode }) {
+export async function decideAnswerDraft({ citations, publication_mode }) {
   if (!isAuthConfigured()) return authError('auth_not_configured');
-  const cite = evaluatePublishEligibility(citations, { publication_mode });
+  const cite = await evaluatePublishEligibility(citations, { publication_mode });
   if (!cite.allowed) {
     return Object.freeze({
       ok: false,

@@ -17,8 +17,8 @@ const _validHadithCitation = {
 };
 // Referenced inline via the quran+hadith assertion below.
 
-test('decideAnswerPublication: empty answer is refused', () => {
-  const d = decideAnswerPublication({
+test('decideAnswerPublication: empty answer is refused', async () => {
+  const d = await decideAnswerPublication({
     answer_text: '   ',
     citations: [validQuranCitation],
     publication_mode: 'public',
@@ -28,8 +28,8 @@ test('decideAnswerPublication: empty answer is refused', () => {
   assert.equal(d.publication_status, 'draft');
 });
 
-test('decideAnswerPublication: invalid publication_mode is refused', () => {
-  const d = decideAnswerPublication({
+test('decideAnswerPublication: invalid publication_mode is refused', async () => {
+  const d = await decideAnswerPublication({
     answer_text: 'A scholarly answer.',
     citations: [validQuranCitation],
     publication_mode: 'something-else',
@@ -38,8 +38,8 @@ test('decideAnswerPublication: invalid publication_mode is refused', () => {
   assert.equal(d.reason, 'invalid_publication_mode');
 });
 
-test('decideAnswerPublication: private mode requires at least one citation', () => {
-  const d = decideAnswerPublication({
+test('decideAnswerPublication: private mode requires at least one citation', async () => {
+  const d = await decideAnswerPublication({
     answer_text: 'Some answer',
     citations: [],
     publication_mode: 'private',
@@ -48,8 +48,8 @@ test('decideAnswerPublication: private mode requires at least one citation', () 
   assert.equal(d.citation_status, 'insufficient_citation');
 });
 
-test('decideAnswerPublication: private with valid citation → answered_private', () => {
-  const d = decideAnswerPublication({
+test('decideAnswerPublication: private with valid citation → answered_private', async () => {
+  const d = await decideAnswerPublication({
     answer_text: 'Some answer',
     citations: [validQuranCitation],
     publication_mode: 'private',
@@ -59,8 +59,8 @@ test('decideAnswerPublication: private with valid citation → answered_private'
   assert.equal(d.citation_status, 'quran_cited');
 });
 
-test('decideAnswerPublication: public path with no citation refused', () => {
-  const d = decideAnswerPublication({
+test('decideAnswerPublication: public path with no citation refused', async () => {
+  const d = await decideAnswerPublication({
     answer_text: 'Some answer',
     citations: [],
     publication_mode: 'public',
@@ -69,8 +69,8 @@ test('decideAnswerPublication: public path with no citation refused', () => {
   assert.equal(d.citation_status, 'insufficient_citation');
 });
 
-test('decideAnswerPublication: public path with Quran citation → pending_moderation', () => {
-  const d = decideAnswerPublication({
+test('decideAnswerPublication: public path with Quran citation → pending_moderation', async () => {
+  const d = await decideAnswerPublication({
     answer_text: 'Detailed scholar answer about fasting.',
     citations: [validQuranCitation],
     publication_mode: 'public',
@@ -80,8 +80,8 @@ test('decideAnswerPublication: public path with Quran citation → pending_moder
   assert.equal(d.publication_status, 'pending_moderation');
 });
 
-test('decideAnswerPublication: public path with scholar_note only → moderation (no auto-publish)', () => {
-  const d = decideAnswerPublication({
+test('decideAnswerPublication: public path with scholar_note only → moderation (no auto-publish)', async () => {
+  const d = await decideAnswerPublication({
     answer_text: 'General guidance.',
     citations: [{ citation_type: 'scholar_note', citation_label: 'Sheikh Hasan personal note' }],
     publication_mode: 'public',

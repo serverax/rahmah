@@ -33,22 +33,22 @@ test('Sprint65 — listPending: auth configured, repo unconfigured → service_n
   envRestore(s);
 });
 
-test('Sprint65 — answerDraft: insufficient citation blocked', () => {
+test('Sprint65 — answerDraft: insufficient citation blocked', async () => {
   const s = envSnap();
   process.env.AUTH_MODE = 'external';
   process.env.SESSION_SECRET = 'a'.repeat(32);
-  const d = decideAnswerDraft({ citations: [], publication_mode: 'public' });
+  const d = await decideAnswerDraft({ citations: [], publication_mode: 'public' });
   assert.equal(d.ok, false);
   assert.equal(d.reason, 'no_citations_provided');
   envRestore(s);
 });
 
-test('Sprint65 — answerDraft: quran-cited public draft, no DB → persisted=false', () => {
+test('Sprint65 — answerDraft: quran-cited public draft, no DB → persisted=false', async () => {
   const s = envSnap();
   process.env.AUTH_MODE = 'external';
   process.env.SESSION_SECRET = 'a'.repeat(32);
   delete process.env.DATABASE_URL;
-  const d = decideAnswerDraft({
+  const d = await decideAnswerDraft({
     citations: [{ citation_type: 'quran', citation_label: 'Al-Fatiha 1:1' }],
     publication_mode: 'public',
   });

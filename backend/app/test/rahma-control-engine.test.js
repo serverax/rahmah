@@ -378,8 +378,8 @@ test('logDecision routes unknown action to not_persisted_event_not_routed', asyn
 
 // -------------- Sub-gates ---------------------------------------------------
 
-test('citationGate: empty answer → block empty_answer_text', () => {
-  const r = citationGate({ answer_text: '', citations: [] });
+test('citationGate: empty answer → block empty_answer_text', async () => {
+  const r = await citationGate({ answer_text: '', citations: [] });
   assert.equal(r.decision, 'block');
   assert.equal(r.reason, 'empty_answer_text');
 });

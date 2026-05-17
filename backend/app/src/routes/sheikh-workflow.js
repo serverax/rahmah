@@ -30,8 +30,7 @@ import {
 import { requireAuth } from '../auth/auth-middleware.js';
 import { isAuthConfigured } from '../auth/auth-config.js';
 import { ROLES } from '../auth/roles.js';
-import { decideAnswerPublication } from '../sheikh/sheikh-answer-policy.js';
-import { evaluateCitationRequirement } from '../sheikh/citation-requirement.js';
+import { evaluatePublishEligibility } from '../services/citation-policy-service.js';
 
 const SUBMIT_OK_AR = 'تم استلام سؤالك. سيتم مراجعته من قبل الشيخ بإذن الله.';
 const SERVICE_NOT_CONFIGURED_AR = 'خدمة الفتوى غير مفعلة بعد.';
@@ -173,16 +172,14 @@ export default async function sheikhWorkflowRoute(fastify) {
     '/questions/:id/answer',
     { schema: answerSchema, preHandler: requireAuth([ROLES.SHEIKH, ROLES.ADMIN]) },
     async (req, reply) => {
-      const decision = decideAnswerPublication({
-        answer_text: req.body.answer_ar,
-        citations: req.body.citations,
+      const cite = await evaluatePublishEligibility(req.body.citations, {
         publication_mode: req.body.publication_mode || 'private',
       });
-      if (!decision.allowed) {
+      if (!cite.allowed) {
         return reply.code(400).send({
           ok: false,
-          error: decision.reason || 'publication_refused',
-          citation_status: decision.citation_status,
+          error: cite.reason || 'publication_refused',
+          citation_status: cite.citation_status,
           safe_message_ar: CITATION_REQUIRED_AR,
         });
       }
@@ -192,7 +189,7 @@ export default async function sheikhWorkflowRoute(fastify) {
         question_id: req.params.id,
         sheikh_user_id: req.sakina_principal && req.sakina_principal.user_id,
         answer_text: req.body.answer_ar,
-        citation_status: decision.citation_status,
+        citation_status: cite.citation_status,
       });
       if (!saved || !saved.ok) {
         return reply.code(400).send({
@@ -203,8 +200,8 @@ export default async function sheikhWorkflowRoute(fastify) {
       return reply.send({
         ok: true,
         answer_id: saved.answer_id,
-        citation_status: decision.citation_status,
-        publication_status: decision.publication_status,
+        citation_status: cite.citation_status,
+        publication_status: req.body.publication_mode === 'public' ? 'pending_moderation' : 'answered_private',
       });
     },
   );
@@ -287,8 +284,8 @@ export const _MESSAGES = Object.freeze({
 });
 
 // Allow tests to feed in citation eval directly
-export function _evalCitationsForTest(cites) {
-  return evaluateCitationRequirement(cites);
+export async function _evalCitationsForTest(cites) {
+  return evaluatePublishEligibility(cites);
 }
 
 // Allow test setup to assert auth-config is wired (no real coupling).

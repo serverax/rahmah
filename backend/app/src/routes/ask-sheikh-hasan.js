@@ -201,7 +201,7 @@ export default async function askSheikhHasanRoute(fastify) {
       const auth = requireRole(req, ['sheikh', 'admin']);
       if (!auth.ok) return reply.code(auth.status).send(auth.body);
 
-      const decision = decideAnswerPublication({
+      const decision = await decideAnswerPublication({
         answer_text: req.body.answer_text,
         citations: req.body.citations,
         publication_mode: req.body.publication_mode,

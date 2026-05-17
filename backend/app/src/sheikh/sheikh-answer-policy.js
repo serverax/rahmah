@@ -11,7 +11,7 @@
  * we persist on this answer", and the matching reason code.
  */
 
-import { evaluateCitationRequirement } from './citation-requirement.js';
+import { evaluatePublishEligibility } from '../services/citation-policy-service.js';
 
 const ALLOWED_PUBLICATION_MODES = new Set(['private', 'public']);
 
@@ -21,14 +21,14 @@ const ALLOWED_PUBLICATION_MODES = new Set(['private', 'public']);
  * @param {Array}  input.citations       citation rows (raw, will be normalized)
  * @param {string} input.publication_mode  'private' | 'public'
  *
- * @returns {{
+ * @returns {Promise<{
  *   allowed: boolean,
  *   citation_status: string,
  *   publication_status: string,
  *   reason: string|null
- * }}
+ * }>}
  */
-export function decideAnswerPublication({
+export async function decideAnswerPublication({
   answer_text,
   citations,
   publication_mode,
@@ -50,11 +50,11 @@ export function decideAnswerPublication({
     });
   }
 
-  const cite = evaluateCitationRequirement(citations);
+  const cite = await evaluatePublishEligibility(citations, { publication_mode });
 
   // Private path: must have at least one citation of any allowed type.
   if (publication_mode === 'private') {
-    if (!cite.can_publish_private) {
+    if (!cite.allowed) {
       return Object.freeze({
         allowed: false,
         citation_status: cite.citation_status,
@@ -71,10 +71,7 @@ export function decideAnswerPublication({
   }
 
   // Public path: must have Quran/Hadith. Anything else routes to moderation.
-  // - quran/hadith/quran_and_hadith → pending_moderation (moderator approves).
-  // - scholar_advice_needs_review   → pending_moderation (stricter review).
-  // - insufficient_citation         → refuse outright.
-  if (cite.citation_status === 'insufficient_citation') {
+  if (!cite.allowed) {
     return Object.freeze({
       allowed: false,
       citation_status: cite.citation_status,

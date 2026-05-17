@@ -118,7 +118,7 @@ export async function processRahmaEvent(event = {}) {
     }
 
     case 'SHEIKH_REQUESTED_PUBLISH': {
-      const g = citationGate(payload);
+      const g = await citationGate(payload);
       if (g.decision === 'block') {
         return baseResult({
           decision: 'block',
