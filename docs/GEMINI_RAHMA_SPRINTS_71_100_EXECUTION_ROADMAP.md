@@ -1175,40 +1175,39 @@ No public ingress unless explicitly approved
 ```
 
 ---
-
-## Sprint 97 — Mobile App Store Release Checklist
+## Sprint 97 — Mobile App Store Compliance
 
 Objective:
 
-Finalize mobile release checklist.
+Finalize App Store compliance checklists and policies.
 
 Scope:
 
 ```text
-Privacy checklist
-Child safety checklist
-Account deletion/support checklist
-Screenshots/assets checklist
-Versioning checklist
-Backend dependency checklist
-Known blockers
+Google Play compliance checklist
+Apple App Store compliance checklist
+Privacy Policy & Data Safety model
+Child safety and UGC policy
+Location and Notification permission policy
+Mobile release checklist updated
 ```
 
 Acceptance criteria:
 
 ```text
-Mobile release checklist updated
+Compliance documents created
+```
 Manual app-store tasks listed
 No false release-ready claim
 ```
 
 ---
 
-## Sprint 98 — Full Regression QA
+## Sprint 98 — Full Regression & Security Scan
 
 Objective:
 
-Run full regression across Rahma.
+Run full regression across Rahma and perform a secret audit.
 
 Scope:
 
@@ -1221,6 +1220,8 @@ Typecheck
 Audit
 Readiness checks
 Contamination scan
+Secret and credential scan
+App store compliance regression
 ```
 
 Acceptance criteria:
