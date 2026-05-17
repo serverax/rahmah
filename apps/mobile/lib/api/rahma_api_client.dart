@@ -1,16 +1,8 @@
-/// Rahma mobile — minimal typed API client foundation.
-///
-/// Reads the API base URL from [RahmaConfig.apiBase]. Refuses to talk to
-/// the network when the base URL is empty (the build-time default).
-///
-/// No third-party HTTP dependency required for the foundation — uses the
-/// stdlib `dart:io` HttpClient. Operator may swap in `package:dio` or
-/// `package:http` once the dependency policy is set.
 library;
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
+import 'package:http/http.dart' as http;
 
 import '../config.dart';
 
@@ -23,45 +15,57 @@ class RahmaApiError implements Exception {
 }
 
 class RahmaApiClient {
-  RahmaApiClient({HttpClient? httpClient}) : _http = httpClient ?? HttpClient();
+  RahmaApiClient({http.Client? client}) : _http = client ?? http.Client();
 
-  final HttpClient _http;
+  final http.Client _http;
 
   bool get isConfigured => RahmaConfig.isApiConfigured;
 
   Future<Map<String, dynamic>> get(String path) async {
-    if (!isConfigured) {
-      throw RahmaApiError(
-        'api_not_configured',
-        'الخدمة غير مهيأة بعد. لم يتم تكوين عنوان الـ API.',
-      );
-    }
-    final uri = Uri.parse('${RahmaConfig.apiBase}$path');
-    final request = await _http.getUrl(uri);
-    final response = await request.close();
-    return _decode(response);
+    return _withRetry(() async {
+      final uri = Uri.parse('${RahmaConfig.apiBase}$path');
+      final response = await _http.get(uri).timeout(const Duration(seconds: 10));
+      return _decode(response);
+    });
   }
 
   Future<Map<String, dynamic>> postJson(String path, Map<String, dynamic> body) async {
+    return _withRetry(() async {
+      final uri = Uri.parse('${RahmaConfig.apiBase}$path');
+      final response = await _http.post(
+        uri,
+        headers: {'Content-Type': 'application/json; charset=utf-8'},
+        body: jsonEncode(body),
+      ).timeout(const Duration(seconds: 10));
+      return _decode(response);
+    });
+  }
+
+  Future<Map<String, dynamic>> _withRetry(Future<Map<String, dynamic>> Function() action, {int maxRetries = 3}) async {
     if (!isConfigured) {
       throw RahmaApiError(
         'api_not_configured',
         'الخدمة غير مهيأة بعد. لم يتم تكوين عنوان الـ API.',
       );
     }
-    final uri = Uri.parse('${RahmaConfig.apiBase}$path');
-    final request = await _http.postUrl(uri);
-    request.headers.contentType = ContentType('application', 'json', charset: 'utf-8');
-    request.add(utf8.encode(jsonEncode(body)));
-    final response = await request.close();
-    return _decode(response);
+
+    int attempts = 0;
+    while (true) {
+      try {
+        attempts++;
+        return await action();
+      } catch (e) {
+        if (attempts >= maxRetries) rethrow;
+        // Simple delay before retry
+        await Future.delayed(Duration(milliseconds: 500 * attempts));
+      }
+    }
   }
 
-  Future<Map<String, dynamic>> _decode(HttpClientResponse response) async {
-    final raw = await response.transform(utf8.decoder).join();
+  Map<String, dynamic> _decode(http.Response response) {
     Map<String, dynamic> parsed;
     try {
-      parsed = jsonDecode(raw) as Map<String, dynamic>;
+      parsed = jsonDecode(response.body) as Map<String, dynamic>;
     } on FormatException {
       throw RahmaApiError(
         'invalid_response',
