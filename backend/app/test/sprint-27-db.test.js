@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildApp } from '../src/app.js';
 import { _resetClientPoolForTests } from '../src/db/client.js';
+import { _resetPoolForTests as _resetHealthPoolForTests } from '../src/db/health.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,6 +13,11 @@ const REPO = path.resolve(__dirname, '..', '..', '..');
 
 function envSnap() { return { DATABASE_URL: process.env.DATABASE_URL }; }
 function envRestore(s) { for (const [k, v] of Object.entries(s)) v === undefined ? delete process.env[k] : process.env[k] = v; }
+
+function resetAllPools() {
+  _resetClientPoolForTests();
+  _resetHealthPoolForTests();
+}
 
 // Sprint 27 source-level checks. The /api/db/status route exists as an idea
 // in DATABASE_LOCAL_VERIFICATION.md but is intentionally not wired into the
@@ -21,7 +27,7 @@ function envRestore(s) { for (const [k, v] of Object.entries(s)) v === undefined
 test('S27: /ready DB block stays truthful with no DB', async () => {
   const s = envSnap();
   delete process.env.DATABASE_URL;
-  _resetClientPoolForTests();
+  resetAllPools();
   const app = buildApp();
   try {
     const res = await app.inject({ method: 'GET', url: '/ready' });
@@ -34,6 +40,7 @@ test('S27: /ready DB block stays truthful with no DB', async () => {
   } finally {
     await app.close();
     envRestore(s);
+    resetAllPools();
   }
 });
 
@@ -66,7 +73,7 @@ test('S27: docs/ops/DATABASE_LOCAL_VERIFICATION.md exists and warns vs prod', as
 test('S27: /ready does NOT leak DATABASE_URL when set', async () => {
   const s = envSnap();
   process.env.DATABASE_URL = 'postgres://leak_user:leak_pass@127.0.0.99:5432/leak_db';
-  _resetClientPoolForTests();
+  resetAllPools();
   const app = buildApp();
   try {
     const res = await app.inject({ method: 'GET', url: '/ready' });
@@ -77,6 +84,6 @@ test('S27: /ready does NOT leak DATABASE_URL when set', async () => {
   } finally {
     await app.close();
     envRestore(s);
-    _resetClientPoolForTests();
+    resetAllPools();
   }
 });

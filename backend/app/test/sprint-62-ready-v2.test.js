@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildApp } from '../src/app.js';
 import { _resetClientPoolForTests } from '../src/db/client.js';
+import { _resetPoolForTests as _resetHealthPoolForTests } from '../src/db/health.js';
 
 function envSnap() {
   return {
@@ -15,6 +16,11 @@ function envSnap() {
   };
 }
 function envRestore(s) { for (const [k, v] of Object.entries(s)) v === undefined ? delete process.env[k] : process.env[k] = v; }
+
+function resetAllPools() {
+  _resetClientPoolForTests();
+  _resetHealthPoolForTests();
+}
 
 test('Sprint62 — /ready v2: readiness_schema_version is "2"', async () => {
   const app = buildApp();
@@ -117,11 +123,14 @@ test('Sprint62 — /ready v2: never leaks DATABASE_URL / REDIS_URL / JWT / SESSI
 });
 
 test('Sprint62 — /ready v2: configured=false is NEVER treated as production-ready', async () => {
+  const s = envSnap();
+  delete process.env.DATABASE_URL;
+  resetAllPools();
   const app = buildApp();
   try {
     const r = await app.inject({ method: 'GET', url: '/ready' });
     const b = r.json();
     assert.equal(b.database.configured, false);
     assert.equal(b.production_ready, false);
-  } finally { await app.close(); }
+  } finally { await app.close(); envRestore(s); resetAllPools(); }
 });

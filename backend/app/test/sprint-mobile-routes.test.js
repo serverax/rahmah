@@ -1,14 +1,29 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildApp } from '../src/app.js';
+import { _resetClientPoolForTests } from '../src/db/client.js';
+import { _resetPoolForTests as _resetHealthPoolForTests } from '../src/db/health.js';
 
-function envSnap() { return { DATABASE_URL: process.env.DATABASE_URL, REDIS_URL: process.env.REDIS_URL }; }
+function envSnap() {
+  return {
+    DATABASE_URL: process.env.DATABASE_URL,
+    REDIS_URL: process.env.REDIS_URL,
+    ENABLE_QURAN_FEATURES: process.env.ENABLE_QURAN_FEATURES,
+    ENABLE_CHILDREN_ISLAMIC_GAME: process.env.ENABLE_CHILDREN_ISLAMIC_GAME,
+  };
+}
 function envRestore(s) { for (const [k, v] of Object.entries(s)) v === undefined ? delete process.env[k] : process.env[k] = v; }
+
+function resetAllPools() {
+  _resetClientPoolForTests();
+  _resetHealthPoolForTests();
+}
 
 test('mobile: GET /api/mobile/status reports platform=mobile-only + public_ingress_disabled=true', async () => {
   const s = envSnap();
   delete process.env.DATABASE_URL;
   delete process.env.REDIS_URL;
+  resetAllPools();
   const app = buildApp();
   try {
     const r = await app.inject({ method: 'GET', url: '/api/mobile/status' });
@@ -49,6 +64,9 @@ test('mobile: placeholder list endpoints never invent religious content', async 
 });
 
 test('mobile: GET /api/game/status reports local-first + 7 scenario modules', async () => {
+  const s = envSnap();
+  delete process.env.DATABASE_URL;
+  resetAllPools();
   const app = buildApp();
   try {
     const r = await app.inject({ method: 'GET', url: '/api/game/status' });
@@ -59,6 +77,8 @@ test('mobile: GET /api/game/status reports local-first + 7 scenario modules', as
     assert.ok(Array.isArray(body.scenarios_modules) && body.scenarios_modules.length === 7);
   } finally {
     await app.close();
+    envRestore(s);
+    resetAllPools();
   }
 });
 

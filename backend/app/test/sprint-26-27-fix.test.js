@@ -15,6 +15,7 @@ import {
 import { requireAuth } from '../src/auth/auth-middleware.js';
 import { hashEmail, isValidEmailHash } from '../src/auth/email-hash.js';
 import { _resetClientPoolForTests } from '../src/db/client.js';
+import { _resetPoolForTests as _resetHealthPoolForTests } from '../src/db/health.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,6 +34,11 @@ function envSnap() {
   };
 }
 function envRestore(s) { for (const [k, v] of Object.entries(s)) v === undefined ? delete process.env[k] : process.env[k] = v; }
+
+function resetAllPools() {
+  _resetClientPoolForTests();
+  _resetHealthPoolForTests();
+}
 
 // ============================================================
 // FIX 1 — Sprint 26 auth
@@ -249,7 +255,7 @@ test('S26 fix: sheikh-login.html shows Arabic not-configured message + no fake p
 test('S27 fix: GET /api/db/status reachable + database_configured=false when DATABASE_URL missing', async () => {
   const s = envSnap();
   delete process.env.DATABASE_URL;
-  _resetClientPoolForTests();
+  resetAllPools();
   const app = buildApp();
   try {
     const res = await app.inject({ method: 'GET', url: '/api/db/status' });
@@ -271,7 +277,7 @@ test('S27 fix: GET /api/db/status reachable + database_configured=false when DAT
 test('S27 fix: /api/db/status reachable=false when DATABASE_URL set but host unroutable', async () => {
   const s = envSnap();
   process.env.DATABASE_URL = 'postgres://x:y@127.0.0.99:65530/z';
-  _resetClientPoolForTests();
+  resetAllPools();
   const app = buildApp();
   try {
     const res = await app.inject({ method: 'GET', url: '/api/db/status' });
@@ -285,14 +291,14 @@ test('S27 fix: /api/db/status reachable=false when DATABASE_URL set but host unr
   } finally {
     await app.close();
     envRestore(s);
-    _resetClientPoolForTests();
+    resetAllPools();
   }
 });
 
 test('S27 fix: /ready still surfaces DB truth + does not leak DATABASE_URL', async () => {
   const s = envSnap();
   process.env.DATABASE_URL = 'postgres://leak_user:leak_pass@127.0.0.99:5432/leak_db';
-  _resetClientPoolForTests();
+  resetAllPools();
   const app = buildApp();
   try {
     const res = await app.inject({ method: 'GET', url: '/ready' });
@@ -307,7 +313,7 @@ test('S27 fix: /ready still surfaces DB truth + does not leak DATABASE_URL', asy
   } finally {
     await app.close();
     envRestore(s);
-    _resetClientPoolForTests();
+    resetAllPools();
   }
 });
 
@@ -320,7 +326,7 @@ test('S27 fix: package.json has db:migrate + db:check scripts', async () => {
 test('S27 fix: /api/rag/status remains foundation when DB missing', async () => {
   const s = envSnap();
   delete process.env.DATABASE_URL;
-  _resetClientPoolForTests();
+  resetAllPools();
   const app = buildApp();
   try {
     const res = await app.inject({ method: 'GET', url: '/api/rag/status' });

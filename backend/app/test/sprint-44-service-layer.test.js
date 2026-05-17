@@ -12,7 +12,6 @@ import {
 } from '../src/services/mobile-services.js';
 import {
   _resetSheikhRepositoryForTests,
-  configureSheikhRepository,
 } from '../src/sheikh/sheikh-question-repository.js';
 
 function envSnap() {
