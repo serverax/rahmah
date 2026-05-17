@@ -106,8 +106,8 @@ This LLD translates the HLD into file-level, API-level, schema-level, and test-l
 | 94 | Privacy Mode (UI obfuscation) |
 | 95 | Security & Identity (Final verify) |
 | 96 | Arabic LQA (Language audit) |
-| 97 | Performance Hardening (Efficiency audit) |
-| 98 | Security Scan (Secret audit) |
+| 97 | Mobile App Store Compliance (Checklists & policies) |
+| 98 | Security Scan & Full Regression (Compliance checks) |
 | 99 | RC1 Report (Readiness verify) |
 | 100| Project Completion (Final gate) |
 

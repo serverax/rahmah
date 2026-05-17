@@ -173,9 +173,17 @@ Responsibilities:
 |---|---|---|
 | 71–80 | blocker resolution and release readiness | backend, mobile, docs, CI |
 | 81–90 | RAG, algorithm, WASM foundation | RAG, algorithm engine, WASM, source registry |
-| 91–100 | hardening and final release gate | auth, DB, security, Docker, infra review, QA |
+| 91–100 | hardening, app store compliance, and final release gate | auth, DB, security, Docker, compliance policies, QA |
 
-## 9. HLD Acceptance Criteria
+## 9. App Store Compliance
+
+Rahma enforces strict policies to pass Google Play and Apple App Store reviews:
+- **Privacy Policy & Data Safety**: Fully documented collection of UGC, location, and device data (`RAHMA_PRIVACY_AND_DATA_SAFETY_MODEL.md`).
+- **Child Safety**: Enforced positive-only content, no PII collection, no external links (`RAHMA_CHILD_SAFETY_AND_UGC_POLICY.md`).
+- **User-Generated Content (UGC)**: Strict admin moderation gate for all "Ask Sheikh" answers before public display.
+- **Location & Notifications**: Transparent, just-in-time permission requests with functional offline/denied fallbacks (`RAHMA_LOCATION_AND_NOTIFICATIONS_POLICY.md`).
+
+## 10. HLD Acceptance Criteria
 
 - All major components and core flows described.
 - Deployment boundaries clear.
