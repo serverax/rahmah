@@ -137,6 +137,67 @@ pub fn evaluate(input: &ContentInput) -> Decision {
     }
 }
 
+#[derive(Debug, Clone, Deserialize)]
+pub struct ProfileInput {
+    pub field: String,
+    pub value: String,
+}
+
+pub fn evaluate_profile_field(input: &ProfileInput) -> Decision {
+    match input.field.as_str() {
+        "nickname_ar" => {
+            let t = input.value.trim();
+            if t.is_empty() {
+                return Decision {
+                    decision: "block",
+                    reason: Some("empty_nickname"),
+                    sensitive_topic: None,
+                };
+            }
+            if t.len() > 32 {
+                return Decision {
+                    decision: "block",
+                    reason: Some("nickname_too_long"),
+                    sensitive_topic: None,
+                };
+            }
+            // Looks like email or phone (PII check)
+            if t.contains('@') || t.chars().filter(|c| c.is_ascii_digit()).count() >= 6 {
+                return Decision {
+                    decision: "block",
+                    reason: Some("nickname_looks_like_pii"),
+                    sensitive_topic: None,
+                };
+            }
+            Decision {
+                decision: "allow",
+                reason: None,
+                sensitive_topic: None,
+            }
+        }
+        "age_band" => {
+            if is_valid_age_band(&input.value) {
+                Decision {
+                    decision: "allow",
+                    reason: None,
+                    sensitive_topic: None,
+                }
+            } else {
+                Decision {
+                    decision: "block",
+                    reason: Some("invalid_age_band"),
+                    sensitive_topic: None,
+                }
+            }
+        }
+        _ => Decision {
+            decision: "block",
+            reason: Some("field_not_collected_for_children"),
+            sensitive_topic: None,
+        },
+    }
+}
+
 // =============================================================================
 // WASM ABI — JSON in, JSON out.
 // =============================================================================
@@ -248,5 +309,60 @@ mod tests {
     fn safe_content_allowed() {
         let d = evaluate(&ci("نتعلم آداب الصلاة اليوم.", "7-9", &["salah"]));
         assert_eq!(d.decision, "allow");
+    }
+
+    #[test]
+    fn profile_nickname_allowed() {
+        let d = evaluate_profile_field(&ProfileInput {
+            field: "nickname_ar".to_string(),
+            value: "بطل صغير".to_string(),
+        });
+        assert_eq!(d.decision, "allow");
+    }
+
+    #[test]
+    fn profile_nickname_too_long_blocked() {
+        let d = evaluate_profile_field(&ProfileInput {
+            field: "nickname_ar".to_string(),
+            value: "هذا الاسم طويل جدا جدا جدا جدا جدا جدا جدا".to_string(),
+        });
+        assert_eq!(d.decision, "block");
+        assert_eq!(d.reason, Some("nickname_too_long"));
+    }
+
+    #[test]
+    fn profile_nickname_pii_blocked() {
+        let d = evaluate_profile_field(&ProfileInput {
+            field: "nickname_ar".to_string(),
+            value: "alice@example.com".to_string(),
+        });
+        assert_eq!(d.decision, "block");
+        assert_eq!(d.reason, Some("nickname_looks_like_pii"));
+
+        let d2 = evaluate_profile_field(&ProfileInput {
+            field: "nickname_ar".to_string(),
+            value: "0123456789".to_string(),
+        });
+        assert_eq!(d2.decision, "block");
+        assert_eq!(d2.reason, Some("nickname_looks_like_pii"));
+    }
+
+    #[test]
+    fn profile_age_band_allowed() {
+        let d = evaluate_profile_field(&ProfileInput {
+            field: "age_band".to_string(),
+            value: "13+".to_string(),
+        });
+        assert_eq!(d.decision, "allow");
+    }
+
+    #[test]
+    fn profile_invalid_field_blocked() {
+        let d = evaluate_profile_field(&ProfileInput {
+            field: "unknown_field".to_string(),
+            value: "some value".to_string(),
+        });
+        assert_eq!(d.decision, "block");
+        assert_eq!(d.reason, Some("field_not_collected_for_children"));
     }
 }
