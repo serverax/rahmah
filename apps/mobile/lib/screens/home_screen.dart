@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../nav/sync_status_indicator.dart';
 
 class _Tile {
   const _Tile(this.title, this.route, this.icon);
@@ -21,7 +22,15 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('رحمة — الرئيسية')),
+        appBar: AppBar(
+          title: const Text('رحمة — الرئيسية'),
+          actions: const [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: SyncStatusIndicator(isOnline: true, isSyncing: false),
+            ),
+          ],
+        ),
         body: GridView.builder(
           padding: const EdgeInsets.all(16),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
