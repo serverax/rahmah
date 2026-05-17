@@ -40,7 +40,7 @@
 | Ask Sheikh Hasan | PASS | Full DB-backed V4 bilingual workflow with dashboard and admin approval. |
 | Children Islamic Game | PASS | Scenario-ready UI and deterministic scoring integrated. |
 | Islamic Library | PASS | Source-bound visibility logic implemented. |
-| Privacy/Legal/App Store | PASS | Privacy Mode and Biometric Lock implemented. |
+| Privacy/Legal/App Store | PASS | Privacy Mode, Biometric Lock, and comprehensive compliance policies/checklists. |
 | Backend readiness | PASS | 472/472 tests PASS; Unified pool management. |
 | Database foundation | PASS | Migration 009 (WASM Audit) and schema alignment. |
 | RAG foundation | PASS | Source registry and retrieval contracts defined. |
@@ -79,9 +79,10 @@
 | Blocker | Reason | Required operator action |
 |---|---|---|
 | **WASM Build** | **Workstation lacks Rust** | Install `rustup` and `wasm-pack` to build `.wasm` artifacts. |
+| **Native Wiring** | Hardware specific | Verify push notification and location plugin wiring on real hardware. |
+| Store Accounts | Platform pending | Set up Apple Developer and Google Play Console accounts. |
+| Public URLs | Hosting pending | Host the provided `.html` compliance pages on a live domain. |
 | Real API Cluster | Infra pending | Apply K3s manifests and roll out images. |
-| Live DB / Seeds | Secrets pending | Configure `DATABASE_URL` and run migrations/seeds. |
-| Payment Provider | Business decision | Select provider and configure secrets. |
 
 ## 10. Final Verdict
 

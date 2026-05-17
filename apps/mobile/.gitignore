@@ -11,10 +11,10 @@ build/
 *.iml
 *.lock
 
-# Android / iOS native directories — generated per workstation by
-# `flutter create .`. NEVER commit signing keystores or provisioning profiles.
-android/
-ios/
+# Android / iOS native directories — generated per workstation. 
+# NEVER commit signing keystores or provisioning profiles.
+# android/
+# ios/
 *.jks
 *.keystore
 *.mobileprovision

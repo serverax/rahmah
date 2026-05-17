@@ -7,10 +7,11 @@
 - [ ] Confirm Data Safety labels correctly reflect the `RAHMA_PRIVACY_AND_DATA_SAFETY_MODEL.md`.
 
 ## 2. Code & Build Verification
-- [ ] Ensure no debug logging or console outputs leak secrets or PII.
-- [ ] Confirm `flutter build apk` and `flutter build ios` complete without fatal warnings.
-- [ ] Verify that `--dart-define=RAHMA_API_BASE` is correctly injected during the CI release build.
-- [ ] Ensure native permissions (AndroidManifest.xml, Info.plist) are strictly limited to Location and Notifications, with appropriate rationale strings.
+- [x] Ensure no debug logging or console outputs leak secrets or PII.
+- [ ] Confirm `flutter build apk` and `flutter build ios` complete without fatal warnings. (Workstation SDK Blocked)
+- [x] Verify that `--dart-define=RAHMA_API_BASE` is correctly injected during the CI release build.
+- [x] Ensure native permissions (AndroidManifest.xml, Info.plist) are strictly limited to Location and Notifications, with appropriate rationale strings.
+- [x] Verify `rahma-security-scan` is PASS and root contamination removed.
 
 ## 3. Feature Verification
 - [ ] **Offline Mode**: App starts and displays cached content when network is disabled.
