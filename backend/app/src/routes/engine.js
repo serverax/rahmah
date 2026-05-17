@@ -69,7 +69,7 @@ export default async function engineRoute(fastify) {
   });
 
   fastify.post('/process-event', { schema: processSchema }, async (req, reply) => {
-    const decision = processRahmaEvent(req.body || {});
+    const decision = await processRahmaEvent(req.body || {});
     let audit_status = 'not_persisted_audit_not_required';
     if (decision.audit_log_required) {
       // Best-effort: never fail the response on audit error.
@@ -98,7 +98,7 @@ export default async function engineRoute(fastify) {
     const ageBand = String((req.query && req.query.age_band) || '7-9');
     // Without a wired source-repo for recommendations, return an empty list
     // truthfully. No fake items.
-    const items = recommend({ candidates: [], audience, age_band: ageBand, limit: 6 });
+    const items = await recommend({ candidates: [], audience, age_band: ageBand, limit: 6 });
     return reply.send({
       ok: true,
       audience,

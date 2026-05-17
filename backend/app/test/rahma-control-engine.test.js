@@ -58,28 +58,28 @@ test('decision allow-list is the canonical set', () => {
 
 // -------------- Validation --------------------------------------------------
 
-test('processRahmaEvent: invalid envelope → block', () => {
-  const r = processRahmaEvent(null);
+test('processRahmaEvent: invalid envelope → block', async () => {
+  const r = await processRahmaEvent(null);
   assert.equal(r.decision, 'block');
   assert.equal(r.reason, 'invalid_event_envelope');
 });
 
-test('processRahmaEvent: unsupported event → queue_review', () => {
-  const r = processRahmaEvent({ event_type: 'BOGUS' });
+test('processRahmaEvent: unsupported event → queue_review', async () => {
+  const r = await processRahmaEvent({ event_type: 'BOGUS' });
   assert.equal(r.decision, 'queue_review');
   assert.equal(r.reason, 'unsupported_event_type');
 });
 
-test('processRahmaEvent: invalid actor_type → block', () => {
-  const r = processRahmaEvent({ event_type: 'USER_OPENED_HOME', actor_type: 'rogue' });
+test('processRahmaEvent: invalid actor_type → block', async () => {
+  const r = await processRahmaEvent({ event_type: 'USER_OPENED_HOME', actor_type: 'rogue' });
   assert.equal(r.decision, 'block');
   assert.equal(r.reason, 'invalid_actor_type');
 });
 
 // -------------- Sheikh workflow gates --------------------------------------
 
-test('SHEIKH_REQUESTED_PUBLISH without citations → block with Arabic user message', () => {
-  const r = processRahmaEvent({
+test('SHEIKH_REQUESTED_PUBLISH without citations → block with Arabic user message', async () => {
+  const r = await processRahmaEvent({
     event_type: 'SHEIKH_REQUESTED_PUBLISH',
     actor_type: 'sheikh',
     payload: { answer_text: 'إجابة بدون مصادر', citations: [] },
@@ -90,8 +90,8 @@ test('SHEIKH_REQUESTED_PUBLISH without citations → block with Arabic user mess
   assert.equal(r.audit_log_required, true);
 });
 
-test('SHEIKH_REQUESTED_PUBLISH with Quran citation → queue_review', () => {
-  const r = processRahmaEvent({
+test('SHEIKH_REQUESTED_PUBLISH with Quran citation → queue_review', async () => {
+  const r = await processRahmaEvent({
     event_type: 'SHEIKH_REQUESTED_PUBLISH',
     actor_type: 'sheikh',
     payload: {
@@ -102,8 +102,8 @@ test('SHEIKH_REQUESTED_PUBLISH with Quran citation → queue_review', () => {
   assert.equal(r.decision, 'queue_review');
 });
 
-test('SHEIKH_DRAFTED_ANSWER without citation still allowed (draft only)', () => {
-  const r = processRahmaEvent({
+test('SHEIKH_DRAFTED_ANSWER without citation still allowed (draft only)', async () => {
+  const r = await processRahmaEvent({
     event_type: 'SHEIKH_DRAFTED_ANSWER',
     actor_type: 'sheikh',
     payload: { answer_text: 'مسودة' },
@@ -111,8 +111,8 @@ test('SHEIKH_DRAFTED_ANSWER without citation still allowed (draft only)', () => 
   assert.equal(r.decision, 'allow');
 });
 
-test('USER_ASKED_SHEIKH_QUESTION: empty question → block', () => {
-  const r = processRahmaEvent({
+test('USER_ASKED_SHEIKH_QUESTION: empty question → block', async () => {
+  const r = await processRahmaEvent({
     event_type: 'USER_ASKED_SHEIKH_QUESTION',
     actor_type: 'user',
     payload: { question_text: 'hi' },
@@ -120,8 +120,8 @@ test('USER_ASKED_SHEIKH_QUESTION: empty question → block', () => {
   assert.equal(r.decision, 'block');
 });
 
-test('USER_ASKED_SHEIKH_QUESTION: valid question → queue_review + audit_required', () => {
-  const r = processRahmaEvent({
+test('USER_ASKED_SHEIKH_QUESTION: valid question → queue_review + audit_required', async () => {
+  const r = await processRahmaEvent({
     event_type: 'USER_ASKED_SHEIKH_QUESTION',
     actor_type: 'user',
     payload: { question_text: 'كيف تكون صفة الوضوء الصحيحة؟' },
@@ -132,16 +132,16 @@ test('USER_ASKED_SHEIKH_QUESTION: valid question → queue_review + audit_requir
 
 // -------------- Ingestion --------------------------------------------------
 
-test('NEW_ISLAMIC_CONTENT_ADDED: missing source_reference on quran → needs_source', () => {
-  const r = processRahmaEvent({
+test('NEW_ISLAMIC_CONTENT_ADDED: missing source_reference on quran → needs_source', async () => {
+  const r = await processRahmaEvent({
     event_type: 'NEW_ISLAMIC_CONTENT_ADDED',
     payload: { source_type: 'quran', body_ar: 'نص قرآني', source_reference: '' },
   });
   assert.equal(r.decision, 'needs_source');
 });
 
-test('NEW_ISLAMIC_CONTENT_ADDED: dua with reference → queue_review', () => {
-  const r = processRahmaEvent({
+test('NEW_ISLAMIC_CONTENT_ADDED: dua with reference → queue_review', async () => {
+  const r = await processRahmaEvent({
     event_type: 'NEW_ISLAMIC_CONTENT_ADDED',
     payload: {
       source_type: 'dua',
@@ -154,8 +154,8 @@ test('NEW_ISLAMIC_CONTENT_ADDED: dua with reference → queue_review', () => {
 
 // -------------- Child safety -----------------------------------------------
 
-test('CHILD_GAME_SCENARIO_ADDED: asks personal data → block with child-safe Arabic message', () => {
-  const r = processRahmaEvent({
+test('CHILD_GAME_SCENARIO_ADDED: asks personal data → block with child-safe Arabic message', async () => {
+  const r = await processRahmaEvent({
     event_type: 'CHILD_GAME_SCENARIO_ADDED',
     payload: {
       body_ar: 'يا طفل اكتب رقم الجوال',
@@ -166,24 +166,24 @@ test('CHILD_GAME_SCENARIO_ADDED: asks personal data → block with child-safe Ar
   assert.ok(r.user_safe_message_ar.includes('بيانات'));
 });
 
-test('CHILD_GAME_SCENARIO_ADDED: shaming language → block', () => {
-  const r = processRahmaEvent({
+test('CHILD_GAME_SCENARIO_ADDED: shaming language → block', async () => {
+  const r = await processRahmaEvent({
     event_type: 'CHILD_GAME_SCENARIO_ADDED',
     payload: { body_ar: 'إجابتك غبية يا طفل', age_band: '7-9' },
   });
   assert.equal(r.decision, 'block');
 });
 
-test('FAMILY_CHILD_PROFILE_CREATED: PII nickname → block', () => {
-  const r = processRahmaEvent({
+test('FAMILY_CHILD_PROFILE_CREATED: PII nickname → block', async () => {
+  const r = await processRahmaEvent({
     event_type: 'FAMILY_CHILD_PROFILE_CREATED',
     payload: { nickname_ar: 'محمد +966500000', age_band: '7-9' },
   });
   assert.equal(r.decision, 'block');
 });
 
-test('FAMILY_CHILD_PROFILE_CREATED: clean nickname → allow', () => {
-  const r = processRahmaEvent({
+test('FAMILY_CHILD_PROFILE_CREATED: clean nickname → allow', async () => {
+  const r = await processRahmaEvent({
     event_type: 'FAMILY_CHILD_PROFILE_CREATED',
     payload: { nickname_ar: 'البطل', age_band: '7-9' },
   });
@@ -192,24 +192,24 @@ test('FAMILY_CHILD_PROFILE_CREATED: clean nickname → allow', () => {
 
 // -------------- Charity ----------------------------------------------------
 
-test('CHARITY_CAMPAIGN_REQUESTED_PUBLICATION: approved → publish', () => {
-  const r = processRahmaEvent({
+test('CHARITY_CAMPAIGN_REQUESTED_PUBLICATION: approved → publish', async () => {
+  const r = await processRahmaEvent({
     event_type: 'CHARITY_CAMPAIGN_REQUESTED_PUBLICATION',
     payload: { verification_status: 'approved' },
   });
   assert.equal(r.decision, 'publish');
 });
 
-test('CHARITY_CAMPAIGN_REQUESTED_PUBLICATION: pending → queue_review', () => {
-  const r = processRahmaEvent({
+test('CHARITY_CAMPAIGN_REQUESTED_PUBLICATION: pending → queue_review', async () => {
+  const r = await processRahmaEvent({
     event_type: 'CHARITY_CAMPAIGN_REQUESTED_PUBLICATION',
     payload: { verification_status: 'pending_review' },
   });
   assert.equal(r.decision, 'queue_review');
 });
 
-test('CHARITY_CAMPAIGN_REQUESTED_PUBLICATION: rejected → block', () => {
-  const r = processRahmaEvent({
+test('CHARITY_CAMPAIGN_REQUESTED_PUBLICATION: rejected → block', async () => {
+  const r = await processRahmaEvent({
     event_type: 'CHARITY_CAMPAIGN_REQUESTED_PUBLICATION',
     payload: { verification_status: 'rejected' },
   });
@@ -218,8 +218,8 @@ test('CHARITY_CAMPAIGN_REQUESTED_PUBLICATION: rejected → block', () => {
 
 // -------------- Recommendations --------------------------------------------
 
-test('recommend: filters out unapproved candidates', () => {
-  const r = recommend({
+test('recommend: filters out unapproved candidates', async () => {
+  const r = await recommend({
     candidates: [
       { id: '1', title_ar: 'معتمد', verification_status: 'approved' },
       { id: '2', title_ar: 'قيد المراجعة', verification_status: 'pending_review' },
@@ -230,8 +230,8 @@ test('recommend: filters out unapproved candidates', () => {
   assert.equal(r.items[0].id, '1');
 });
 
-test('recommend: child audience filters sensitive topics', () => {
-  const r = recommend({
+test('recommend: child audience filters sensitive topics', async () => {
+  const r = await recommend({
     audience: 'child',
     age_band: '4-6',
     candidates: [
@@ -243,8 +243,8 @@ test('recommend: child audience filters sensitive topics', () => {
   assert.equal(r.items[0].id, '2');
 });
 
-test('recommend: returns empty when no candidates — never invents', () => {
-  const r = recommend({ candidates: [] });
+test('recommend: returns empty when no candidates — never invents', async () => {
+  const r = await recommend({ candidates: [] });
   assert.equal(r.items.length, 0);
 });
 

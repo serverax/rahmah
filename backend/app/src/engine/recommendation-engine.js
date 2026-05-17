@@ -15,7 +15,7 @@ const SENSITIVE_FOR_CHILD = new Set([
   'detailed_aqidah_dispute', 'detailed_fiqh_dispute',
 ]);
 
-export function recommend({
+export async function recommend({
   candidates = [],
   audience = 'adult',
   age_band = '7-9',
@@ -42,7 +42,7 @@ export function recommend({
       }
       // Cheap text-level safety check when the candidate has body_ar.
       if (typeof c.body_ar === 'string' && c.body_ar.length > 0) {
-        const ch = childContentGate({
+        const ch = await childContentGate({
           body_ar: c.body_ar,
           age_band,
           topic_tags: c.topic_tags || [],

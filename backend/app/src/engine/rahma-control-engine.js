@@ -84,7 +84,7 @@ function validateEvent(event) {
 /**
  * Main dispatcher. Returns the decision and the rest of the contract shape.
  */
-export function processRahmaEvent(event = {}) {
+export async function processRahmaEvent(event = {}) {
   const v = validateEvent(event);
   if (v) return v;
 
@@ -162,7 +162,7 @@ export function processRahmaEvent(event = {}) {
     }
 
     case 'CHILD_GAME_SCENARIO_ADDED': {
-      const c = childContentGate({
+      const c = await childContentGate({
         body_ar: payload.body_ar,
         age_band: payload.age_band || '7-9',
         topic_tags: payload.topic_tags || [],
@@ -186,7 +186,7 @@ export function processRahmaEvent(event = {}) {
     }
 
     case 'FAMILY_CHILD_PROFILE_CREATED': {
-      const c = childProfileGate({
+      const c = await childProfileGate({
         nickname_ar: payload.nickname_ar,
         age_band: payload.age_band,
       });
@@ -259,7 +259,7 @@ export function processRahmaEvent(event = {}) {
     }
 
     case 'ADMIN_REQUESTED_RECOMMENDATIONS': {
-      const items = recommend({
+      const items = await recommend({
         candidates: payload.candidates || [],
         audience: payload.audience || 'adult',
         age_band: payload.age_band || '7-9',
