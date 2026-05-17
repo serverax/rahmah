@@ -1,0 +1,14 @@
+{
+  "name": "rahma-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Rahma Islamic App Monorepo Root",
+  "type": "module",
+  "scripts": {
+    "local:test-ui": "node scripts/start-rahma-test-ui.js",
+    "local:test-ui:check": "node scripts/check-rahma-test-ui.js",
+    "test:local-test-ui": "node scripts/smoke-rahma-test-ui.js",
+    "backend:dev": "cd backend/app && npm run dev",
+    "mobile:web": "cd apps/mobile && flutter run -d chrome"
+  }
+}

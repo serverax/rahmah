@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rahma Mobile Preview</title>
+  <link rel="stylesheet" href="/assets/test-ui.css">
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body class="test-ui-root">
+  <div class="test-ui-container">
+    <header class="test-ui-header" style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <a href="/test-ui/index.html" style="text-decoration: none; color: var(--rahma-primary); font-weight: bold;">&larr; العودة للوحة التحكم</a>
+        <h1 id="module-title" style="margin-top: 0.5rem;">معاينة الوحدة</h1>
+      </div>
+      <div id="module-status-container"></div>
+    </header>
+
+    <div style="display: flex; gap: 2rem; align-items: flex-start;">
+      <!-- Left: Module Details -->
+      <div style="flex: 1; background: white; padding: 1.5rem; border-radius: 0.75rem; border: 1px solid var(--test-ui-border);">
+        <section id="module-details">
+          <h3>التفاصيل التقنية</h3>
+          <div id="tech-details-content"></div>
+          
+          <h3 class="mt-24">الملفات المرتبطة</h3>
+          <ul id="file-list" style="font-family: monospace; font-size: 0.875rem;"></ul>
+
+          <h3 class="mt-24">إجراءات الاختبار</h3>
+          <div id="test-actions"></div>
+        </section>
+      </div>
+
+      <!-- Right: Mobile Preview -->
+      <div style="flex: 0 0 auto;">
+        <div class="mobile-preview-shell" id="mobile-viewport">
+          <div id="preview-content" class="app-shell" style="height: 100%;">
+            <!-- Content loaded dynamically -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/assets/app.js"></script>
+  <script src="/assets/sheikh.js"></script>
+  <script src="/assets/hasanat-game.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const moduleKey = params.get('module') || 'home';
+
+    const MODULE_DATA = {
+      'home': {
+        title: 'الرئيسية (Home Dashboard)',
+        status: 'pass',
+        implemented: 'تخطيط الشبكة، أيقونات الأقسام، التنقل السفلي.',
+        missing: 'لا يوجد.',
+        files: ['apps/mobile/lib/screens/home_screen.dart', 'apps/web/public/index.html'],
+        render: (el) => {
+          el.innerHTML = `
+            <header class="app-header"><h1>رحمة</h1></header>
+            <main class="app-main">
+              <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px;">
+                <div class="card" style="text-align: center; padding: 20px;"><span>📖</span><br>القرآن</div>
+                <div class="card" style="text-align: center; padding: 20px;"><span>📿</span><br>الأذكار</div>
+                <div class="card" style="text-align: center; padding: 20px;"><span>🤝</span><br>الصدقات</div>
+                <div class="card" style="text-align: center; padding: 20px;"><span>🎮</span><br>اللعبة</div>
+              </div>
+            </main>
+            <nav class="app-bottom-nav" style="position: absolute; bottom: 0; width: 100%;">
+              <a href="#" class="active">الرئيسية</a>
+              <a href="#">اسأل</a>
+              <a href="#">المكتبة</a>
+            </nav>
+          `;
+        }
+      },
+      'ask-sheikh': {
+        title: 'اسأل الشيخ حسن (V4)',
+        status: 'pass',
+        implemented: 'نموذج الإرسال، معالجة اللغات الثنائية، مسار الإشراف.',
+        missing: 'التنبيهات الفورية عند الرد.',
+        files: ['backend/app/src/routes/ask-sheikh-v4.js', 'backend/app/src/sheikh/sheikh-question-repository.js'],
+        render: (el) => {
+          el.innerHTML = `
+            <header class="app-header"><h1>اسأل الشيخ حسن</h1></header>
+            <main class="app-main" style="padding: 15px;">
+              <label>اللغة</label>
+              <select class="form-field" style="width: 100%; margin-bottom: 10px;"><option>العربية</option></select>
+              <label>سؤالكم</label>
+              <textarea class="form-field" style="width: 100%; height: 100px; margin-bottom: 10px;" placeholder="اكتب سؤالك هنا..."></textarea>
+              <button class="btn" style="width: 100%;" onclick="alert('تم إرسال سؤال تجريبي (Local Mock)')">إرسال السؤال</button>
+              <div class="mt-16" style="font-size: 0.8rem; color: #666;">LOCAL DEMO ONLY — NOT PRODUCTION DATA</div>
+            </main>
+          `;
+        }
+      },
+      'quran': {
+        title: 'قارئ القرآن',
+        status: 'partial',
+        implemented: 'قائمة السور، تخطيط العرض.',
+        missing: 'محرك عرض النصوص (Native PDF/Text Renderer)، ملفات المصادر.',
+        files: ['apps/mobile/lib/screens/quran_screen.dart'],
+        render: (el) => {
+          el.innerHTML = `
+            <header class="app-header"><h1>القرآن الكريم</h1></header>
+            <main class="app-main" style="padding: 15px;">
+              <div style="background: #fff8e1; padding: 15px; border-radius: 8px; border: 1px solid #ffe082;">
+                <strong>حالة الوحدة: PARTIAL</strong><br>
+                <small>الربط مع ملفات القرآن الأصلية قيد التنفيذ.</small>
+              </div>
+              <div class="mt-16">
+                <div class="card" style="margin-bottom: 8px; padding: 10px;">1. سورة الفاتحة</div>
+                <div class="card" style="margin-bottom: 8px; padding: 10px;">2. سورة البقرة</div>
+              </div>
+            </main>
+          `;
+        }
+      },
+      'audio': {
+        title: 'صوت القرآن',
+        status: 'partial',
+        implemented: 'التصميم البصري الأولي.',
+        missing: 'مشغل الصوت الأصيل، مزود البث الصوتي.',
+        files: ['docs/RAHMA_CORE_MODULES_FINAL_GAP_REPORT.md'],
+        render: (el) => {
+          el.innerHTML = `
+            <header class="app-header"><h1>تلاوات القرآن</h1></header>
+            <main class="app-main" style="padding: 15px; text-align: center;">
+              <div style="font-size: 3rem; margin: 20px;">🔊</div>
+              <h3>بانتظار مزود البث</h3>
+              <div class="mt-16" style="display: flex; justify-content: center; gap: 20px;">
+                <button class="btn btn-secondary">◀</button>
+                <button class="btn btn-secondary">II</button>
+                <button class="btn btn-secondary">▶</button>
+              </div>
+            </main>
+          `;
+        }
+      },
+      'prayer': {
+        title: 'مواقيت الصلاة',
+        status: 'partial',
+        implemented: 'تخطيط العرض، مفتاح التبديل للخدمة.',
+        missing: 'مكتبة Geolocator، خوارزمية الحساب الفلكي.',
+        files: ['apps/mobile/lib/screens/settings_screen.dart'],
+        render: (el) => {
+          el.innerHTML = `
+            <header class="app-header"><h1>مواقيت الصلاة</h1></header>
+            <main class="app-main" style="padding: 15px;">
+              <div class="card" style="padding: 15px; margin-bottom: 10px;">
+                <strong>موقعك الحالي:</strong> مكة المكرمة (يدوي)
+              </div>
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px;">الفجر</td><td style="text-align: left;">04:30 AM</td></tr>
+                <tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px;">الظهر</td><td style="text-align: left;">12:20 PM</td></tr>
+                <tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px;">العصر</td><td style="text-align: left;">03:45 PM</td></tr>
+              </table>
+              <div class="mt-16" style="color: orange; font-size: 0.8rem;">* البيانات أعلاه للعرض فقط (Mock Data)</div>
+            </main>
+          `;
+        }
+      },
+      'mosque': {
+        title: 'مكتشف المساجد',
+        status: 'partial',
+        implemented: 'الهيكل البصري للخرائط.',
+        missing: 'تكامل Google Maps / Mapbox، ربط GPS.',
+        files: ['docs/compliance/RAHMA_LOCATION_AND_NOTIFICATIONS_POLICY.md'],
+        render: (el) => {
+          el.innerHTML = `
+            <header class="app-header"><h1>المساجد القريبة</h1></header>
+            <main class="app-main" style="padding: 0; background: #e2e8f0; height: 100%; display: flex; align-items: center; justify-content: center;">
+              <div style="text-align: center; color: #64748b;">
+                <span style="font-size: 3rem;">📍</span><br>
+                <strong>معاينة الخريطة</strong><br>
+                <small>بانتظار مفتاح API</small>
+              </div>
+            </main>
+          `;
+        }
+      },
+      'library': {
+        title: 'المكتبة الإسلامية',
+        status: 'pass',
+        implemented: 'التصنيفات، منطق الحماية من المحتوى غير المعتمد.',
+        missing: 'المحتوى الكامل للمكتبة.',
+        files: ['backend/app/src/routes/library.js', 'apps/web/public/assets/library.js'],
+        render: (el) => {
+          el.innerHTML = `
+            <header class="app-header"><h1>المكتبة</h1></header>
+            <main class="app-main" style="padding: 15px;">
+              <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="card" style="padding: 10px;">الحديث</div>
+                <div class="card" style="padding: 10px;">الفقه</div>
+                <div class="card" style="padding: 10px;">السيرة</div>
+                <div class="card" style="padding: 10px;">الأذكار</div>
+              </div>
+            </main>
+          `;
+        }
+      },
+      'game': {
+        title: 'لعبة الأطفال الإسلامية',
+        status: 'pass',
+        implemented: 'نظام النقاط، بوابة سلامة الطفل (WASM)، سيناريوهات الحسنات.',
+        missing: 'إضافة المزيد من المستويات.',
+        files: ['apps/web/public/assets/hasanat-game.js', 'backend/app/src/family/child-safety-policy.js'],
+        render: (el) => {
+          el.innerHTML = `
+            <header class="app-header"><h1>حديقة الحسنات</h1></header>
+            <main class="app-main" style="padding: 15px;">
+              <div class="card" style="padding: 15px; border-left: 5px solid teal;">
+                <p>وجدت محفظة ملقاة على الأرض في المسجد، ماذا تفعل؟</p>
+                <button class="btn btn-secondary mt-8" style="width: 100%;" onclick="alert('أحسنت! +10 حسنات (Safe Choice)')">أسلمها للإمام</button>
+                <button class="btn btn-secondary mt-8" style="width: 100%;" onclick="alert('بوابة السلامة تمنع هذا السلوك')">آخذها لنفسي</button>
+              </div>
+            </main>
+          `;
+        }
+      },
+      'settings': {
+        title: 'الإعدادات (Settings)',
+        status: 'pass',
+        implemented: 'تبديل اللغة، تنبيهات الأذان، خدمات الموقع، روابط الخصوصية.',
+        missing: 'الربط البرمجي مع خدمات النظام (Plugins).',
+        files: ['apps/mobile/lib/screens/settings_screen.dart'],
+        render: (el) => {
+          el.innerHTML = `
+            <header class="app-header"><h1>الإعدادات</h1></header>
+            <main class="app-main" style="padding: 0;">
+              <div style="padding: 15px; border-bottom: 1px solid #eee;"><strong>تفضيلات التطبيق</strong></div>
+              <div style="padding: 15px; display: flex; justify-content: space-between;"><span>لغة التطبيق</span> <span>العربية ></span></div>
+              <div style="padding: 15px; display: flex; justify-content: space-between;"><span>تنبيهات الأذان</span> <input type="checkbox" checked></div>
+              <div style="padding: 15px; display: flex; justify-content: space-between;"><span>خدمات الموقع</span> <input type="checkbox"></div>
+              <div style="padding: 15px; border-bottom: 1px solid #eee; margin-top: 10px;"><strong>الحساب</strong></div>
+              <div style="padding: 15px; color: red;">حذف الحساب والبيانات</div>
+            </main>
+          `;
+        }
+      },
+      'notifications': {
+        title: 'تنبيهات الأذان',
+        status: 'partial',
+        implemented: 'واجهة التحكم، تفضيلات المستخدم.',
+        missing: 'خادم FCM، شهادات APNs، جدولة الإشعارات المحلية.',
+        files: ['apps/mobile/android/app/src/main/AndroidManifest.xml'],
+        render: (el) => {
+          el.innerHTML = `
+            <header class="app-header"><h1>تنبيهات الصلاة</h1></header>
+            <main class="app-main" style="padding: 15px;">
+              <div class="card" style="padding: 10px; margin-bottom: 10px; display: flex; justify-content: space-between;"><span>الفجر</span> <input type="checkbox" checked></div>
+              <div class="card" style="padding: 10px; margin-bottom: 10px; display: flex; justify-content: space-between;"><span>الظهر</span> <input type="checkbox" checked></div>
+              <div class="card" style="padding: 10px; margin-bottom: 10px; display: flex; justify-content: space-between;"><span>العصر</span> <input type="checkbox" checked></div>
+              <div class="card" style="padding: 10px; margin-bottom: 10px; display: flex; justify-content: space-between;"><span>المغرب</span> <input type="checkbox" checked></div>
+              <div class="card" style="padding: 10px; margin-bottom: 10px; display: flex; justify-content: space-between;"><span>العشاء</span> <input type="checkbox" checked></div>
+            </main>
+          `;
+        }
+      },
+      'admin': {
+        title: 'إشراف الإدارة (Admin Review)',
+        status: 'pass',
+        implemented: 'قائمة الطلبات المعلقة، إجراءات الاعتماد والرفض.',
+        missing: 'لوحة تحكم إحصائية.',
+        files: ['backend/app/src/routes/ask-sheikh-v4.js'],
+        render: (el) => {
+          el.innerHTML = `
+            <header class="app-header"><h1>طلبات المراجعة</h1></header>
+            <main class="app-main" style="padding: 15px;">
+              <div class="card" style="padding: 15px;">
+                <strong>سؤال من: مستخدم مجهول</strong>
+                <p>ما هي شروط زكاة المال؟</p>
+                <div style="border-top: 1px solid #eee; padding-top: 10px;">
+                  <strong>إجابة الشيخ حسن:</strong>
+                  <p>تجب الزكاة إذا بلغ المال النصاب وحال عليه الحول...</p>
+                  <button class="btn btn-success" style="padding: 5px 10px; font-size: 0.8rem;">اعتماد ونشر</button>
+                  <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8rem;">رفض</button>
+                </div>
+              </div>
+            </main>
+          `;
+        }
+      }
+    };
+
+    const data = MODULE_DATA[moduleKey] || MODULE_DATA['home'];
+
+    // Set Header
+    document.getElementById('module-title').innerText = data.title;
+    document.getElementById('module-status-container').innerHTML = `<span class="status-badge ${data.status}">${data.status.toUpperCase()}</span>`;
+
+    // Set Tech Details
+    document.getElementById('tech-details-content').innerHTML = `
+      <p><strong>ما تم تنفيذه:</strong> ${data.implemented}</p>
+      <p><strong>المتطلبات المتبقية:</strong> ${data.missing}</p>
+    `;
+
+    // Set File List
+    document.getElementById('file-list').innerHTML = data.files.map(f => `<li>${f}</li>`).join('');
+
+    // Render Preview
+    data.render(document.getElementById('preview-content'));
+  </script>
+</body>
+</html>
