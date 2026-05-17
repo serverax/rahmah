@@ -101,3 +101,38 @@ test('child-safety: /evaluate response NEVER echoes the input body', async () =>
     assert.ok(!r.body.includes('leaky_marker_xyz123'));
   } finally { await app.close(); }
 });
+
+test('child-safety: POST /evaluate-profile-field allows safe nickname', async () => {
+  const app = buildServer();
+  try {
+    const r = await app.inject({
+      method: 'POST', url: '/evaluate-profile-field',
+      payload: { field: 'nickname_ar', value: 'بطل صغير' },
+    });
+    assert.equal(r.json().decision, 'allow');
+  } finally { await app.close(); }
+});
+
+test('child-safety: POST /evaluate-profile-field blocks PII in nickname', async () => {
+  const app = buildServer();
+  try {
+    const r = await app.inject({
+      method: 'POST', url: '/evaluate-profile-field',
+      payload: { field: 'nickname_ar', value: '0123456789' },
+    });
+    assert.equal(r.json().decision, 'block');
+    assert.equal(r.json().reason, 'nickname_looks_like_pii');
+  } finally { await app.close(); }
+});
+
+test('child-safety: POST /evaluate-profile-field blocks invalid field', async () => {
+  const app = buildServer();
+  try {
+    const r = await app.inject({
+      method: 'POST', url: '/evaluate-profile-field',
+      payload: { field: 'real_name', value: 'Alice' },
+    });
+    assert.equal(r.json().decision, 'block');
+    assert.equal(r.json().reason, 'field_not_collected_for_children');
+  } finally { await app.close(); }
+});

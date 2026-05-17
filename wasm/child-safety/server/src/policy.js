@@ -68,3 +68,30 @@ export function evaluateChildContent(input) {
 
   return { decision: 'allow', reason: null };
 }
+
+/**
+ * Decide whether a profile field is safe for a child.
+ * Parity port of backend/app/src/family/child-safety-policy.js.
+ *
+ * @param {{field:string, value:string}} input
+ * @returns {{decision:'allow'|'block', reason:string|null}}
+ */
+export function evaluateChildProfileField(input) {
+  const { field, value } = input || {};
+  if (field === 'nickname_ar') {
+    if (typeof value !== 'string') return { decision: 'block', reason: 'invalid_type' };
+    const t = value.trim();
+    if (t.length === 0) return { decision: 'block', reason: 'empty_nickname' };
+    if (t.length > 32) return { decision: 'block', reason: 'nickname_too_long' };
+    if (/(.{1,}@.{1,}|\+?\d{6,})/.test(t)) {
+      return { decision: 'block', reason: 'nickname_looks_like_pii' };
+    }
+    return { decision: 'allow', reason: null };
+  }
+  if (field === 'age_band') {
+    return isValidAgeBand(value)
+      ? { decision: 'allow', reason: null }
+      : { decision: 'block', reason: 'invalid_age_band' };
+  }
+  return { decision: 'block', reason: 'field_not_collected_for_children' };
+}

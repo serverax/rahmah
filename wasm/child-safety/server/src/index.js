@@ -19,7 +19,7 @@
 
 import Fastify from 'fastify';
 import { pathToFileURL } from 'node:url';
-import { evaluateChildContent } from './policy.js';
+import { evaluateChildContent, evaluateChildProfileField } from './policy.js';
 
 const PORT = Number(process.env.PORT || 8080);
 const HOST = process.env.HOST || '0.0.0.0';
@@ -51,6 +51,23 @@ export function buildServer() {
     },
   }, async (req, reply) => {
     const decision = evaluateChildContent(req.body || {});
+    return reply.send({ ok: true, ...decision });
+  });
+
+  app.post('/evaluate-profile-field', {
+    schema: {
+      body: {
+        type: 'object',
+        required: ['field', 'value'],
+        additionalProperties: false,
+        properties: {
+          field: { type: 'string', minLength: 1, maxLength: 64 },
+          value: { type: 'string', minLength: 0, maxLength: 1000 },
+        },
+      },
+    },
+  }, async (req, reply) => {
+    const decision = evaluateChildProfileField(req.body);
     return reply.send({ ok: true, ...decision });
   });
 
