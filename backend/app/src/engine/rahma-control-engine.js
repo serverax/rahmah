@@ -204,7 +204,7 @@ export async function processRahmaEvent(event = {}) {
       });
 
     case 'CHARITY_CAMPAIGN_REQUESTED_PUBLICATION': {
-      const r = reviewGate({ verification_status: payload.verification_status });
+      const r = await reviewGate({ verification_status: payload.verification_status });
       if (r.decision === 'block') {
         return baseResult({ decision: 'block', reason: r.reason, audit_log_required: true });
       }

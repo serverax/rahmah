@@ -384,10 +384,13 @@ test('citationGate: empty answer → block empty_answer_text', async () => {
   assert.equal(r.reason, 'empty_answer_text');
 });
 
-test('reviewGate: approved → allow; rejected → block; pending → queue_review', () => {
-  assert.equal(reviewGate({ verification_status: 'approved' }).decision, 'allow');
-  assert.equal(reviewGate({ verification_status: 'rejected' }).decision, 'block');
-  assert.equal(reviewGate({ verification_status: 'pending_review' }).decision, 'queue_review');
+test('reviewGate: approved → allow; rejected → block; pending → queue_review', async () => {
+  const r1 = await reviewGate({ verification_status: 'approved' });
+  assert.equal(r1.decision, 'allow');
+  const r2 = await reviewGate({ verification_status: 'rejected' });
+  assert.equal(r2.decision, 'block');
+  const r3 = await reviewGate({ verification_status: 'pending_review' });
+  assert.equal(r3.decision, 'queue_review');
 });
 
 test('ingestionDecide: still surfaces engine-level decisions', () => {

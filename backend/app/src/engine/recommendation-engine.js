@@ -28,7 +28,7 @@ export async function recommend({
   for (const c of candidates) {
     if (out.length >= n) break;
     if (!c || typeof c !== 'object') continue;
-    const r = reviewGate({ verification_status: c.verification_status });
+    const r = await reviewGate({ verification_status: c.verification_status });
     if (r.decision !== 'allow') continue;
 
     if (audience === 'child' || audience === 'family') {
