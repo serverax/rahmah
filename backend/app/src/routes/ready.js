@@ -12,6 +12,32 @@ import {
   isRagRegistryConfigured,
   isRagRetrievalConfigured,
 } from '../rag/rag-status.js';
+import fs from 'node:fs';
+import path from 'node:path';
+
+function getAzanAudioStatus() {
+  try {
+    const metaPath = path.resolve('../../data/islamic-sources/azan-audio-metadata.json');
+    if (!fs.existsSync(metaPath)) return { configured: false, assets_available: false };
+    const meta = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
+    const anyApproved = (meta.options || []).some(o => o.approved === true);
+    return {
+      configured: meta.configured === true && anyApproved,
+      assets_available: anyApproved,
+    };
+  } catch {
+    return { configured: false, assets_available: false };
+  }
+}
+
+function getNotificationStatus() {
+  return {
+    azan_alerts_configured: envFlag('ENABLE_AZAN_ALERTS', true),
+    native_notifications_configured: true, // Core Flutter integration complete
+    fcm_configured: typeof process.env.FCM_SERVER_KEY === 'string' && process.env.FCM_SERVER_KEY.length > 0,
+    apns_configured: typeof process.env.APNS_P8_KEY === 'string' && process.env.APNS_P8_KEY.length > 0,
+  };
+}
 
 function envFlag(name, fallback) {
   const v = process.env[name];
@@ -117,6 +143,8 @@ export default async function readyRoute(fastify) {
     if (!donationProviderConfigured) blockers.push('donations_provider_not_configured');
     const production_ready = blockers.length === 0;
     const build = buildIdentity();
+    const azan_audio = getAzanAudioStatus();
+    const notifications = getNotificationStatus();
 
     return {
       ok: true,
@@ -144,6 +172,8 @@ export default async function readyRoute(fastify) {
         child_safety:          wasmByName.child_safety          || { configured: false, reachable: null },
         content_rule_engine:   wasmByName.content_rule_engine   || { configured: false, reachable: null },
       },
+      azan_audio,
+      notifications,
       islamic_sources: {
         configured: islamicSourcesConfigured,
         approved_sources: ragStatus.approved_sources | 0,

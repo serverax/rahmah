@@ -13,6 +13,9 @@ import {
 } from '../sheikh/sheikh-question-repository.js';
 import { requireAuth } from '../auth/auth-middleware.js';
 import { ROLES } from '../auth/roles.js';
+import { createNotificationService } from '../services/notification-service.js';
+
+const notify = createNotificationService();
 
 const askSchema = {
   body: {
@@ -122,6 +125,19 @@ export default async function askSheikhV4Route(fastify) {
     const repo = getSheikhRepository();
     const result = await repo.approveAnswer(req.params.id, req.sakina_principal.user_id);
     if (!result.ok) return reply.code(400).send(result);
+
+    // Trigger notification
+    if (result.user_id) {
+      await notify.createNotification({
+        user_id: result.user_id,
+        title_ar: 'تمت الإجابة على سؤالك',
+        title_en: 'Your question has been answered',
+        body_ar: 'لقد قام الشيخ بالإجابة على سؤالك. يمكنك الاطلاع عليها الآن.',
+        body_en: 'The Sheikh has answered your question. You can view it now.',
+        level: 'info'
+      });
+    }
+
     return reply.send(result);
   });
 

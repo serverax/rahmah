@@ -1,4 +1,11 @@
 import Fastify from 'fastify';
+import { getPool } from './db/client.js';
+import { configureSheikhRepositoryWithPool, isSheikhRepositoryConfigured } from './sheikh/sheikh-question-repository.js';
+import { configureQuranRepository, isQuranRepositoryConfigured } from './services/quran-repository.js';
+import { configureGameRepository, isGameRepositoryConfigured } from './services/game-repository.js';
+import { configureLibraryRepository, isLibraryRepositoryConfigured } from './services/library-repository.js';
+import { configurePrivacyRepository, isPrivacyRepositoryConfigured } from './services/privacy-repository.js';
+
 import healthRoute from './routes/health.js';
 import readyRoute from './routes/ready.js';
 import ibadatRoute from './routes/ibadat.js';
@@ -20,8 +27,23 @@ import contentSourcesRoute from './routes/content-sources.js';
 import authSessionRoute, { deviceRegistrationRoute } from './routes/auth-session.js';
 import mobileSyncRoute from './routes/mobile-sync.js';
 import askSheikhV4Route from './routes/ask-sheikh-v4.js';
+import prayerRoute from './routes/prayer.js';
+import quranRoute from './routes/quran.js';
+import azanAudioRoute from './routes/azan-audio.js';
 
 export function buildApp(opts = {}) {
+  // Initialize Repositories with DB pool if not already configured (allow test overrides)
+  if (opts.autoInit !== false) {
+    const pool = getPool();
+    if (pool) {
+      if (!isSheikhRepositoryConfigured()) configureSheikhRepositoryWithPool({ pool });
+      if (!isQuranRepositoryConfigured())   configureQuranRepository({ pool });
+      if (!isGameRepositoryConfigured())    configureGameRepository({ pool });
+      if (!isLibraryRepositoryConfigured()) configureLibraryRepository({ pool });
+      if (!isPrivacyRepositoryConfigured()) configurePrivacyRepository({ pool });
+    }
+  }
+
   const app = Fastify({
     logger: opts.logger ?? false,
     disableRequestLogging: opts.disableRequestLogging ?? true,
@@ -51,6 +73,9 @@ export function buildApp(opts = {}) {
   app.register(deviceRegistrationRoute, { prefix: '/api/device' });
   app.register(mobileSyncRoute, { prefix: '/api/mobile' });
   app.register(askSheikhV4Route, { prefix: '/api/ask-sheikh' });
+  app.register(prayerRoute, { prefix: '/api' });
+  app.register(quranRoute, { prefix: '/api/quran' });
+  app.register(azanAudioRoute, { prefix: '/api/azan-audio' });
 
   return app;
 }

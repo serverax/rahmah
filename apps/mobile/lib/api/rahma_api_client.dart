@@ -87,17 +87,24 @@ class RahmaApiClient {
   Future<Map<String, dynamic>> health()        => get('/health');
   Future<Map<String, dynamic>> ready()         => get('/ready');
   Future<Map<String, dynamic>> mobileStatus()  => get('/api/mobile/status');
-  Future<Map<String, dynamic>> contentSources()=> get('/api/content/sources');
-  Future<Map<String, dynamic>> publicAnswers() => get('/api/public/answers');
-  Future<Map<String, dynamic>> quran()         => get('/api/quran');
-  Future<Map<String, dynamic>> hadith()        => get('/api/hadith');
-  Future<Map<String, dynamic>> dua()           => get('/api/dua');
-  Future<Map<String, dynamic>> gameStatus()    => get('/api/game/status');
+  Future<Map<String, dynamic>> prayerTimes(double lat, double lng) => get('/api/prayer-times?lat=$lat&lng=$lng');
+  Future<Map<String, dynamic>> quranSurahs()   => get('/api/quran/surahs');
+  Future<Map<String, dynamic>> quranSurahDetail(int id) => get('/api/quran/surahs/$id');
+  Future<Map<String, dynamic>> gameStatus({String? ageGroup}) => get('/api/mobile/game/status${ageGroup != null ? '?age_group=$ageGroup' : ''}');
+  Future<Map<String, dynamic>> libraryItems({String? category}) => get('/api/library/items${category != null ? '?category=$category' : ''}');
+  Future<Map<String, dynamic>> azanAudioOptions() => get('/api/azan-audio/options');
 
-  Future<Map<String, dynamic>> submitQuestion(String questionAr, {String? categoryAr}) =>
-      postJson('/api/sheikh/questions', {
-        'question_ar': questionAr,
-        if (categoryAr != null) 'category_ar': categoryAr,
-        'language': 'ar',
+  // Deprecated Aliases
+  Future<Map<String, dynamic>> contentSources() => libraryItems();
+  Future<Map<String, dynamic>> publicAnswers()  => listPublicQA();
+
+  Future<Map<String, dynamic>> submitQuestion(String text, {String lang = 'ar', String displayPref = 'ar'}) =>
+      postJson('/api/ask-sheikh/questions', {
+        'question_text_$lang': text,
+        'language': lang,
+        'display_language_preference': displayPref,
       });
+
+  Future<Map<String, dynamic>> listPublicQA({String? category, String lang = 'ar'}) =>
+      get('/api/ask-sheikh/public?language=$lang${category != null ? '&category=$category' : ''}');
 }

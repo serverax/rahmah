@@ -18,6 +18,7 @@
 import { isDatabaseConfigured } from '../db/config.js';
 import { buildRagStatus } from '../rag/rag-status.js';
 import { isAuthConfigured, getAuthMode } from '../auth/auth-config.js';
+import { getGameRepository } from '../services/game-repository.js';
 
 function envFlag(name, fallback) {
   const v = process.env[name];
@@ -70,11 +71,14 @@ export default async function mobileRoute(fastify) {
   fastify.get('/dua',    placeholderList('الأدعية'));
 
   fastify.get('/game/status', async (req, reply) => {
+    const repo = getGameRepository();
+    const items = await repo?.listApprovedScenarios(req.query.age_group);
     return reply.send({
       ok: true,
       enabled: envFlag('ENABLE_CHILDREN_ISLAMIC_GAME', true),
       local_first: true,
       server_backup_available: isDatabaseConfigured(),
+      scenarios: items || [],
       scenarios_modules: [
         'salah_order', 'wudu_steps', 'dua_matching',
         'surah_recognition', 'manners_quiz', 'ramadan_tasks', 'prophet_stories',
@@ -91,13 +95,15 @@ export default async function mobileRoute(fastify) {
         additionalProperties: false,
         properties: {
           scenario_id:    { type: 'string', minLength: 1, maxLength: 64 },
+          score:          { type: 'integer', minimum: 0 },
           attempts_count: { type: 'integer', minimum: 0, maximum: 10000 },
           correct_count:  { type: 'integer', minimum: 0, maximum: 10000 },
         },
       },
     },
   }, async (req, reply) => {
-    if (!isDatabaseConfigured()) {
+    const repo = getGameRepository();
+    if (!repo) {
       return reply.send({
         ok: true,
         status: 'local_only',
@@ -105,11 +111,18 @@ export default async function mobileRoute(fastify) {
         message_ar: 'تم حفظ التقدم محلياً. لن يتم إرسال أي بيانات إلى الخادم قبل تفعيل المزامنة.',
       });
     }
+
+    const result = await repo.saveProgress(
+      req.sakina_principal?.user_id,
+      req.body.scenario_id,
+      req.body.score || 0
+    );
+
     return reply.send({
       ok: true,
-      status: 'received',
-      persisted: false,
-      message_ar: 'تم استلام التقدم. التخزين على الخادم سيتم بعد توصيل قاعدة البيانات.',
+      status: result.persisted ? 'synced' : 'local_only',
+      persisted: result.persisted,
+      message_ar: result.persisted ? 'تمت مزامنة التقدم.' : 'تم حفظ التقدم محلياً.',
     });
   });
 

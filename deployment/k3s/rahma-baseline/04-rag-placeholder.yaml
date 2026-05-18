@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rahma-rag
+  namespace: rahma-rag
+  labels:
+    app.kubernetes.io/name: rahma-rag
+    app.kubernetes.io/project: rahma
+    app.kubernetes.io/component: rag
+    app_status: foundation-placeholder
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rahma-rag
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: rahma-rag
+        app.kubernetes.io/project: rahma
+        app.kubernetes.io/component: rag
+        app_status: foundation-placeholder
+    spec:
+      serviceAccountName: rahma-rag
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: rag
+          image: python:3.12-alpine
+          imagePullPolicy: IfNotPresent
+          command: ["python", "-m", "http.server", "8080"]
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: rag-indexes
+              mountPath: /data
+      volumes:
+        - name: rag-indexes
+          persistentVolumeClaim:
+            claimName: rahma-rag-indexes
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rahma-rag
+  namespace: rahma-rag
+  labels:
+    app.kubernetes.io/name: rahma-rag
+    app.kubernetes.io/project: rahma
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+  selector:
+    app.kubernetes.io/name: rahma-rag

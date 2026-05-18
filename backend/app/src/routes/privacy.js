@@ -15,6 +15,7 @@ import { createHash } from 'node:crypto';
 import { isDatabaseConfigured } from '../db/config.js';
 import { requireAuth } from '../auth/auth-middleware.js';
 import { ROLES } from '../auth/roles.js';
+import { getPrivacyRepository } from '../services/privacy-repository.js';
 
 const PRIVACY_REQUEST_TYPES = Object.freeze([
   'delete_account',
@@ -75,7 +76,7 @@ const TERMS_NOTICE_AR = Object.freeze({
 const CHILD_SAFETY_AR = Object.freeze({
   title_ar: 'سلامة الطفل في تطبيق رحمة',
   body_ar: [
-    'لا نطلب اسم الطفل الحقيقي ولا رقم هاتفه ولا عنوانه ولا صورته.',
+    'لا نطلب اسم الطفل الحقيقي ولا رقم فهاته ولا عنوانه ولا صورته.',
     'لا توجد دردشة بين الأطفال داخل التطبيق.',
     'لا يوجد ملف عام للطفل ولا قوائم تصنيف عامة.',
     'تقدم الطفل محفوظ داخل الجهاز فقط.',
@@ -91,7 +92,7 @@ export default async function privacyRoute(fastify) {
       privacy: PRIVACY_NOTICE_AR,
       storage_configured: isDatabaseConfigured(),
       child_safety_available: true,
-      account_deletion_available: true,    // endpoint exists; persistence may be deferred
+      account_deletion_available: true,
       data_export_available: true,
       contact_available: true,
     });
@@ -113,7 +114,8 @@ export default async function privacyRoute(fastify) {
     if (!hash) {
       return reply.code(400).send({ ok: false, error: 'invalid_email' });
     }
-    if (!isDatabaseConfigured()) {
+    const repo = getPrivacyRepository();
+    if (!repo || !isDatabaseConfigured()) {
       return reply.send({
         ok: false,
         status: 'storage_not_configured',
@@ -121,12 +123,16 @@ export default async function privacyRoute(fastify) {
         persisted: false,
       });
     }
-    // With a DB, the request_id would be inserted via parameterized SQL.
+    const result = await repo.createPrivacyRequest({
+      type: 'delete_account',
+      emailHash: hash,
+      metadata: { reason: req.body.reason }
+    });
     return reply.send({
       ok: true,
       status: 'received',
       message_ar: 'تم استلام طلب حذف الحساب، وسيتم التواصل معكم للتحقق.',
-      persisted: false, // until repository wires the INSERT
+      persisted: result.persisted,
     });
   });
 
@@ -135,7 +141,8 @@ export default async function privacyRoute(fastify) {
     if (!hash) {
       return reply.code(400).send({ ok: false, error: 'invalid_email' });
     }
-    if (!isDatabaseConfigured()) {
+    const repo = getPrivacyRepository();
+    if (!repo || !isDatabaseConfigured()) {
       return reply.send({
         ok: false,
         status: 'storage_not_configured',
@@ -143,15 +150,19 @@ export default async function privacyRoute(fastify) {
         persisted: false,
       });
     }
+    const result = await repo.createPrivacyRequest({
+      type: 'data_export',
+      emailHash: hash,
+      metadata: { reason: req.body.reason }
+    });
     return reply.send({
       ok: true,
       status: 'received',
       message_ar: 'تم استلام طلب نسخة البيانات، وسيتم التواصل معكم لإكمال التحقق.',
-      persisted: false,
+      persisted: result.persisted,
     });
   });
 
-  // Generic privacy request submission supporting all 5 types.
   fastify.post('/privacy/requests', {
     schema: {
       body: {
@@ -168,7 +179,8 @@ export default async function privacyRoute(fastify) {
   }, async (req, reply) => {
     const hash = hashEmail(req.body.email);
     if (!hash) return reply.code(400).send({ ok: false, error: 'invalid_email' });
-    if (!isDatabaseConfigured()) {
+    const repo = getPrivacyRepository();
+    if (!repo || !isDatabaseConfigured()) {
       return reply.send({
         ok: false,
         status: 'storage_not_configured',
@@ -177,23 +189,30 @@ export default async function privacyRoute(fastify) {
         persisted: false,
       });
     }
-    // With a real DB, the request_id is the result of a parameterized INSERT
-    // into `privacy_requests` (migration 007). Foundation: we acknowledge
-    // safely but report `persisted: false` until repository wires the INSERT.
+
+    let mappedType = req.body.request_type;
+    if (mappedType === 'correct_data' || mappedType === 'restrict_processing') mappedType = 'contact';
+
+    const result = await repo.createPrivacyRequest({
+      type: mappedType,
+      emailHash: hash,
+      metadata: { original_type: req.body.request_type, reason: req.body.reason_ar }
+    });
+
     return reply.send({
       ok: true,
       status: 'received',
       request_type: req.body.request_type,
       message_ar: 'تم استلام الطلب وسيتم مراجعته من قبل المُراجِع.',
-      persisted: false,
+      persisted: result.persisted,
     });
   });
 
-  // Admin: list pending privacy requests. Requires admin / content_reviewer role.
   fastify.get('/admin/privacy/requests', {
     preHandler: requireAuth([ROLES.ADMIN, ROLES.CONTENT_REVIEWER]),
   }, async (req, reply) => {
-    if (!isDatabaseConfigured()) {
+    const repo = getPrivacyRepository();
+    if (!repo || !isDatabaseConfigured()) {
       return reply.send({
         ok: true,
         configured: false,
@@ -201,10 +220,10 @@ export default async function privacyRoute(fastify) {
         message_ar: 'لا توجد قاعدة بيانات مفعلة بعد.',
       });
     }
-    return reply.send({ ok: true, configured: true, requests: [] });
+    const requests = await repo.listPendingRequests();
+    return reply.send({ ok: true, configured: true, requests });
   });
 
-  // Admin: mark a privacy request complete. Requires admin / content_reviewer role.
   fastify.post('/admin/privacy/requests/:id/complete', {
     preHandler: requireAuth([ROLES.ADMIN, ROLES.CONTENT_REVIEWER]),
     schema: {
@@ -217,18 +236,20 @@ export default async function privacyRoute(fastify) {
       },
     },
   }, async (req, reply) => {
-    if (!isDatabaseConfigured()) {
+    const repo = getPrivacyRepository();
+    if (!repo || !isDatabaseConfigured()) {
       return reply.code(503).send({
         ok: false,
         error: 'database_not_configured',
         message_ar: 'لا يمكن إكمال الطلب — قاعدة البيانات غير مهيأة بعد.',
       });
     }
+    const result = await repo.completeRequest(req.params.id);
     return reply.send({
       ok: true,
       request_id: req.params.id,
       status: 'completed',
-      persisted: false,
+      persisted: result.ok,
       message_ar: 'تم إكمال الطلب بإذن الله.',
     });
   });

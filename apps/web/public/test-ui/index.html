@@ -5,193 +5,96 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rahma Local Test UI</title>
   <link rel="stylesheet" href="/assets/test-ui.css">
+  <style>
+    .section-title {
+      color: var(--rahma-emerald-dark);
+      margin-top: 40px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--rahma-emerald-light);
+      padding-bottom: 10px;
+    }
+    .test-ui-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+  </style>
 </head>
 <body class="test-ui-root">
-  <div class="test-ui-container">
-    <header class="test-ui-header">
-      <h1>لوحة اختبار رحمة المحلية (Rahma Local Test UI)</h1>
-      <p>بيئة اختبار بصرية للتحقق من وحدات التطبيق قبل الإصدار الرسمي.</p>
+  <div class="test-ui-container" style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+    <header class="test-ui-header" style="text-align: center; margin-bottom: 40px;">
+      <h1 style="color: var(--rahma-emerald); font-family: var(--font-heading);">لوحة اختبار رحمة المحلية (Rahma Local Test UI)</h1>
+      <p style="color: var(--rahma-ink-muted);">بيئة اختبار بصرية للتحقق من وحدات التطبيق قبل الإصدار الرسمي.</p>
     </header>
 
-    <div class="test-ui-grid">
-      <!-- 1. Home Dashboard -->
-      <div class="test-ui-card">
-        <span class="status-badge pass">PASS</span>
-        <h3>الرئيسية (Home)</h3>
-        <div class="module-meta">
-          <strong>المنفذ:</strong> تخطيط الشبكة، التنقل السفلي.<br>
-          <strong>المفقود:</strong> لا يوجد.
-        </div>
-        <a href="/test-ui/mobile-preview.html?module=home" class="module-action">عرض المعاينة</a>
-      </div>
+    <h2 class="section-title">Section A: Mobile App Features</h2>
+    <div id="mobile-features-grid" class="test-ui-grid">
+      <!-- Populated by JS -->
+    </div>
 
-      <!-- 2. Ask Sheikh Hasan -->
-      <div class="test-ui-card">
-        <span class="status-badge pass">PASS</span>
-        <h3>اسأل الشيخ حسن</h3>
-        <div class="module-meta">
-          <strong>المنفذ:</strong> واجهة V4، قاعدة البيانات، سير العمل.<br>
-          <strong>المفقود:</strong> التنبيهات الفورية.
-        </div>
-        <a href="/test-ui/mobile-preview.html?module=ask-sheikh" class="module-action">اختبار النموذج</a>
-      </div>
-
-      <!-- 3. Quran Reader -->
-      <div class="test-ui-card">
-        <span class="status-badge partial">PARTIAL</span>
-        <h3>قارئ القرآن</h3>
-        <div class="module-meta">
-          <strong>المنفذ:</strong> واجهة عرض السور.<br>
-          <strong>المفقود:</strong> قارئ PDF/نصوص أصيل.
-        </div>
-        <a href="/test-ui/mobile-preview.html?module=quran" class="module-action">معاينة الواجهة</a>
-      </div>
-
-      <!-- 4. Quran Audio -->
-      <div class="test-ui-card">
-        <span class="status-badge partial">PARTIAL</span>
-        <h3>صوت القرآن</h3>
-        <div class="module-meta">
-          <strong>المنفذ:</strong> التصميم فقط.<br>
-          <strong>المفقود:</strong> مشغل الصوت، مزود البث.
-        </div>
-        <a href="/test-ui/mobile-preview.html?module=audio" class="module-action">معاينة التصميم</a>
-      </div>
-
-      <!-- 5. Prayer Times -->
-      <div class="test-ui-card">
-        <span class="status-badge partial">PARTIAL</span>
-        <h3>مواقيت الصلاة</h3>
-        <div class="module-meta">
-          <strong>المنفذ:</strong> واجهة الإعدادات.<br>
-          <strong>المفقود:</strong> ربط GPS، محرك الحساب.
-        </div>
-        <a href="/test-ui/mobile-preview.html?module=prayer" class="module-action">اختبار الإعدادات</a>
-      </div>
-
-      <!-- 6. Azan Notifications -->
-      <div class="test-ui-card">
-        <span class="status-badge partial">PARTIAL</span>
-        <h3>تنبيهات الأذان</h3>
-        <div class="module-meta">
-          <strong>المنفذ:</strong> مفاتيح التبديل في الواجهة.<br>
-          <strong>المفقود:</strong> شهادات FCM/APNs.
-        </div>
-        <a href="/test-ui/mobile-preview.html?module=notifications" class="module-action">معاينة التنبيهات</a>
-      </div>
-
-      <!-- 7. Mosque Finder -->
-      <div class="test-ui-card">
-        <span class="status-badge partial">PARTIAL</span>
-        <h3>مكتشف المساجد</h3>
-        <div class="module-meta">
-          <strong>المنفذ:</strong> الهيكل الإنشائي للواجهة.<br>
-          <strong>المفقود:</strong> مفتاح API للخرائط، ربط GPS.
-        </div>
-        <a href="/test-ui/mobile-preview.html?module=mosque" class="module-action">معاينة الواجهة</a>
-      </div>
-
-      <!-- 8. Children Islamic Game -->
-      <div class="test-ui-card">
-        <span class="status-badge pass">PASS</span>
-        <h3>لعبة الأطفال الإسلامية</h3>
-        <div class="module-meta">
-          <strong>المنفذ:</strong> سيناريوهات Hasanat، بوابة السلامة.<br>
-          <strong>المفقود:</strong> توسيع قاعدة البيانات.
-        </div>
-        <a href="/test-ui/mobile-preview.html?module=game" class="module-action">بدء اللعبة</a>
-      </div>
-
-      <!-- 9. Library -->
-      <div class="test-ui-card">
-        <span class="status-badge pass">PASS</span>
-        <h3>المكتبة الإسلامية</h3>
-        <div class="module-meta">
-          <strong>المنفذ:</strong> التصنيفات، منطق العرض المقيد.<br>
-          <strong>المفقود:</strong> المحتوى الكامل المعتمد.
-        </div>
-        <a href="/test-ui/mobile-preview.html?module=library" class="module-action">تصفح المكتبة</a>
-      </div>
-
-      <!-- 10. RAG / Source Registry -->
-      <div class="test-ui-card">
-        <span class="status-badge pass">PASS</span>
-        <h3>محرك RAG والمصادر</h3>
-        <div class="module-meta">
-          <strong>المنفذ:</strong> تسجيل المصادر، منطق الاسترجاع.<br>
-          <strong>المفقود:</strong> ربط قاعدة بيانات Vector للإنتاج.
-        </div>
-        <a href="/test-ui/status.html?target=rag" class="module-action">عرض الحالة</a>
-      </div>
-
-      <!-- 11. WASM Safety -->
-      <div class="test-ui-card">
-        <span class="status-badge pass">PASS</span>
-        <h3>حارس السلامة (WASM)</h3>
-        <div class="module-meta">
-          <strong>المنفذ:</strong> 4 وحدات Rust، جسور Node.js.<br>
-          <strong>المفقود:</strong> بناء binary محلي.
-        </div>
-        <a href="/test-ui/status.html?target=wasm" class="module-action">فحص الحارس</a>
-      </div>
-
-      <!-- 12. Admin Approval -->
-      <div class="test-ui-card">
-        <span class="status-badge pass">PASS</span>
-        <h3>إشراف الإدارة</h3>
-        <div class="module-meta">
-          <strong>المنفذ:</strong> مسار الاعتماد، التدقيق.<br>
-          <strong>المفقود:</strong> لوحة تحكم متقدمة.
-        </div>
-        <a href="/test-ui/mobile-preview.html?module=admin" class="module-action">عرض طلبات المراجعة</a>
-      </div>
+    <h2 class="section-title">Section B: Internal System Readiness</h2>
+    <div id="internal-services-grid" class="test-ui-grid">
+      <!-- Populated by JS -->
     </div>
 
     <!-- App Store Readiness Checklist -->
-    <div class="blocker-section" style="background: #f0fdfa; border-color: #5eead4;">
-      <h2 style="color: #0f766e;">قائمة جاهزية المتجر (App Store Readiness)</h2>
-      <ul class="blocker-list">
-        <li class="blocker-item" style="border-left-color: #22c55e;">
-          <span>سياسة الخصوصية داخل التطبيق (In-app Privacy)</span>
-          <span class="status-badge pass">PASS</span>
-        </li>
-        <li class="blocker-item" style="border-left-color: #eab308;">
-          <span>رابط سياسة الخصوصية العام (Public URL)</span>
-          <span class="status-badge partial">PARTIAL</span>
-        </li>
-        <li class="blocker-item" style="border-left-color: #22c55e;">
-          <span>طلب حذف الحساب (Account Deletion)</span>
-          <span class="status-badge pass">PASS</span>
-        </li>
-        <li class="blocker-item" style="border-left-color: #ef4444;">
-          <span>شهادات الإشعارات (APNs/FCM)</span>
-          <span class="status-badge pending">PENDING</span>
-        </li>
+    <h2 class="section-title">App Store Readiness</h2>
+    <div class="blocker-section" style="background: #f0fdfa; border-color: #5eead4; padding: 20px; border-radius: 8px;">
+      <ul id="compliance-list" class="blocker-list" style="list-style: none; padding: 0;">
+        <!-- Populated by JS -->
       </ul>
     </div>
 
-    <!-- Launch Blockers -->
-    <div class="blocker-section">
-      <h2>معوقات الإطلاق (Launch Blockers)</h2>
-      <ul class="blocker-list">
-        <li class="blocker-item">
-          <span>استضافة صفحات الويب القانونية (Privacy, Terms)</span>
-          <strong>إجراء مطلوب من المشغل</strong>
-        </li>
-        <li class="blocker-item">
-          <span>حسابات مطوري Apple و Google Play</span>
-          <strong>إجراء مطلوب من المشغل</strong>
-        </li>
-        <li class="blocker-item">
-          <span>بناء نسخة Android الموقعة (Signed AAB/APK)</span>
-          <strong>إجراء مطلوب من المشغل</strong>
-        </li>
-      </ul>
-    </div>
-    
     <footer style="margin-top: 3rem; text-align: center; color: var(--test-ui-text-muted); font-size: 0.875rem;">
       Rahma Local Test UI is ready for visual/manual testing. It is not a production deployment.
     </footer>
   </div>
+
+  <script>
+    async function loadStatus() {
+      try {
+        const res = await fetch('/test-ui/rahma-feature-status.json');
+        const data = await res.json();
+        
+        const mobileGrid = document.getElementById('mobile-features-grid');
+        const internalGrid = document.getElementById('internal-services-grid');
+        const complianceList = document.getElementById('compliance-list');
+        
+        data.features.forEach(f => {
+          let color = '#f59e0b'; // partial
+          if (f.status === 'PASS') color = '#10b981';
+          if (f.status === 'PENDING') color = '#3b82f6';
+          if (f.status === 'BLOCKED' || f.status === 'FAIL') color = '#ef4444';
+
+          const card = document.createElement('div');
+          card.className = 'card-3d';
+          card.innerHTML = `
+            <span class="status-pill" style="color: ${color}; border-left-color: ${color}; position: absolute; top: 20px; left: 20px;">${f.status}</span>
+            <h3 style="margin-top:0;">${f.name_ar} <br><small style="color:var(--rahma-ink-muted);font-size:0.8rem;">${f.name_en}</small></h3>
+            <div style="font-size: 0.9rem; margin-bottom: 10px;">
+              <strong>يعمل:</strong> ${f.what_works}<br>
+              <strong>لا يعمل:</strong> ${f.what_does_not_work}<br>
+              <strong>المطلوب:</strong> ${f.required_to_finish}
+            </div>
+            <a href="${f.test_ui_url || (f.feature_id === 'home' ? '' : f.feature_id.replace('_', '-') + '.html')}" style="display:inline-block; padding:8px 16px; background:var(--rahma-emerald); color:white; border-radius:4px; text-decoration:none; font-size:0.9rem;">معاينة</a>
+          `;
+
+          if (f.category === 'mobile_feature') {
+            mobileGrid.appendChild(card);
+          } else if (f.category === 'internal_service') {
+            internalGrid.appendChild(card);
+          } else if (f.category === 'compliance') {
+            const li = document.createElement('li');
+            li.style.cssText = `margin-bottom: 10px; padding: 10px; background: white; border-radius: 4px; border-right: 4px solid ${color}; display: flex; justify-content: space-between;`;
+            li.innerHTML = `<span>${f.name_ar} (${f.name_en})</span> <span style="color:${color}; font-weight:bold;">${f.status}</span>`;
+            complianceList.appendChild(li);
+          }
+        });
+      } catch (err) {
+        console.error('Failed to load status JSON', err);
+      }
+    }
+    loadStatus();
+  </script>
 </body>
 </html>

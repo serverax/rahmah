@@ -1,0 +1,171 @@
+# NetworkPolicies are namespace-scoped. These policies intentionally live in
+# the Rahma namespaces they protect; no IterLaw, OrdinoxAI, or other namespace
+# is selected.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: rahma-default-deny-ingress
+  namespace: rahma-api
+  labels:
+    app.kubernetes.io/project: rahma
+spec:
+  podSelector: {}
+  policyTypes: ["Ingress"]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-rahma-monitoring-to-api
+  namespace: rahma-api
+  labels:
+    app.kubernetes.io/project: rahma
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: rahma-api
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: rahma-monitoring
+      ports:
+        - protocol: TCP
+          port: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: rahma-default-deny-ingress
+  namespace: rahma-data
+  labels:
+    app.kubernetes.io/project: rahma
+spec:
+  podSelector: {}
+  policyTypes: ["Ingress"]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-rahma-api-and-monitoring-to-postgres
+  namespace: rahma-data
+  labels:
+    app.kubernetes.io/project: rahma
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: rahma-postgres
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: rahma-api
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: rahma-monitoring
+      ports:
+        - protocol: TCP
+          port: 5432
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: rahma-default-deny-ingress
+  namespace: rahma-rag
+  labels:
+    app.kubernetes.io/project: rahma
+spec:
+  podSelector: {}
+  policyTypes: ["Ingress"]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-rahma-api-and-monitoring-to-rag
+  namespace: rahma-rag
+  labels:
+    app.kubernetes.io/project: rahma
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: rahma-rag
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: rahma-api
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: rahma-monitoring
+      ports:
+        - protocol: TCP
+          port: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: rahma-default-deny-ingress
+  namespace: rahma-ai
+  labels:
+    app.kubernetes.io/project: rahma
+spec:
+  podSelector: {}
+  policyTypes: ["Ingress"]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-rahma-api-and-monitoring-to-ai
+  namespace: rahma-ai
+  labels:
+    app.kubernetes.io/project: rahma
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: rahma-ai-gateway
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: rahma-api
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: rahma-monitoring
+      ports:
+        - protocol: TCP
+          port: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: rahma-default-deny-ingress
+  namespace: rahma-app
+  labels:
+    app.kubernetes.io/project: rahma
+spec:
+  podSelector: {}
+  policyTypes: ["Ingress"]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-rahma-monitoring-to-app-support
+  namespace: rahma-app
+  labels:
+    app.kubernetes.io/project: rahma
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: rahma-app-support
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: rahma-monitoring
+      ports:
+        - protocol: TCP
+          port: 8080

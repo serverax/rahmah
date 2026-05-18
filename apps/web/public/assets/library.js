@@ -81,8 +81,10 @@
   }
 
   function renderSourceBadge(item) {
-    if (!item || !item.source_reference) return '';
-    return `<span class="badge badge-quran">${escapeHtml(item.source_reference)}</span>`;
+    if (!item) return '';
+    const label = item.source_name_ar || item.source_reference;
+    if (!label) return '';
+    return `<span class="badge badge-quran">${escapeHtml(label)}</span>`;
   }
 
   function renderReviewStatus(item) {
@@ -94,9 +96,10 @@
   }
 
   function renderItemCard(item) {
-    // Hard guard: never render a card without source_reference + approved status.
+    // Hard guard: never render a card without source_reference/name + approved status.
     if (!item || item.verification_status !== 'approved') return '';
-    if (!item.source_reference || String(item.source_reference).trim().length === 0) return '';
+    const label = item.source_name_ar || item.source_reference;
+    if (!label || String(label).trim().length === 0) return '';
     return `
       <div class="card">
         <div class="card-title">${escapeHtml(item.title_ar || '')}</div>
@@ -110,8 +113,8 @@
   function blockUnapprovedPublicDisplay(items) {
     if (!Array.isArray(items)) return [];
     return items.filter((it) => it && it.verification_status === 'approved'
-                              && typeof it.source_reference === 'string'
-                              && it.source_reference.trim().length > 0);
+                              && typeof (it.source_name_ar || it.source_reference) === 'string'
+                              && (it.source_name_ar || it.source_reference).trim().length > 0);
   }
 
   function renderUnavailableMessage(el) {

@@ -76,12 +76,12 @@
         listEl.innerHTML = items.map(a => `
           <div class="card-3d" style="margin-bottom: 16px;">
             <div style="color: var(--rahma-emerald); font-weight: 600; margin-bottom: 8px;">سؤال:</div>
-            <p style="margin-top: 0; font-family: var(--font-heading); font-size: 1.2rem;">${R.escapeHtml(a.question)}</p>
+            <p style="margin-top: 0; font-family: var(--font-heading); font-size: 1.2rem;">${R.escapeHtml(a.question_text_ar || a.question || '')}</p>
             <hr style="border: 0; border-top: 1px dashed rgba(15,118,110,0.2); margin: 12px 0;">
             <div style="color: var(--rahma-emerald-dark); font-weight: 600; margin-bottom: 8px;">إجابة الشيخ حسن:</div>
-            <p style="margin-top: 0;">${R.escapeHtml(a.answer)}</p>
+            <p style="margin-top: 0;">${R.escapeHtml(a.answer_text_ar || a.answer || '')}</p>
             <div style="margin-top: 12px; font-size: 0.8rem; color: var(--rahma-ink-muted);">
-              التصنيف: ${R.escapeHtml(a.category || 'عام')}
+              التصنيف: ${R.escapeHtml(a.category_id || 'عام')}
             </div>
           </div>
         `).join('');

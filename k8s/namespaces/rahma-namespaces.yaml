@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rahma-app
+  labels:
+    app.kubernetes.io/name: rahma
+    app.kubernetes.io/part-of: rahma
+    ordinox.ai/project: rahma
+    ordinox.ai/owner: khaled
+    ordinox.ai/environment: production
+    ordinox.ai/purpose: app
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rahma-api
+  labels:
+    app.kubernetes.io/name: rahma
+    app.kubernetes.io/part-of: rahma
+    ordinox.ai/project: rahma
+    ordinox.ai/owner: khaled
+    ordinox.ai/environment: production
+    ordinox.ai/purpose: api
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rahma-data
+  labels:
+    app.kubernetes.io/name: rahma
+    app.kubernetes.io/part-of: rahma
+    ordinox.ai/project: rahma
+    ordinox.ai/owner: khaled
+    ordinox.ai/environment: production
+    ordinox.ai/purpose: data
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rahma-rag
+  labels:
+    app.kubernetes.io/name: rahma
+    app.kubernetes.io/part-of: rahma
+    ordinox.ai/project: rahma
+    ordinox.ai/owner: khaled
+    ordinox.ai/environment: production
+    ordinox.ai/purpose: rag
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rahma-ai
+  labels:
+    app.kubernetes.io/name: rahma
+    app.kubernetes.io/part-of: rahma
+    ordinox.ai/project: rahma
+    ordinox.ai/owner: khaled
+    ordinox.ai/environment: production
+    ordinox.ai/purpose: ai
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rahma-monitoring
+  labels:
+    app.kubernetes.io/name: rahma
+    app.kubernetes.io/part-of: rahma
+    ordinox.ai/project: rahma
+    ordinox.ai/owner: khaled
+    ordinox.ai/environment: production
+    ordinox.ai/purpose: monitoring
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rahma-security
+  labels:
+    app.kubernetes.io/name: rahma
+    app.kubernetes.io/part-of: rahma
+    ordinox.ai/project: rahma
+    ordinox.ai/owner: khaled
+    ordinox.ai/environment: production
+    ordinox.ai/purpose: security

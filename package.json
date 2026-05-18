@@ -5,6 +5,9 @@
   "description": "Rahma Islamic App Monorepo Root",
   "type": "module",
   "scripts": {
+    "test": "npm run test:backend && npm run test:mobile",
+    "test:backend": "cd backend/app && npm test",
+    "test:mobile": "cd apps/mobile && flutter test",
     "local:test-ui": "node scripts/start-rahma-test-ui.js",
     "local:test-ui:check": "node scripts/check-rahma-test-ui.js",
     "test:local-test-ui": "node scripts/smoke-rahma-test-ui.js",

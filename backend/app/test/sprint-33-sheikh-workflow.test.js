@@ -37,7 +37,7 @@ function fakeRepo() {
 test('Sprint33 — POST /api/sheikh/questions: 503 when repository not configured', async () => {
   const s = envSnap();
   _resetSheikhRepositoryForTests();
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     const r = await app.inject({
       method: 'POST', url: '/api/sheikh/questions',
@@ -56,7 +56,7 @@ test('Sprint33 — POST /api/sheikh/questions: 503 when repository not configure
 test('Sprint33 — POST /api/sheikh/questions: anonymous accepted, repository invoked', async () => {
   const s = envSnap();
   configureSheikhRepository({ repository: fakeRepo() });
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     const r = await app.inject({
       method: 'POST', url: '/api/sheikh/questions',
@@ -80,7 +80,7 @@ test('Sprint33 — GET /api/sheikh/questions: anonymous 503 (auth not configured
   delete process.env.AUTH_MODE;
   delete process.env.SESSION_SECRET;
   configureSheikhRepository({ repository: fakeRepo() });
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     const r = await app.inject({ method: 'GET', url: '/api/sheikh/questions' });
     assert.equal(r.statusCode, 503);
@@ -98,7 +98,7 @@ test('Sprint33 — GET /api/sheikh/questions: requires sheikh role (user → 403
   process.env.AUTH_MODE = 'dev_local';
   process.env.NODE_ENV = 'test';
   configureSheikhRepository({ repository: fakeRepo() });
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     const r = await app.inject({
       method: 'GET', url: '/api/sheikh/questions',
@@ -117,7 +117,7 @@ test('Sprint33 — GET /api/sheikh/questions: sheikh principal sees pending queu
   process.env.AUTH_MODE = 'dev_local';
   process.env.NODE_ENV = 'test';
   configureSheikhRepository({ repository: fakeRepo() });
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     const r = await app.inject({
       method: 'GET', url: '/api/sheikh/questions',
@@ -139,7 +139,7 @@ test('Sprint33 — POST /api/sheikh/questions/:id/answer: rejects when no citati
   process.env.AUTH_MODE = 'dev_local';
   process.env.NODE_ENV = 'test';
   configureSheikhRepository({ repository: fakeRepo() });
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     const r = await app.inject({
       method: 'POST', url: '/api/sheikh/questions/q1/answer',
@@ -163,7 +163,7 @@ test('Sprint33 — POST /api/sheikh/answers/:id/submit: rejects insufficient cit
   process.env.AUTH_MODE = 'dev_local';
   process.env.NODE_ENV = 'test';
   configureSheikhRepository({ repository: fakeRepo() });
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     const r = await app.inject({
       method: 'POST', url: '/api/sheikh/answers/a1/submit',
@@ -185,7 +185,7 @@ test('Sprint33 — POST /api/admin/sheikh/answers/:id/approve: needs reviewer ro
   process.env.AUTH_MODE = 'dev_local';
   process.env.NODE_ENV = 'test';
   configureSheikhRepository({ repository: fakeRepo() });
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     // sheikh role denied for admin route
     let r = await app.inject({
@@ -225,7 +225,7 @@ test('Sprint33 — POST /api/admin/sheikh/answers/:id/reject: requires reason_ar
   process.env.AUTH_MODE = 'dev_local';
   process.env.NODE_ENV = 'test';
   configureSheikhRepository({ repository: fakeRepo() });
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     let r = await app.inject({
       method: 'POST', url: '/api/admin/sheikh/answers/a1/reject',
@@ -254,7 +254,7 @@ test('Sprint33 — POST /api/admin/sheikh/answers/:id/reject: requires reason_ar
 test('Sprint33 — public /api/public/sheikh-hasan/qa: still public, items empty when no DB', async () => {
   const s = envSnap();
   _resetSheikhRepositoryForTests();
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     const r = await app.inject({ method: 'GET', url: '/api/public/sheikh-hasan/qa' });
     assert.equal(r.statusCode, 200);

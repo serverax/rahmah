@@ -1,0 +1,58 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: rahma-health-check
+  namespace: rahma-monitoring
+  labels:
+    app.kubernetes.io/name: rahma-health-check
+    app.kubernetes.io/project: rahma
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: rahma-health-check
+            app.kubernetes.io/project: rahma
+        spec:
+          serviceAccountName: rahma-health-check
+          restartPolicy: Never
+          tolerations:
+            - key: node-role.kubernetes.io/control-plane
+              operator: Exists
+              effect: NoSchedule
+          containers:
+            - name: health-check
+              image: busybox:1.36.1
+              imagePullPolicy: IfNotPresent
+              command:
+                - sh
+                - -c
+                - |
+                  set -eu
+                  echo "Rahma internal DNS health check $(date -Iseconds)"
+                  for host in \
+                    rahma-api.rahma-api.svc.cluster.local \
+                    rahma-postgres.rahma-data.svc.cluster.local \
+                    rahma-rag.rahma-rag.svc.cluster.local \
+                    rahma-ai.rahma-ai.svc.cluster.local; do
+                    echo "checking $host"
+                    nslookup "$host"
+                  done
+                  echo "Rahma internal DNS health check complete"
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 16Mi
+                limits:
+                  cpu: 100m
+                  memory: 64Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]

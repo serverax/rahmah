@@ -14,6 +14,7 @@
 
 import { buildRagStatus, isRagRegistryConfigured } from '../rag/rag-status.js';
 import { isDatabaseConfigured } from '../db/config.js';
+import { getLibraryRepository } from '../services/library-repository.js';
 
 const CATEGORIES_AR = Object.freeze([
   { id: 'quran',         title_ar: 'القرآن الكريم',     description_ar: 'آيات وتفسير مختصر بعد المراجعة.' },
@@ -83,51 +84,55 @@ export default async function libraryRoute(fastify) {
 
   fastify.get('/items', async (req, reply) => {
     const category = req.query && typeof req.query.category === 'string' ? req.query.category : null;
-    if (!isDatabaseConfigured()) {
+    const repo = getLibraryRepository();
+    if (!repo || !isDatabaseConfigured()) {
       return reply.send({ ok: true, configured: false, items: [], category });
     }
-    // With a DB, a future repository wires real approved-only retrieval.
-    // For Sprint 22 we return an empty list truthfully — never invent.
-    return reply.send({ ok: true, configured: true, items: [], category });
+    const items = await repo.listApprovedItems(category);
+    return reply.send({ ok: true, configured: true, items, category });
   });
 
   fastify.get('/documents', async (req, reply) => {
-    // Synonym for /items kept for the Sprint 37 contract (categories +
-    // documents + document_versions). Always returns only approved content;
-    // foundation mode returns [].
     const category = req.query && typeof req.query.category === 'string' ? req.query.category : null;
-    if (!isDatabaseConfigured()) {
+    const repo = getLibraryRepository();
+    if (!repo || !isDatabaseConfigured()) {
       return reply.send({ ok: true, configured: false, documents: [], category });
     }
-    return reply.send({ ok: true, configured: true, documents: [], category });
+    const items = await repo.listApprovedItems(category);
+    return reply.send({ ok: true, configured: true, documents: items, category });
   });
 
   fastify.get('/items/:id', async (req, reply) => {
-    if (!isDatabaseConfigured()) {
+    const repo = getLibraryRepository();
+    if (!repo || !isDatabaseConfigured()) {
       return reply.code(503).send({ ok: false, error: 'database_not_configured' });
     }
-    return reply.code(404).send({ ok: false, error: 'not_found' });
+    const item = await repo.getItemDetails(req.params.id);
+    if (!item) return reply.code(404).send({ ok: false, error: 'not_found' });
+    return reply.send({ ok: true, ...item });
   });
 
   fastify.get('/documents/:id', async (req, reply) => {
-    if (!isDatabaseConfigured()) {
+    const repo = getLibraryRepository();
+    if (!repo || !isDatabaseConfigured()) {
       return reply.code(503).send({ ok: false, error: 'database_not_configured' });
     }
-    return reply.code(404).send({ ok: false, error: 'not_found' });
+    const item = await repo.getItemDetails(req.params.id);
+    if (!item) return reply.code(404).send({ ok: false, error: 'not_found' });
+    return reply.send({ ok: true, ...item });
   });
 
   fastify.get('/search', async (req, reply) => {
     const q = req.query && typeof req.query.q === 'string' ? req.query.q.trim() : '';
-    if (q.length === 0) {
+    if (q.length === 0 || q.length > 200) {
       return reply.code(400).send({ ok: false, error: 'invalid_query' });
     }
-    if (q.length > 200) {
-      return reply.code(400).send({ ok: false, error: 'query_too_long' });
-    }
-    if (!isDatabaseConfigured()) {
+    const repo = getLibraryRepository();
+    if (!repo || !isDatabaseConfigured()) {
       return reply.send({ ok: true, configured: false, items: [], query: q });
     }
-    return reply.send({ ok: true, configured: true, items: [], query: q });
+    const items = await repo.searchLibrary(q);
+    return reply.send({ ok: true, configured: true, items, query: q });
   });
 
 

@@ -1,0 +1,103 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rahma-postgres-config
+  namespace: rahma-data
+  labels:
+    app.kubernetes.io/project: rahma
+    app.kubernetes.io/component: database
+    app.kubernetes.io/managed-by: manual
+data:
+  POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rahma-postgres
+  namespace: rahma-data
+  labels:
+    app.kubernetes.io/name: rahma-postgres
+    app.kubernetes.io/project: rahma
+    app.kubernetes.io/component: database
+spec:
+  serviceName: rahma-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rahma-postgres
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: rahma-postgres
+        app.kubernetes.io/project: rahma
+        app.kubernetes.io/component: database
+    spec:
+      serviceAccountName: rahma-postgres
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+      securityContext:
+        fsGroup: 999
+      containers:
+        - name: postgres
+          image: pgvector/pgvector:pg16
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: postgres
+              containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: rahma-postgres-secret
+            - configMapRef:
+                name: rahma-postgres-config
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 2Gi
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 5
+          volumeMounts:
+            - name: rahma-postgres-storage
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: rahma-postgres-storage
+        labels:
+          app.kubernetes.io/project: rahma
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: ""
+        resources:
+          requests:
+            storage: 20Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rahma-postgres
+  namespace: rahma-data
+  labels:
+    app.kubernetes.io/name: rahma-postgres
+    app.kubernetes.io/project: rahma
+spec:
+  type: ClusterIP
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres
+  selector:
+    app.kubernetes.io/name: rahma-postgres

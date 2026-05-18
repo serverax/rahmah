@@ -10,8 +10,10 @@ before(() => _resetSheikhRepositoryForTests());
 after(() => _resetSheikhRepositoryForTests());
 
 test('GET /api/public/sheikh-hasan/qa returns empty list with configured=false when no repository', async () => {
+  const oldUrl = process.env.DATABASE_URL;
+  delete process.env.DATABASE_URL;
   _resetSheikhRepositoryForTests();
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     const res = await app.inject({ method: 'GET', url: '/api/public/sheikh-hasan/qa' });
     assert.equal(res.statusCode, 200);
@@ -21,8 +23,10 @@ test('GET /api/public/sheikh-hasan/qa returns empty list with configured=false w
     assert.deepEqual(body.items, []);
   } finally {
     await app.close();
+    process.env.DATABASE_URL = oldUrl;
   }
 });
+
 
 test('GET /api/public/sheikh-hasan/qa returns only items repository surfaces (no internal columns)', async () => {
   const repoItems = [
@@ -40,7 +44,7 @@ test('GET /api/public/sheikh-hasan/qa returns only items repository surfaces (no
       recordReport: async () => ({ ok: false, reason: 'unused' }),
     },
   });
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     const res = await app.inject({ method: 'GET', url: '/api/public/sheikh-hasan/qa' });
     assert.equal(res.statusCode, 200);
@@ -60,8 +64,10 @@ test('GET /api/public/sheikh-hasan/qa returns only items repository surfaces (no
 });
 
 test('GET /api/public/sheikh-hasan/qa/:slug returns 503 when no repository', async () => {
+  const oldUrl = process.env.DATABASE_URL;
+  delete process.env.DATABASE_URL;
   _resetSheikhRepositoryForTests();
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     const res = await app.inject({ method: 'GET', url: '/api/public/sheikh-hasan/qa/some-slug' });
     assert.equal(res.statusCode, 503);
@@ -69,8 +75,10 @@ test('GET /api/public/sheikh-hasan/qa/:slug returns 503 when no repository', asy
     assert.equal(body.error, 'service_not_configured');
   } finally {
     await app.close();
+    process.env.DATABASE_URL = oldUrl;
   }
 });
+
 
 test('GET /api/public/sheikh-hasan/qa/:slug returns 404 when slug not found', async () => {
   configureSheikhRepository({
@@ -84,7 +92,7 @@ test('GET /api/public/sheikh-hasan/qa/:slug returns 404 when slug not found', as
       recordReport: async () => ({}),
     },
   });
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     const res = await app.inject({ method: 'GET', url: '/api/public/sheikh-hasan/qa/missing-slug' });
     assert.equal(res.statusCode, 404);
@@ -123,7 +131,7 @@ test('GET /api/public/sheikh-hasan/qa/:slug returns projected detail, hides iden
       recordReport: async () => ({}),
     },
   });
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     const res = await app.inject({ method: 'GET', url: '/api/public/sheikh-hasan/qa/wudu-validity' });
     assert.equal(res.statusCode, 200);
@@ -145,7 +153,7 @@ test('GET /api/public/sheikh-hasan/qa/:slug returns projected detail, hides iden
 });
 
 test('POST /api/public/sheikh-hasan/qa/:slug/report rejects empty reason via schema', async () => {
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     const res = await app.inject({
       method: 'POST',
@@ -159,8 +167,10 @@ test('POST /api/public/sheikh-hasan/qa/:slug/report rejects empty reason via sch
 });
 
 test('POST /api/public/sheikh-hasan/qa/:slug/report returns 503 when no repository', async () => {
+  const oldUrl = process.env.DATABASE_URL;
+  delete process.env.DATABASE_URL;
   _resetSheikhRepositoryForTests();
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     const res = await app.inject({
       method: 'POST',
@@ -172,5 +182,7 @@ test('POST /api/public/sheikh-hasan/qa/:slug/report returns 503 when no reposito
     assert.equal(body.error, 'service_not_configured');
   } finally {
     await app.close();
+    process.env.DATABASE_URL = oldUrl;
   }
 });
+

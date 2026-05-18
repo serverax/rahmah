@@ -1,0 +1,39 @@
+# RAHMA FEATURE GAP ANALYSIS
+
+| Feature | HLD Target | Current Mobile Code | Current Backend Code | Current DB/Schema | Current Data/Assets | Current Tests | Real User Status | Gap | Required Fix |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| App Launch | App opens without crash, Arabic RTL layout applied globally. | `app.dart` initializes `MaterialApp` with RTL locale and `BottomNavShell`. | `/health` and `/ready` routes exist and return safe status. | N/A | N/A | `app_smoke_test.dart` passes. | **PASS** | None | N/A |
+| Arabic RTL | Entire app is Arabic-first, dir RTL, Arabic labels. | `MaterialApp` forces `locale: const Locale('ar')`. | N/A | N/A | N/A | `app_smoke_test.dart` passes. | **PASS** | None | N/A |
+| Navigation | Every visible button opens a working screen. No dead buttons. | `BottomNav` and named routes in `app.dart` function correctly. | N/A | N/A | N/A | `app_smoke_test.dart` passes. | **PASS** | None | N/A |
+| Settings | User manages permissions, audio, calculation preferences. Persisted locally. | `settings_screen.dart` exists, uses `SharedPreferences` for Azan audio. | `/api/privacy/status` returns text. | Schema only for future sync (`users` table). | N/A | Smoke tests pass. | **PARTIAL** | Toggles for Azan and GPS do not trigger native OS permission flows. | Wire toggles to `geolocator` and `flutter_local_notifications`. |
+| Prayer Times | Fetches/calculates daily prayer times. GPS/Manual location support. Auto-refresh. | `home_screen.dart` wired to `LocationService` (Geolocator). | `prayer-times-service.js` (trigonometric engine) and `/api/prayer-times`. | User table has `calc_method`. | N/A | `prayer-times.test.js` passes. | **PASS_FOUNDATION** | Location only updates on manual refresh; no background sync. | Implement background location sync. |
+| Azan Audio | List approved options, preview audio, select default. Persist locally. | `azan_audio_settings_screen.dart` uses `audioplayers` for preview. | `/api/azan-audio/options` serves verified metadata. | N/A (SharedPreferences only). | `makkah_azan_public_domain.mp3` exists and approved. | Backend + Flutter tests pass. | **PASS** | Options limited to 1. | Add more approved audio assets. |
+| Azan Alerts | Schedule local notifications for prayer times. Triggers at correct time. | Toggles exist in `settings_screen.dart`. | N/A | `user_notifications` schema exists. | N/A | Tests verify UI toggle only. | **PENDING** | No native scheduling logic using `flutter_local_notifications`. | Implement background notification scheduling. |
+| Qibla | Compass using location + sensor showing direction to Kaaba. | Not found. | N/A | N/A | N/A | Not found. | **FAIL** | Feature entirely missing from mobile app. | Implement Qibla screen using native compass sensors. |
+| Quran Reader | Browse surahs, read ayahs, Arabic text accurate. Source verified. | `quran_screen.dart` and `quran_reader_screen.dart` wired. | `quran-repository.js` and `/api/quran/surahs`. | `quran_surahs`, `quran_ayahs`. | `quran-metadata.json` (Sample Mode). | Smoke tests pass. | **PASS_FOUNDATION** | Only Sample Mode data available. | Ingest full verified 114 Surahs. |
+| Daily Adhkar | Read morning/evening adhkar. Source reference shown. | `dua_screen.dart` shows "Not available". | Placeholder in `/api/mobile/status`. | Schema only (`adhkar_categories`). | N/A | UI rendering tests only. | **PLACEHOLDER_ONLY**| Backend repository and data missing. | Build Adhkar repo and seed data. |
+| Ask Sheikh | Submit question, sheikh answers, public reads. Status displayed. | `ask_sheikh_screen.dart` wired to backend. | `sheikh-question-repository.js` and V4 API routes. | `ask_sheikh_questions`, `ask_sheikh_answers`. | N/A | V4 Workflow tests pass. | **PASS_FOUNDATION** | No mobile UI for Sheikh login/answering. No push notifications. | Build Sheikh mobile interface; configure push keys. |
+| Sheikh Login | Sheikh/admin logs in securely to answer/moderate. | Not connected. | `/api/auth/session/start` exists. | `users` table with roles. | N/A | Backend auth tests pass. | **NOT_CONNECTED** | Mobile app lacks a login screen. | Build authentication UI. |
+| Public Q&A | Browse approved answers. Pending answers hidden. | `AskSheikhScreen` fetches `/api/ask-sheikh/public`. | `public-qa.js` route ensures `public_visible = TRUE`. | `ask_sheikh_answers`. | N/A | Backend filtering tests pass. | **PASS_FOUNDATION** | Empty state likely until admin approves questions. | Automate moderation notifications. |
+| Children Game | Safe Islamic learning scenarios. Score/progress tracked. | `children_game_screen.dart` wired to API. | `game-repository.js` and `/api/mobile/game/status`. | `children_scenarios`, `children_progress`. | N/A | API integration tests pass. | **PASS_FOUNDATION** | Content volume is very low. | Review and add 100+ child-safe scenarios. |
+| Library | Browse Islamic articles. Categories/search work. Sources verified. | `library_screen.dart` and `library_detail_screen.dart` wired. | `library-repository.js` and `/api/library/items`. | `sakina_source_documents`. | N/A | API integration tests pass. | **PASS_FOUNDATION** | Content volume is very low. | Ingest approved Islamic articles. |
+| Privacy/Legal | Privacy, terms, child safety pages exist. Deletion requests work. | `settings_screen.dart` opens `_DocLoaderScreen`. | `privacy-repository.js` and `/api/privacy/requests`. | `privacy_requests`. | N/A | Compliance tests pass. | **PARTIAL** | Public hosting of `privacy.html` missing. | Deploy policy to `rahma.app/privacy`. |
+| Database | Schema exists, runtime DB exists, backend connects. | N/A | `db/config.js` and `getPool()`. | 16 migrations consolidated in `full_schema.sql`. | N/A | Persistence tests pass. | **PARTIAL** | Schema is PASS, but Runtime environment needs configuration. | Ensure production `DATABASE_URL` is set. |
+| RAG Engine | Islamic sources ingested. Retrieval supports Sheikh answers. | N/A | `/api/rag/status` reports foundation. | `sakina_source_chunks`. | `azan-audio-metadata.json` | RAG injection tests pass. | **PARTIAL** | Production corpus and Vector DB instance missing. | Configure production Vector DB. |
+
+## Database Coverage Matrix
+
+| Domain | Required Tables | Existing Tables | Missing Tables | Runtime Connected | Notes |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| Users/Auth | `users`, `sessions` | `users`, `auth_sessions` | None | YES (Backend tests) | Handled by Foundation migration. |
+| Sheikh/Admin | `users` (roles) | `users` | None | YES | Roles enforced via CHECK constraints. |
+| Questions/Answers | `ask_sheikh_questions`, `ask_sheikh_answers` | `ask_sheikh_questions`, `ask_sheikh_answers` | None | YES | Fully wired in V4 API. |
+| Moderation | `moderation_logs` | `ask_sheikh_audit_log` | None | YES | Audit table captures all actions. |
+| Prayer settings | `prayer_settings` | `users` (calc_method, etc) | None | YES | Preferences currently attached to User profile. |
+| Notifications | `user_notifications` | `user_notifications` | `device_tokens` | YES | Schema exists, delivery mechanism missing. |
+| Quran corpus | `quran_surahs`, `quran_ayahs` | `quran_surahs`, `quran_ayahs` | None | YES | Data currently in Sample Mode. |
+| Adhkar corpus | `adhkar_categories`, `adhkar_items` | `adhkar_categories`, `adhkar_items` (M002) | None | YES | Tables exist, data seeding required. |
+| Library/articles | `sakina_source_documents` | `sakina_source_documents` | None | YES | Content volume needs expansion. |
+| Children game | `children_scenarios`, `children_progress` | `children_scenarios`, `children_progress` | None | YES | Added in M016. |
+| Islamic sources | `sakina_verified_sources` | `sakina_verified_sources` | None | YES | Forms foundation for Library and RAG. |
+| Donations/payment | `charity_campaigns`, `donation_intents` | `charity_campaigns`, `donation_intents` | None | YES | M006. Provider currently disabled. |

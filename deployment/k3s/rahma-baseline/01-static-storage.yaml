@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: rahma-postgres-pv
+  labels:
+    app.kubernetes.io/project: rahma
+    app.kubernetes.io/component: database-storage
+spec:
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    namespace: rahma-data
+    name: rahma-postgres-storage-rahma-postgres-0
+  hostPath:
+    path: /var/mnt/rahma/postgres
+    type: DirectoryOrCreate
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - cp2
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: rahma-rag-indexes-pv
+  labels:
+    app.kubernetes.io/project: rahma
+    app.kubernetes.io/component: rag-storage
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    namespace: rahma-rag
+    name: rahma-rag-indexes
+  hostPath:
+    path: /var/mnt/rahma/rag-indexes
+    type: DirectoryOrCreate
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - cp3
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rahma-rag-indexes
+  namespace: rahma-rag
+  labels:
+    app.kubernetes.io/project: rahma
+    app.kubernetes.io/component: rag-storage
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 10Gi

@@ -1,0 +1,32 @@
+{
+  "configured": true,
+  "status": "PASS_FOUNDATION",
+  "blocker": null,
+  "default_azan_id": "makkah_public_01",
+  "options": [
+    {
+      "id": "makkah_public_01",
+      "title_ar": "أذان مكة المكرمة",
+      "title_en": "Makkah Azan (Public Domain)",
+      "source": "Archive.org",
+      "license": "Public Domain Mark 1.0",
+      "file_path": "assets/audio/azan/makkah_azan_public_domain.mp3",
+      "duration_seconds": 20,
+      "approved": true,
+      "review_status": "verified",
+      "notes": "Verified Public Domain source via Archive.org."
+    },
+    {
+      "id": "madinah_standard",
+      "title_ar": "أذان المدينة المنورة",
+      "title_en": "Madinah Standard Azan",
+      "source": "Unverified Placeholder",
+      "license": "Pending Review",
+      "file_path": "assets/audio/azan/madinah_standard.mp3",
+      "duration_seconds": 190,
+      "approved": false,
+      "review_status": "pending",
+      "notes": "Requires high-quality source and license confirmation."
+    }
+  ]
+}

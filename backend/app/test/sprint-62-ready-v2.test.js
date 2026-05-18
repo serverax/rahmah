@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { buildApp } from '../src/app.js';
 import { _resetClientPoolForTests } from '../src/db/client.js';
 import { _resetPoolForTests as _resetHealthPoolForTests } from '../src/db/health.js';
+import { _resetSheikhRepositoryForTests } from '../src/sheikh/sheikh-question-repository.js';
 
 function envSnap() {
   return {
@@ -20,10 +21,11 @@ function envRestore(s) { for (const [k, v] of Object.entries(s)) v === undefined
 function resetAllPools() {
   _resetClientPoolForTests();
   _resetHealthPoolForTests();
+  _resetSheikhRepositoryForTests();
 }
 
 test('Sprint62 — /ready v2: readiness_schema_version is "2"', async () => {
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     const r = await app.inject({ method: 'GET', url: '/ready' });
     assert.equal(r.json().readiness_schema_version, '2');
@@ -31,7 +33,7 @@ test('Sprint62 — /ready v2: readiness_schema_version is "2"', async () => {
 });
 
 test('Sprint62 — /ready v2: public_ingress is both string "disabled" AND has state.disabled=true', async () => {
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     const r = await app.inject({ method: 'GET', url: '/ready' });
     const b = r.json();
@@ -42,7 +44,7 @@ test('Sprint62 — /ready v2: public_ingress is both string "disabled" AND has s
 });
 
 test('Sprint62 — /ready v2: per-WASM-module structured blocks (4 modules)', async () => {
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     const r = await app.inject({ method: 'GET', url: '/ready' });
     const b = r.json();
@@ -56,7 +58,7 @@ test('Sprint62 — /ready v2: per-WASM-module structured blocks (4 modules)', as
 });
 
 test('Sprint62 — /ready v2: islamic_sources block reports approved_sources count', async () => {
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     const r = await app.inject({ method: 'GET', url: '/ready' });
     const b = r.json();
@@ -69,7 +71,7 @@ test('Sprint62 — /ready v2: islamic_sources block reports approved_sources cou
 test('Sprint62 — /ready v2: donations block reports configured + provider', async () => {
   const s = envSnap();
   delete process.env.DONATION_PROVIDER;
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     const r = await app.inject({ method: 'GET', url: '/ready' });
     const b = r.json();
@@ -86,7 +88,7 @@ test('Sprint62 — /ready v2: production_ready=false when any required block is 
   delete process.env.DONATION_PROVIDER;
   delete process.env.WASM_FATWA_POLICY_GATE_URL;
   _resetClientPoolForTests();
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     const r = await app.inject({ method: 'GET', url: '/ready' });
     const b = r.json();
@@ -112,7 +114,7 @@ test('Sprint62 — /ready v2: never leaks DATABASE_URL / REDIS_URL / JWT / SESSI
   process.env.REDIS_URL    = 'redis://:leak_redis_s62@127.0.0.99:6379/0';
   process.env.JWT_SECRET   = 'jwt_leak_s62_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
   _resetClientPoolForTests();
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     const r = await app.inject({ method: 'GET', url: '/ready' });
     const raw = r.body;
@@ -126,7 +128,7 @@ test('Sprint62 — /ready v2: configured=false is NEVER treated as production-re
   const s = envSnap();
   delete process.env.DATABASE_URL;
   resetAllPools();
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     const r = await app.inject({ method: 'GET', url: '/ready' });
     const b = r.json();
