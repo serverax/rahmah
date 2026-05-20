@@ -1,0 +1,22 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rahma-redis
+  namespace: rahma-data
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+        - name: redis
+          image: redis:PLACEHOLDER-PINNED-TAG
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"

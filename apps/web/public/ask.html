@@ -10,21 +10,38 @@
 </head>
 <body>
   <div class="mobile-viewport">
-    <header class="app-header">
-      <a href="/" style="color: white; text-decoration: none; display: block; margin-bottom: 10px;">&larr; العودة</a>
-      <h1>اسأل الشيخ حسن</h1>
-      <div class="header-sub">اكتبوا سؤالكم بوضوح، يصلكم الجواب مع المصادر بإذن الله.</div>
-    </header>
-
     <main class="app-main" style="padding: 20px; padding-bottom: 100px;">
+      <section class="luxury-hero ask-luxury-hero">
+        <div class="hero-pattern" aria-hidden="true"></div>
+        <div class="hero-glow" aria-hidden="true"></div>
+        <div class="hero-lantern" aria-hidden="true"></div>
+        <div class="hero-mihrab" aria-hidden="true"><div class="hero-quran"></div></div>
+        <div class="hero-copy">
+          <a href="/" class="hero-kicker" style="display:block;text-decoration:none;">&larr; العودة</a>
+          <h1>اسأل الشيخ حسن</h1>
+          <p>إجابة موثقة بالمصادر ومراجعة عند الحاجة</p>
+          <div class="status-pill"><span>⌛</span><strong>غير متاح مؤقتاً</strong><em>سيتم تفعيل الخدمة قريباً بإذن الله</em></div>
+        </div>
+      </section>
+
+      <section class="card-3d" style="padding: 15px;">
+        <h2 style="color: #e8c97d; margin-top: 0; font-size: 1rem;">تنبيه شرعي | Islamic guidance notice</h2>
+        <p style="font-size: 0.9rem; margin: 0 0 8px; color: rgba(255,248,234,0.76);">
+          رحمة تقدّم إرشاداً تعليمياً من <strong>مصادر</strong> معتمدة. لا تُعدّ فتوى رسمية ولا تغني عن استشارة عالم مؤهل.
+          Educational Islamic guidance only — <strong>not</strong> a formal fatwa (فتوى رسمية).
+        </p>
+        <p style="font-size: 0.9rem; margin: 0; color: rgba(255,248,234,0.76);">
+          المسائل الحساسة في الفقه تتطلب <strong>مراجعة</strong> عالم (scholar review) قبل النشر. لن يُعرض جواب آلي دون مصادر موثقة.
+        </p>
+      </section>
       
       <!-- Privacy Notice -->
-      <div class="card-3d" style="background: rgba(20, 184, 166, 0.05); border-color: var(--rahma-emerald-light); padding: 15px;">
+      <div class="card-3d" style="padding: 15px;">
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
           <span style="font-size: 1.5rem;">🛡️</span>
-          <strong style="color: var(--rahma-emerald-dark);">سرية تامة</strong>
+          <strong style="color: #e8c97d;">سرية تامة</strong>
         </div>
-        <p style="font-size: 0.85rem; margin: 0; color: var(--rahma-ink-muted);">
+        <p style="font-size: 0.85rem; margin: 0; color: rgba(255,248,234,0.76);">
           جميع الأسئلة ترسل بسرية تامة. لن يتم عرض اسمك للعامة حتى وإن تمت الموافقة على نشر السؤال لتعم الفائدة.
         </p>
       </div>
@@ -33,7 +50,7 @@
 
       <form id="askForm" autocomplete="off" class="mt-24">
         
-        <label style="font-weight: 600; display: block; margin-bottom: 8px;">التصنيف</label>
+        <label style="font-weight: 600; display: block; margin-bottom: 8px; color: #fff8ea;">التصنيف</label>
         <select id="qcategory" name="category" class="input-3d" required>
           <option value="">— اختر التصنيف —</option>
           <option value="salah">الصلاة</option>
@@ -44,18 +61,33 @@
           <option value="general">عام</option>
         </select>
 
-        <label style="font-weight: 600; display: block; margin-bottom: 8px;">نص السؤال</label>
+        <label style="font-weight: 600; display: block; margin-bottom: 8px; color: #fff8ea;">نص السؤال</label>
         <textarea id="qtext" name="question" class="input-3d" style="min-height: 150px; resize: vertical;" minlength="5" maxlength="1000" placeholder="اكتبوا سؤالكم هنا..." required></textarea>
 
         <label style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 20px; cursor: pointer;">
           <input type="checkbox" id="qpublic" style="margin-top: 5px;" checked />
-          <span style="font-size: 0.9rem; color: var(--rahma-ink-muted);">أوافق على نشر الإجابة في المكتبة العامة (مع إخفاء هويتي تماماً) لتعم الفائدة.</span>
+          <span style="font-size: 0.9rem; color: rgba(255,248,234,0.76);">أوافق على نشر الإجابة في المكتبة العامة (مع إخفاء هويتي تماماً) لتعم الفائدة.</span>
         </label>
 
         <button class="btn-3d" type="submit">إرسال السؤال</button>
       </form>
       
       <div id="askResult" class="mt-16 text-center" aria-live="polite"></div>
+      <section class="card-3d mt-16">
+        <h3 style="color: #e8c97d; margin-top: 0;">حالات الإجابة الآمنة</h3>
+        <div class="source-card">
+          <span class="chip chip-success">verified_sources</span>
+          <p>تظهر الإجابة فقط مع بطاقة مصدر واضحة: اسم المصدر، نوعه، رقم الوثيقة أو الآية، ورابط أو مرجع محلي.</p>
+        </div>
+        <div class="source-card warning">
+          <span class="chip chip-moderation">scholar_review_required</span>
+          <p>المسائل الحساسة والفتاوى الخاصة تُحال للشيخ ولا تظهر كجواب آلي.</p>
+        </div>
+        <div class="source-card blocked">
+          <span class="chip chip-blocked">blocked_prompt_injection</span>
+          <p>أي محاولة لتجاوز قواعد المصدر أو طلب اختراع إحالة يتم حظرها.</p>
+        </div>
+      </section>
     </main>
 
     <!-- Bottom Navigation -->
@@ -85,43 +117,101 @@
   
   <script src="/assets/app.js"></script>
   <script>
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function sourceCardHtml(c) {
+      return `
+        <div class="source-card">
+          <strong>${escapeHtml(c.source_title || c.source_id || 'مصدر معتمد')}</strong>
+          <div class="source-meta">
+            <span class="chip chip-success">${escapeHtml(c.source_type || 'source')}</span>
+            <span class="chip chip-pending">${escapeHtml(c.reference_label || c.citation_label || 'مرجع')}</span>
+          </div>
+          <small>${escapeHtml(c.local_reference || c.url || '')}</small>
+        </div>`;
+    }
+
+    async function loadCategories() {
+      const select = document.getElementById('qcategory');
+      if (!select || !window.Rahma) return;
+      const r = await window.Rahma.fetchJson('/api/library/categories');
+      if (!r.ok || !r.body || !Array.isArray(r.body.categories)) return;
+      for (const c of r.body.categories) {
+        const id = c.id || c.slug;
+        const label = c.name_ar || c.label_ar || id;
+        if (!id || !label) continue;
+        const opt = document.createElement('option');
+        opt.value = id;
+        opt.textContent = label;
+        select.appendChild(opt);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCategories().catch(() => {});
+    });
+
     document.getElementById('askForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const result = document.getElementById('askResult');
+      const question = document.getElementById('qtext').value.trim();
+      const publicAllowed = document.getElementById('qpublic').checked;
+      if (question.length < 5) {
+        result.innerHTML = '<div class="state-error">السؤال قصير جداً. اكتبوا سؤالاً أوضح (٥ أحرف على الأقل).</div>';
+        return;
+      }
       result.innerHTML = '<div style="color: var(--rahma-emerald); font-weight: bold;">جارٍ الإرسال...</div>';
-      const payload = {
-        question_text_ar: document.getElementById('qtext').value.trim(),
-        language: 'ar',
-        display_language_preference: 'ar',
-        is_anonymous: true,
-      };
+      const parts = [];
+
       try {
-        const res = await fetch(`${window.Rahma.API_BASE}/api/ask-sheikh/questions`, {
+        const submitRes = await fetch(`${window.Rahma.API_BASE}/api/ask-sheikh/questions`, {
           method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify(payload),
+          headers: { 'content-type': 'application/json', accept: 'application/json' },
+          body: JSON.stringify({
+            language: 'ar',
+            question_text_ar: question,
+            display_language_preference: 'ar',
+            is_anonymous: true,
+          }),
         });
-        const body = await res.json().catch(() => ({}));
-        if (res.ok && body.ok) {
-          result.innerHTML = `
-            <div class="card-3d" style="background: #f0fdf4; border-color: #86efac; padding: 20px;">
-              <div style="font-size: 3rem; margin-bottom: 10px;">✅</div>
-              <strong style="color: #166534; font-size: 1.1rem;">تم استلام سؤالك</strong>
-              <p style="color: #166534; font-size: 0.9rem; margin-top: 8px;">سيتم مراجعته من قبل الشيخ حسن وإعلامكم بالإجابة قريباً بإذن الله.</p>
-            </div>
-          `;
-          document.getElementById('askForm').reset();
+        const submitBody = await submitRes.json().catch(() => ({}));
+        if (submitRes.status === 503 || submitBody.error === 'service_not_configured') {
+          parts.push(window.Rahma.serviceUnavailablePillHtml());
+        } else if (submitRes.ok && submitBody.ok === true) {
+          parts.push(`<div class="card-3d" style="padding:16px;text-align:right;"><span class="chip chip-success">تم استلام السؤال</span><p>رقم المرجع: ${escapeHtml(submitBody.question_id || '—')}</p><p style="color:var(--rahma-ink-muted);font-size:0.9rem;">سيُراجع الشيخ حسن السؤال. النشر العام: ${publicAllowed ? 'بموافقتكم' : 'خاص'}.</p></div>`);
         } else {
-          const code = body && body.error ? body.error : 'unknown_error';
-          const msg = ({
-            service_not_configured: 'الخدمة غير مهيأة بعد على الخادم.',
-            auth_not_configured: 'الخدمة بانتظار تهيئة الحساب.',
-            empty_question: 'يرجى كتابة سؤال صالح.',
-          })[code] || 'تعذّر إرسال السؤال. حاولوا لاحقاً.';
-          result.innerHTML = `<div style="color: var(--rahma-danger); padding: 10px; border: 1px solid var(--rahma-danger); border-radius: 8px;">${msg}</div>`;
+          parts.push(`<div class="state-empty">لم يُحفظ السؤال في الخادم: ${escapeHtml(submitBody.error || submitBody.message_ar || String(submitRes.status))}</div>`);
         }
-      } catch (_e) {
-        result.innerHTML = `<div style="color: var(--rahma-danger); padding: 10px; border: 1px solid var(--rahma-danger); border-radius: 8px;">تعذّر الاتصال بالخادم. تأكد من اتصالك بالإنترنت.</div>`;
+      } catch (_err) {
+        parts.push(window.Rahma.serviceUnavailablePillHtml());
+      }
+
+      try {
+        const ragRes = await fetch(`${window.Rahma.API_BASE}/api/rag/query`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', accept: 'application/json' },
+          body: JSON.stringify({ question_ar: question, language: 'ar', use_live_rag: true }),
+        });
+        const body = await ragRes.json().catch(() => ({}));
+        if (body.safety_status === 'verified_sources' && body.ok) {
+          const citations = Array.isArray(body.citations) ? body.citations : [];
+          parts.push(`<div class="card-3d" style="padding:16px;text-align:right;margin-top:12px;"><span class="chip chip-success">مصادر موثقة (إرشاد فوري)</span><p class="ayah-text" style="font-size:1.1rem;">${escapeHtml(body.answer_ar || body.answer || '')}</p>${citations.map(sourceCardHtml).join('') || '<p class="state-empty">لا توجد إحالة معروضة.</p>'}</div>`);
+        } else if (body.safety_status === 'scholar_review_required') {
+          parts.push('<div class="card-3d" style="padding:16px;margin-top:12px;"><span class="chip chip-moderation">scholar_review_required</span><p>هذه المسألة تحتاج مراجعة الشيخ. لن نعرض جواباً آلياً.</p></div>');
+        } else if (body.safety_status === 'blocked_prompt_injection') {
+          parts.push('<div class="card-3d" style="padding:16px;margin-top:12px;"><span class="chip chip-blocked">blocked_prompt_injection</span><p>تم حظر الطلب لحماية المصادر.</p></div>');
+        } else if (body.safety_status === 'insufficient_sources') {
+          parts.push('<div class="card-3d" style="padding:16px;margin-top:12px;"><span class="chip chip-moderation">insufficient_sources</span><p>لا توجد مصادر معتمدة كافية لعرض إجابة الآن.</p></div>');
+        }
+      } catch (_ragErr) {
+        /* RAG optional; question submit outcome already shown */
+      }
+
+      result.innerHTML = parts.join('') || window.Rahma.serviceUnavailablePillHtml();
+      if (parts.some((p) => p.includes('تم استلام السؤال'))) {
+        document.getElementById('askForm').reset();
       }
     });
   </script>

@@ -1,0 +1,129 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: rahma-web-default-deny
+  namespace: rahma-web
+spec:
+  podSelector: {}
+  policyTypes: ["Ingress", "Egress"]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: rahma-api-default-deny
+  namespace: rahma-api
+spec:
+  podSelector: {}
+  policyTypes: ["Ingress", "Egress"]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: rahma-data-default-deny
+  namespace: rahma-data
+spec:
+  podSelector: {}
+  policyTypes: ["Ingress", "Egress"]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-to-web
+  namespace: rahma-web
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: rahma-web
+  policyTypes: ["Ingress"]
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-web-to-api
+  namespace: rahma-api
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: rahma-api
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              rahma.serverax.io/tier: web
+      ports:
+        - protocol: TCP
+          port: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-api-egress-to-data
+  namespace: rahma-api
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: rahma-api
+  policyTypes: ["Egress"]
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              rahma.serverax.io/tier: data
+      ports:
+        - protocol: TCP
+          port: 5432
+        - protocol: TCP
+          port: 6379
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-api-to-postgres
+  namespace: rahma-data
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: rahma-postgres
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              rahma.serverax.io/tier: api
+      ports:
+        - protocol: TCP
+          port: 5432
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-api-ai-to-redis
+  namespace: rahma-data
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: rahma-redis
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              rahma.serverax.io/tier: api
+        - namespaceSelector:
+            matchLabels:
+              rahma.serverax.io/tier: ai
+      ports:
+        - protocol: TCP
+          port: 6379

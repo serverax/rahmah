@@ -1,0 +1,16 @@
+﻿apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: rahma-health-check
+  namespace: rahma-monitoring
+spec:
+  schedule: "*/15 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: check
+              image: curlimages/curl:PLACEHOLDER-PINNED-TAG
+              args: ["-s", "http://rahma-api:80/api/health"]
+          restartPolicy: Never

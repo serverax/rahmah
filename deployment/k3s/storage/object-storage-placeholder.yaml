@@ -1,0 +1,8 @@
+﻿# Placeholder only. Replace with a real object storage class / service later.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rahma-object-storage-placeholder
+  namespace: rahma-storage
+data:
+  note: "Object storage foundation only. No public access."

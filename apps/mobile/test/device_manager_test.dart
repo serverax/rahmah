@@ -6,7 +6,11 @@ class MockRahmaApiClient implements RahmaApiClient {
   @override
   bool get isConfigured => true;
   @override
-  Future<Map<String, dynamic>> postJson(String p, Map<String, dynamic> b) async => {'ok': true};
+  Future<Map<String, dynamic>> postJson(
+    String p,
+    Map<String, dynamic> b,
+  ) async =>
+      {'ok': true};
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

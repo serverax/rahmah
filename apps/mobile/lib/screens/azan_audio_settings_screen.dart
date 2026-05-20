@@ -1,27 +1,39 @@
-import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../api/rahma_api_client.dart';
 
+import '../api/rahma_api_client.dart';
+import '../widgets/rahma_widgets.dart';
+
+/// Production Azan settings: preview only when API reports `playback_allowed`.
 class AzanAudioSettingsScreen extends StatefulWidget {
-  const AzanAudioSettingsScreen({super.key});
+  const AzanAudioSettingsScreen({super.key, this.apiClient});
+
+  final RahmaApiClient? apiClient;
 
   @override
-  State<AzanAudioSettingsScreen> createState() => _AzanAudioSettingsScreenState();
+  State<AzanAudioSettingsScreen> createState() =>
+      _AzanAudioSettingsScreenState();
 }
 
 class _AzanAudioSettingsScreenState extends State<AzanAudioSettingsScreen> {
-  final _api = RahmaApiClient();
+  static const _noApprovedMessage = 'لم يتم اعتماد ملف الأذان بعد';
+
   final _player = AudioPlayer();
-  late Future<Map<String, dynamic>> _optionsFuture;
+  final _api = RahmaApiClient();
+
+  RahmaApiClient get api => widget.apiClient ?? _api;
+
+  bool _loading = true;
   String? _selectedId;
   String? _playingId;
+  List<Map<String, dynamic>> _playableOptions = [];
+  String? _blocker;
 
   @override
   void initState() {
     super.initState();
-    _optionsFuture = _api.azanAudioOptions();
-    _loadPreference();
+    _load();
   }
 
   @override
@@ -30,126 +42,179 @@ class _AzanAudioSettingsScreenState extends State<AzanAudioSettingsScreen> {
     super.dispose();
   }
 
-  Future<void> _loadPreference() async {
+  Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
-    if (mounted) {
-      setState(() {
-        _selectedId = prefs.getString('selected_azan_id');
-      });
+    final savedId = prefs.getString('selected_azan_id');
+    if (!api.isConfigured) {
+      if (mounted) {
+        setState(() {
+          _loading = false;
+          _playableOptions = [];
+          _blocker = 'api_not_configured';
+          _selectedId = savedId;
+        });
+      }
+      return;
+    }
+    try {
+      final body = await api.azanAudioOptions();
+      final raw = body['options'];
+      final options = raw is List
+          ? raw
+              .whereType<Map>()
+              .map((e) => Map<String, dynamic>.from(e))
+              .toList()
+          : <Map<String, dynamic>>[];
+      final playable =
+          options.where((o) => o['playback_allowed'] == true).toList();
+      final defaultId = body['default_azan_id'] as String?;
+      String? selected = savedId;
+      if (selected == null || !playable.any((o) => o['id'] == selected)) {
+        selected =
+            playable.isNotEmpty ? playable.first['id'] as String? : defaultId;
+      }
+      if (mounted) {
+        setState(() {
+          _loading = false;
+          _playableOptions = playable;
+          _blocker = body['blocker'] as String?;
+          _selectedId = selected;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _loading = false;
+          _playableOptions = [];
+          _blocker = 'fetch_failed';
+          _selectedId = savedId;
+        });
+      }
     }
   }
 
   Future<void> _savePreference(String id) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('selected_azan_id', id);
-    if (mounted) {
-      setState(() => _selectedId = id);
-    }
+    if (mounted) setState(() => _selectedId = id);
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('إعدادات صوت الأذان')),
-        body: FutureBuilder<Map<String, dynamic>>(
-          future: _optionsFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
-            if (snapshot.hasError) return Center(child: Text('خطأ: ${snapshot.error}'));
-
-            final data = snapshot.data!;
-            final List options = data['options'] ?? [];
-            final bool configured = data['configured'] == true;
-
-            return ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                if (!configured)
-                  _buildPendingNotice(data['blocker'] ?? 'الأصوات غير مفعلة بعد.'),
-                
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  child: Text('اختر صوت الأذان للتنبيهات:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                ),
-
-                ...options.map((opt) => _buildOptionTile(opt)),
-
-                const Divider(height: 32),
-                const ListTile(
-                  leading: Icon(Icons.info_outline),
-                  title: Text('تنبيه'),
-                  subtitle: Text('هذا الإعداد يغير صوت الأذان عند استخدامه في التنبيهات. تأكد من منح أذونات الإشعارات.'),
-                ),
-              ],
-            );
-          },
-        ),
-      );
-
-  Widget _buildPendingNotice(String blocker) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.amber.shade50, border: Border.all(color: Colors.amber.shade300), borderRadius: BorderRadius.circular(8)),
-      child: Column(
+  Widget build(BuildContext context) {
+    final hasApproved = _playableOptions.isNotEmpty;
+    return RahmaScaffold(
+      title: 'إعدادات صوت الأذان',
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(18, 8, 18, 28),
         children: [
-          const Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 32),
-          const SizedBox(height: 8),
-          Text(blocker, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold)),
+          RahmaPrayerHeroCard(
+            title: 'صوت الأذان',
+            subtitle: hasApproved
+                ? 'معاينة الأصوات المعتمدة من الخادم فقط.'
+                : _noApprovedMessage,
+            nextPrayer: 'المعاينة',
+            countdown: hasApproved ? 'صوت معتمد' : 'بانتظار الاعتماد',
+            trailing: Icon(
+              hasApproved ? Icons.volume_up_rounded : Icons.volume_off_rounded,
+              color: hasApproved ? RahmaColors.warmGold : Colors.grey,
+              size: 54,
+            ),
+          ),
+          const SizedBox(height: 14),
+          if (_loading)
+            const Padding(
+              padding: EdgeInsets.all(24),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (!hasApproved) ...[
+            const RahmaSectionTitle('الأصوات المتاحة'),
+            RahmaStateCard(
+              title: _noApprovedMessage,
+              message: _blocker != null && _blocker!.isNotEmpty
+                  ? 'السبب: $_blocker'
+                  : 'لن تُعرض معاينة ولا يُشغَّل أذان حتى يعتمد فريق المحتوى ملفاً واحداً على الأقل.',
+              icon: Icons.info_outline_rounded,
+              tone: RahmaStateTone.empty,
+            ),
+          ] else ...[
+            const RahmaSectionTitle('الأصوات المتاحة'),
+            ..._playableOptions.map(_buildOptionTile),
+            const RahmaSectionTitle('الاعتماد'),
+            const RahmaStateCard(
+              title: 'أذان معتمد للإنتاج',
+              message:
+                  'تم التحقق من المصدر والترخيص والهاش على الخادم. المعاينة متاحة للصوت المعتمد فقط.',
+              icon: Icons.verified_rounded,
+              tone: RahmaStateTone.empty,
+            ),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildOptionTile(Map opt) {
-    final id = opt['id'];
-    final bool isSelected = _selectedId == id;
-    final bool isPlaying = _playingId == id;
-    final bool approved = opt['approved'] == true;
-
-    return Card(
-      elevation: isSelected ? 4 : 1,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: isSelected ? BorderSide(color: Theme.of(context).primaryColor, width: 2) : BorderSide.none,
-      ),
-      child: ListTile(
-        onTap: () => _savePreference(id),
-        title: Text(opt['title_ar'] ?? ''),
-        subtitle: Text(opt['title_en'] ?? ''),
-        leading: Radio<String>(
-          value: id,
-          groupValue: _selectedId,
-          onChanged: (val) => _savePreference(val!),
-        ),
-        trailing: IconButton(
-          icon: Icon(isPlaying ? Icons.stop_circle : Icons.play_circle_fill, size: 32),
-          color: approved ? Theme.of(context).primaryColor : Colors.grey,
-          tooltip: approved ? 'معاينة' : 'غير متوفر للمعاينة (بانتظار الاعتماد)',
-          onPressed: approved ? () => _togglePreview(id, opt['file_path'], approved) : null,
+  Widget _buildOptionTile(Map<String, dynamic> opt) {
+    final id = opt['id'] as String? ?? '';
+    final title = opt['title_ar'] as String? ?? id;
+    final status = opt['review_status'] as String? ?? 'verified';
+    final path = opt['file_path'] as String? ?? '';
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Rahma3DCard(
+        child: ListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text(title),
+          subtitle: Text(status),
+          leading: Icon(
+            _selectedId == id
+                ? Icons.radio_button_checked
+                : Icons.radio_button_off_outlined,
+            color: RahmaColors.gold,
+          ),
+          trailing: IconButton(
+            icon: Icon(
+              _playingId == id
+                  ? Icons.stop_circle_rounded
+                  : Icons.play_circle_fill_rounded,
+              size: 32,
+            ),
+            color: RahmaColors.gold,
+            tooltip: 'معاينة',
+            onPressed: path.isEmpty ? null : () => _togglePreview(id, path),
+          ),
+          onTap: () => _savePreference(id),
         ),
       ),
     );
   }
 
-  Future<void> _togglePreview(String id, String? path, bool approved) async {
-    if (!approved) return;
-    
+  Future<void> _togglePreview(String id, String path) async {
+    if (!_playableOptions.any((o) => o['id'] == id)) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text(_noApprovedMessage)),
+        );
+      }
+      return;
+    }
     if (_playingId == id) {
       await _player.stop();
       if (mounted) setState(() => _playingId = null);
-    } else {
-      await _player.stop();
-      try {
-        if (path != null) {
-          // AssetSource assumes assets/ prefix is NOT included in the path for some versions,
-          // but our metadata has 'assets/audio/azan/...'.
-          // audioplayers 6.x AssetSource('audio/azan/...') is correct.
-          final assetPath = path.replaceFirst('assets/', '');
-          await _player.play(AssetSource(assetPath));
-          if (mounted) setState(() => _playingId = id);
-        }
-      } catch (e) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ في التشغيل: $e')));
+      return;
+    }
+    await _player.stop();
+    try {
+      await _player.play(AssetSource(path.replaceFirst('assets/', '')));
+      if (mounted) setState(() => _playingId = id);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'تعذر تشغيل المعاينة. تأكد من وجود الملف على الجهاز.',
+            ),
+          ),
+        );
       }
     }
   }

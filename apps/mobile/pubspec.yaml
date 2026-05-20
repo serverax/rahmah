@@ -48,4 +48,8 @@ flutter:
   generate: true
 
   assets:
-    - assets/audio/azan/makkah_azan_public_domain.mp3
+    - assets/audio/azan/
+    - assets/content/rahma_offline_seed.json
+    - assets/legal/privacy.md
+    - assets/legal/terms.md
+

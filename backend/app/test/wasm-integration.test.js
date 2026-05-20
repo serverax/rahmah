@@ -1,4 +1,4 @@
-import { test } from 'node:test';
+import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
 import { childContentGate, childProfileGate } from '../src/engine/child-safety-gate.js';
@@ -90,7 +90,7 @@ test('WASM Integration: citationGate uses WASM bridge when configured', async ()
 test('WASM Integration: decidePublish uses Fatwa WASM bridge when configured', async () => {
   const s = envSnap();
   process.env.AUTH_MODE = 'external';
-  process.env.SESSION_SECRET = 'a'.repeat(32);
+  process.env.SESSION_SECRET = 'RahmaTestSessionKey2026Aa1Bb2Cc3Dd4Ee5Ff6';
   configureSheikhRepository({ repository: {} });
   const server = http.createServer((req, res) => {
     let data = '';
@@ -102,6 +102,7 @@ test('WASM Integration: decidePublish uses Fatwa WASM bridge when configured', a
   });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   process.env.WASM_FATWA_POLICY_GATE_URL = `http://127.0.0.1:${server.address().port}`;
+  delete process.env.WASM_CHILD_SAFETY_URL;
   try {
     const res = await decidePublish({ citation_status: 'quran_cited', has_scholar_approval: true });
     assert.equal(res.ok, true);

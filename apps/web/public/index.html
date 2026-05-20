@@ -6,97 +6,97 @@
   <title>رحمة — الرئيسية</title>
   <meta name="description" content="تطبيق رحمة الإسلامي: إجابات الشيخ موثقة، مكتبة محتوى آمنة للأطفال، صدقة جارية شفافة." />
   <meta name="rahma-api-base" content="" />
-  <!-- Use the new premium 3D design system -->
   <link rel="stylesheet" href="/assets/test-ui.css" />
 </head>
-<body>
+<body data-rahma-page="home">
   <div class="mobile-viewport">
-    <header class="app-header">
-      <h1>السلام عليكم ورحمة الله</h1>
-      <div class="header-sub">مرحباً بك في تطبيق رحمة</div>
-    </header>
-
     <main class="app-main" style="padding-bottom: 100px;">
-      <!-- Premium Prayer Card -->
-      <section class="prayer-card">
-        <div class="next-prayer">الصلاة القادمة: العصر</div>
-        <div class="time">03:45 PM</div>
-        <div style="font-size: 0.9rem; opacity: 0.8;">باقي ساعة و ١٥ دقيقة</div>
+      <section class="luxury-hero">
+        <div class="hero-pattern" aria-hidden="true"></div>
+        <div class="hero-glow" aria-hidden="true"></div>
+        <div class="hero-lantern" aria-hidden="true"></div>
+        <div class="hero-mihrab" aria-hidden="true"><div class="hero-quran"></div></div>
+        <div class="hero-copy">
+          <div class="hero-kicker">☾ رحمة</div>
+          <h1>السلام عليكم ورحمة الله</h1>
+          <p>مرحباً بك في تطبيق رحمة</p>
+          <div class="status-pill"><span>⌛</span><strong>غير متاح مؤقتاً</strong><em>سيتم تفعيل الخدمة قريباً بإذن الله</em></div>
+        </div>
       </section>
 
-      <!-- Backend Status -->
-      <div style="padding: 0 20px;">
-        <div class="backend-status" data-rahma-status aria-live="polite"></div>
-      </div>
+      <section class="luxury-prayer-card">
+        <div class="prayer-icon" aria-hidden="true">🕰</div>
+        <div>
+          <div class="next-prayer">الصلاة القادمة: العصر</div>
+          <div class="prayer-sub">توقيت محلي قابل للتحديث</div>
+        </div>
+        <div class="time">03:45 م</div>
+      </section>
 
-      <!-- Feature Grid -->
-      <section class="feature-grid">
-        <a href="/ask.html" class="feature-btn">
-          <div class="icon">💬</div>
+      <section class="luxury-feature-grid" aria-label="الوصول السريع">
+        <a href="ask.html" class="luxury-feature-card" data-nav-card="ask-sheikh" aria-label="اسأل الشيخ حسن">
+          <div class="icon" aria-hidden="true">۞</div>
           <span>اسأل الشيخ حسن</span>
+          <small>احصل على إجابة موثقة بالمصادر</small>
         </a>
-        <a href="/answers.html" class="feature-btn">
-          <div class="icon">📝</div>
-          <span>إجابات موثقة</span>
-        </a>
-        <a href="/quran.html" class="feature-btn">
-          <div class="icon">📖</div>
+        <a href="library.html?category=quran" class="luxury-feature-card" data-nav-card="quran" aria-label="القرآن الكريم">
+          <div class="icon" aria-hidden="true">﷽</div>
           <span>القرآن الكريم</span>
+          <small>تلاوة وقراءة بتجربة مريحة</small>
         </a>
-        <a href="/audio.html" class="feature-btn">
-          <div class="icon">🔊</div>
-          <span>صوت القرآن</span>
+        <a href="sources.html" class="luxury-feature-card" data-nav-card="sources" aria-label="مصادر المحتوى">
+          <div class="icon" aria-hidden="true">◆</div>
+          <span>مصادر المحتوى</span>
+          <small>مصادر موثوقة ومراجعة</small>
         </a>
-        <a href="/prayer.html" class="feature-btn">
-          <div class="icon">🕋</div>
-          <span>مواقيت الصلاة</span>
+        <a href="answers.html" class="luxury-feature-card" data-nav-card="verified-answers" aria-label="إجابات موثقة">
+          <div class="icon" aria-hidden="true">✓</div>
+          <span>إجابات موثقة</span>
+          <small>أسئلة وأجوبة مع المراجع</small>
         </a>
-        <a href="/mosque.html" class="feature-btn">
-          <div class="icon">📍</div>
-          <span>أقرب مسجد</span>
-        </a>
-        <a href="/child-game.html" class="feature-btn">
-          <div class="icon">🌟</div>
+        <a href="child-game.html" class="luxury-feature-card" aria-label="رحلة الحسنات للأطفال">
+          <div class="icon" aria-hidden="true">★</div>
           <span>رحلة الحسنات للأطفال</span>
+          <small>تعلم عائلي آمن وممتع</small>
         </a>
-        <a href="/sadaqah.html" class="feature-btn">
-          <div class="icon">🤝</div>
+        <a href="sadaqah.html" class="luxury-feature-card" aria-label="الصدقة الجارية">
+          <div class="icon" aria-hidden="true">◇</div>
           <span>الصدقة الجارية</span>
+          <small>مسارات عطاء شفافة</small>
         </a>
-        <a href="/library.html" class="feature-btn" style="grid-column: span 2;">
-          <div class="icon">📚</div>
-          <span>المكتبة والأذكار</span>
+        <a href="privacy.html" class="luxury-feature-card" aria-label="الخصوصية والأمان">
+          <div class="icon" aria-hidden="true">●</div>
+          <span>الخصوصية والأمان</span>
+          <small>حماية الأسرة والبيانات</small>
         </a>
       </section>
 
-      <!-- Daily Content Card -->
       <section style="padding: 0 20px 20px;">
         <div class="card-3d">
-          <h3 style="color: var(--rahma-emerald); font-family: var(--font-heading); margin-top: 0;">دعاء اليوم</h3>
+          <h3 style="color: #e8c97d; font-family: var(--font-heading); margin-top: 0;">دعاء اليوم</h3>
           <p class="ayah-text" style="font-size: 1.4rem;">"رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ"</p>
         </div>
       </section>
     </main>
 
-    <!-- Bottom Navigation -->
     <nav class="app-bottom-nav" aria-label="التنقل السفلي">
-      <a href="/" class="active">
+      <a href="index.html" class="active">
         <span class="nav-icon">🏠</span>
         <span>الرئيسية</span>
       </a>
-      <a href="/ask.html">
+      <a href="ask.html">
         <span class="nav-icon">💬</span>
         <span>اسأل</span>
       </a>
-      <a href="/answers.html">
+      <a href="answers.html">
         <span class="nav-icon">📝</span>
         <span>الإجابات</span>
       </a>
-      <a href="/library.html">
+      <a href="library.html">
         <span class="nav-icon">📚</span>
         <span>المكتبة</span>
       </a>
-      <a href="/privacy.html">
+      <a href="privacy.html">
         <span class="nav-icon">🛡️</span>
         <span>الخصوصية والأمان</span>
       </a>

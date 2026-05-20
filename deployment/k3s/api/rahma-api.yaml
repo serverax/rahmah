@@ -1,146 +1,19 @@
-# =============================================================================
-# Rahma API — internal Service + Deployment.
-#
-# Single canonical file. ClusterIP only. NO public ingress.
-#
-# Image swap:
-#   Today the Deployment uses an nginx-unprivileged placeholder so the
-#   namespace looks healthy on the live cluster while the real image rolls
-#   out. To deploy the REAL backend, run:
-#
-#     bash deployment/k3s/scripts/deploy-rahma-api-image.sh ghcr.io/serverax/rahmah/rahma-api:latest
-#
-#   The script does the rollout safely on a verified Sakina kubectl context.
-#   Apply this YAML by hand only after the operator picks the real image.
-# =============================================================================
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: rahma-api
-  namespace: rahma-api
-  labels:
-    app.kubernetes.io/name: rahma-api
-    app.kubernetes.io/part-of: rahma
-    app.kubernetes.io/component: api
-spec:
-  type: ClusterIP            # internal only — no public ingress yet
-  ports:
-    - name: http
-      port: 80
-      targetPort: http
-      protocol: TCP
-  selector:
-    app.kubernetes.io/name: rahma-api
----
-apiVersion: apps/v1
+﻿apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: rahma-api
   namespace: rahma-api
-  labels:
-    app.kubernetes.io/name: rahma-api
-    app.kubernetes.io/part-of: rahma
-    app.kubernetes.io/component: api
-  annotations:
-    rahma.io/notice: "Internal API only. Today: placeholder image. Operator swaps to ghcr.io/serverax/rahmah/rahma-api:latest via deploy-rahma-api-image.sh."
 spec:
   replicas: 1
-  revisionHistoryLimit: 3
-  strategy:
-    type: RollingUpdate
-    rollingUpdate: { maxSurge: 1, maxUnavailable: 0 }
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: rahma-api
   template:
-    metadata:
-      labels:
-        app.kubernetes.io/name: rahma-api
-        app.kubernetes.io/part-of: rahma
-        app.kubernetes.io/component: api
     spec:
-      automountServiceAccountToken: false
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 10001
-        runAsGroup: 10001
-        seccompProfile:
-          type: RuntimeDefault
       containers:
-        - name: rahma-api
-          # Today: placeholder. Swap to ghcr.io/serverax/rahmah/rahma-api:latest
-          # via the deploy script. Real image listens on port 3000; placeholder
-          # listens on port 8080. The Service `targetPort: http` resolves
-          # against the container's `name: http` so the port number is
-          # transparent to the Service.
-          image: nginxinc/nginx-unprivileged:1.27-alpine
-          imagePullPolicy: IfNotPresent
-          ports:
-            - name: http
-              containerPort: 8080
-              protocol: TCP
-          envFrom:
-            - configMapRef:
-                name: rahma-platform-config
-          env:
-            - name: PORT
-              value: "8080"
-            - name: HOST
-              value: "0.0.0.0"
-            # When the real image rolls in, these env vars are sourced from
-            # the operator-created rahma-api-secrets Secret. The Secret is
-            # NOT applied from this repo; operator creates it via
-            # `kubectl create secret`.
-            #
-            # - name: DATABASE_URL
-            #   valueFrom: { secretKeyRef: { name: rahma-api-secrets, key: DATABASE_URL } }
-            # - name: REDIS_URL
-            #   valueFrom: { secretKeyRef: { name: rahma-api-secrets, key: REDIS_URL } }
-            # - name: JWT_SECRET
-            #   valueFrom: { secretKeyRef: { name: rahma-api-secrets, key: JWT_SECRET } }
-            # - name: SESSION_SECRET
-            #   valueFrom: { secretKeyRef: { name: rahma-api-secrets, key: SESSION_SECRET } }
+        - name: api
+          image: ghcr.io/serverax/rahma-api:PLACEHOLDER-PINNED-TAG
           resources:
             requests:
-              cpu: "20m"
-              memory: "32Mi"
+              cpu: "100m"
+              memory: "128Mi"
             limits:
               cpu: "500m"
               memory: "512Mi"
-          startupProbe:
-            httpGet: { path: /, port: http }
-            initialDelaySeconds: 2
-            periodSeconds: 2
-            failureThreshold: 30
-          readinessProbe:
-            httpGet: { path: /, port: http }
-            initialDelaySeconds: 3
-            periodSeconds: 5
-            timeoutSeconds: 2
-            failureThreshold: 6
-          livenessProbe:
-            httpGet: { path: /, port: http }
-            initialDelaySeconds: 10
-            periodSeconds: 20
-            timeoutSeconds: 3
-            failureThreshold: 6
-          securityContext:
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: false
-            capabilities:
-              drop: ["ALL"]
----
-apiVersion: policy/v1
-kind: PodDisruptionBudget
-metadata:
-  name: rahma-api
-  namespace: rahma-api
-  labels:
-    app.kubernetes.io/name: rahma-api
-    app.kubernetes.io/part-of: rahma
-spec:
-  minAvailable: 1
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: rahma-api

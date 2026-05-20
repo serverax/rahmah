@@ -10,7 +10,7 @@
     "dev": "node server.js",
     "local:test-ui": "PORT=3001 node server.js",
     "build": "node -e \"console.log('static â€” no build step\\n')\"",
-    "test": "node --test ../../backend/app/test/frontend-rtl.test.js"
+    "test": "node --test ../../backend/app/test/frontend-rtl.test.js ../../backend/app/test/home-navigation.test.js"
   }
 
 }

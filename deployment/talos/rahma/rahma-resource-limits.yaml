@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: rahma-web-limits
+  namespace: rahma-web
+spec:
+  limits:
+    - type: Container
+      defaultRequest:
+        cpu: 50m
+        memory: 64Mi
+      default:
+        cpu: 250m
+        memory: 256Mi
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: rahma-api-limits
+  namespace: rahma-api
+spec:
+  limits:
+    - type: Container
+      defaultRequest:
+        cpu: 100m
+        memory: 256Mi
+      default:
+        cpu: 750m
+        memory: 768Mi
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: rahma-data-limits
+  namespace: rahma-data
+spec:
+  limits:
+    - type: Container
+      defaultRequest:
+        cpu: 100m
+        memory: 256Mi
+      default:
+        cpu: "1"
+        memory: 1Gi

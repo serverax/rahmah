@@ -64,7 +64,7 @@ test('mobile-delivery: POST /api/sheikh/login → 503 auth_not_configured + Arab
 test('mobile-delivery: POST /api/sheikh/login when AUTH_MODE=external → password_grant_not_supported', async () => {
   const s = envSnap();
   process.env.AUTH_MODE = 'external';
-  process.env.SESSION_SECRET = 'a'.repeat(32);
+  process.env.SESSION_SECRET = 'RahmaTestSessionKey2026Aa1Bb2Cc3Dd4Ee5Ff6';
   const app = buildApp();
   try {
     const r = await app.inject({ method: 'POST', url: '/api/sheikh/login', payload: {} });

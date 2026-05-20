@@ -1,0 +1,278 @@
+﻿# Rahma Backend Foundation Report
+
+## Files created
+
+
+
+## Files skipped because already existed
+
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\.github
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\.github\workflows
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\.github\workflows
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\.github\workflows
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\.github\workflows\rahma-apk-build.yml
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\.github\workflows\rahma-backend-foundation.yml
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\admin
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\admin
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\admin\improvement-center.service.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\db
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\db\migrations
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\db\migrations
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\db\migrations
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\db\migrations
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\db\migrations\001_rahma_core_schema.sql
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\db\migrations\002_rahma_rag_foundation.sql
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\db\migrations\003_rahma_wasm_foundation.sql
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\llm
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\llm
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\llm
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\llm\model-policy.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\llm\ollama-client.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\llm\prompts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\llm\prompts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\llm\prompts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\llm\prompts\classifier.prompt.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\llm\prompts\islamic-answer.prompt.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\rag
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\rag
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\rag
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\rag
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\rag
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\rag\citation-guard.service.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\rag\islamic-rag.service.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\rag\retriever.service.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\rag\review-escalation.service.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\routes
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\routes
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\routes
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\routes
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\routes
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\routes
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\routes
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\routes
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\routes
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\routes
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\routes
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\routes
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\routes\admin.routes.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\routes\ask.routes.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\routes\auth.routes.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\routes\children.routes.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\routes\dua.routes.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\routes\feedback.routes.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\routes\hadith.routes.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\routes\health.routes.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\routes\prayer.routes.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\routes\quran.routes.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\routes\ready.routes.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\security
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\services
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\services
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\services
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\services
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\services
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\services
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\services
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\services
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\services
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\services\children.service.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\services\content-approval.service.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\services\dua.service.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\services\hadith.service.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\services\notification.service.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\services\prayer.service.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\services\quran.service.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\services\source-governance.service.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\validation
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\validation
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\validation\content-approval.validation.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\wasm
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\wasm
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\wasm
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\wasm
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\wasm
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\wasm
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\wasm\child-safety
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\wasm\child-safety
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\wasm\child-safety.client.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\wasm\child-safety\index.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\wasm\citation-verifier
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\wasm\citation-verifier
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\wasm\citation-verifier.client.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\wasm\citation-verifier\index.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\wasm\policy-gate
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\wasm\policy-gate
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\wasm\policy-gate.client.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\wasm\policy-gate\index.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\wasm\prayer-rules
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\wasm\prayer-rules
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\wasm\prayer-rules.client.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\wasm\prayer-rules\index.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\wasm\wasm-runtime.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\wasm\zakat-rules-placeholder
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\wasm\zakat-rules-placeholder
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\wasm\zakat-rules-placeholder\README.md
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\workers
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\workers
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\src\workers\notification.worker.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test\wasm-child-safety.test.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test\wasm-citation-verifier.test.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test\wasm-policy-gate.test.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test\wasm-prayer-rules.test.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\mobile\assets\audio\adhan
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\mobile\assets\content
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\mobile\assets\images
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\ai
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\ai
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\ai\ollama.yaml
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\api
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\api
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\api\rahma-api.yaml
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\data
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\data
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\data
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\data\postgres.yaml
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\data\redis.yaml
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\monitoring
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\monitoring
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\monitoring\health-checks.yaml
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\namespaces
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\namespaces
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\namespaces\rahma-namespaces.yaml
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\rag
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\rag
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\rag\rag-api.yaml
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\README.md
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\security
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\security
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\security
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\security\network-policies.yaml
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\security\resource-limits.yaml
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\storage
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\storage
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\storage\object-storage-placeholder.yaml
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\wasm
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\wasm
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\wasm
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\wasm
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\wasm
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\wasm
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\wasm
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\wasm\network-policies.yaml
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\wasm\rahma-child-safety-wasm.yaml
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\wasm\rahma-citation-verifier-wasm.yaml
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\wasm\rahma-policy-gate-wasm.yaml
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\wasm\rahma-prayer-rules-wasm.yaml
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\wasm\README.md
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\workers
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\workers
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\deployment\k3s\workers\notification-worker.yaml
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\app-store
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\app-store
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\app-store
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\app-store
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\app-store
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\app-store
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\app-store
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\app-store
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\app-store\ACCOUNT_DELETION_POLICY_DRAFT.md
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\app-store\AI_ISLAMIC_DISCLAIMER.md
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\app-store\APPLE_APP_STORE_READINESS_CHECKLIST.md
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\app-store\CHILD_SAFETY_POLICY_DRAFT.md
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\app-store\GOOGLE_PLAY_READINESS_CHECKLIST.md
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\app-store\PRIVACY_POLICY_DRAFT.md
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\app-store\TERMS_AND_CONDITIONS_DRAFT.md
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\architecture
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\architecture
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\architecture
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\architecture\RAHMA_BACKEND_HLD.md
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\architecture\RAHMA_WASM_ARCHITECTURE.md
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\compliance
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\islamic-content
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\islamic-content
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\islamic-content
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\islamic-content
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\islamic-content\ASK_SHEIKH_RAG_POLICY.md
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\islamic-content\AZAN_AUDIO_SOURCE_APPROVAL.md
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\islamic-content\CONTENT_SOURCE_APPROVAL_POLICY.md
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\release
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\security
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\security
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\docs\security\RAHMA_WASM_SECURITY_POLICY.md
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\scripts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\scripts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\scripts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\scripts\install-rahma-ollama-models.ps1
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\scripts\install-rahma-ollama-models.sh
+
+## Files modified
+
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test\health.test.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test\health.test.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test\health.test.ts.bak.20260518084713
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test\health.test.ts.bak.20260518084714
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test\no-secret-leak.test.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test\no-secret-leak.test.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test\no-secret-leak.test.ts.bak.20260518084713
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test\no-secret-leak.test.ts.bak.20260518084714
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test\rag-policy.test.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test\rag-policy.test.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test\rag-policy.test.ts.bak.20260518084713
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test\rag-policy.test.ts.bak.20260518084714
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test\ready.test.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test\ready.test.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test\ready.test.ts.bak.20260518084713
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test\ready.test.ts.bak.20260518084714
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test\schema-files.test.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test\schema-files.test.ts
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test\schema-files.test.ts.bak.20260518084713
+- C:\Users\CodexSandboxOffline\.codex\.sandbox\cwd\a017a16b893309e7\apps\backend\test\schema-files.test.ts.bak.20260518084714
+
+## Tests attempted
+
+- PASS: apps/backend/src/db/migrations/001_rahma_core_schema.sql
+- PASS: apps/backend/src/db/migrations/002_rahma_rag_foundation.sql
+- PASS: apps/backend/src/db/migrations/003_rahma_wasm_foundation.sql
+- PASS: apps/backend/src/routes/health.routes.ts
+- PASS: apps/backend/src/services/prayer.service.ts
+- PASS: apps/backend/src/wasm/wasm-runtime.ts
+- PASS: docs/islamic-content/CONTENT_SOURCE_APPROVAL_POLICY.md
+- PASS: docs/architecture/RAHMA_WASM_ARCHITECTURE.md
+- PASS: deployment/k3s/namespaces/rahma-namespaces.yaml
+- PASS: deployment/k3s/wasm/rahma-policy-gate-wasm.yaml
+- PASS: .github/workflows/rahma-backend-foundation.yml
+- PASS: scripts/install-rahma-ollama-models.sh
+- PASS: secret scan placeholder check
+- backend smoke test: PASS
+- flutter smoke test: SKIPPED
+
+## Remaining manual actions
+
+- Wire the new pps/backend foundation into the active application entrypoints.
+- Replace placeholder image tags and secret stubs before any deployment.
+- Decide whether the new foundation becomes the canonical backend or remains a scaffold.
+
+## Honest status
+
+Status: PARTIAL

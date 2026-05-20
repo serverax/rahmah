@@ -1,0 +1,21 @@
+﻿name: Rahma Backend Foundation
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+jobs:
+  foundation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Check for secrets
+        run: echo "Secret scan placeholder"
+      - name: Validate SQL files
+        run: find apps/backend/src/db/migrations -name '*.sql' -print
+      - name: Validate K3s manifests
+        run: find deployment/k3s -name '*.yaml' -o -name '*.yml' -print

@@ -61,17 +61,17 @@
           el.innerHTML = `
             <header class="app-header"><h1>رحمة</h1></header>
             <main class="app-main">
-              <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px;">
-                <div class="card" style="text-align: center; padding: 20px;"><span>📖</span><br>القرآن</div>
-                <div class="card" style="text-align: center; padding: 20px;"><span>📿</span><br>الأذكار</div>
-                <div class="card" style="text-align: center; padding: 20px;"><span>🤝</span><br>الصدقات</div>
-                <div class="card" style="text-align: center; padding: 20px;"><span>🎮</span><br>اللعبة</div>
+              <div class="feature-grid" style="padding: 10px;">
+                <a href="/ask.html" class="feature-btn feature-nav-card" aria-label="اسأل الشيخ حسن"><div class="icon">💬</div><span>اسأل الشيخ حسن</span></a>
+                <a href="/answers.html" class="feature-btn feature-nav-card" aria-label="إجابات موثقة"><div class="icon">📝</div><span>إجابات موثقة</span></a>
+                <a href="/library.html?category=quran" class="feature-btn feature-nav-card" aria-label="القرآن الكريم"><div class="icon">📖</div><span>القرآن الكريم</span></a>
+                <a href="/sources.html" class="feature-btn feature-nav-card" aria-label="مصادر المحتوى"><div class="icon">🔊</div><span>مصادر المحتوى</span></a>
               </div>
             </main>
             <nav class="app-bottom-nav" style="position: absolute; bottom: 0; width: 100%;">
-              <a href="#" class="active">الرئيسية</a>
-              <a href="#">اسأل</a>
-              <a href="#">المكتبة</a>
+              <a href="/index.html" class="active">الرئيسية</a>
+              <a href="/ask.html">اسأل</a>
+              <a href="/library.html">المكتبة</a>
             </nav>
           `;
         }

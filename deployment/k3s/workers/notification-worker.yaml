@@ -1,0 +1,19 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rahma-notification-worker
+  namespace: rahma-workers
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+        - name: worker
+          image: ghcr.io/serverax/rahma-notification-worker:PLACEHOLDER-PINNED-TAG
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"

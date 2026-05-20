@@ -1,0 +1,20 @@
+﻿# Placeholder only. Replace with pinned image tags before deployment.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rahma-ollama
+  namespace: rahma-ai
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+        - name: ollama
+          image: ollama/ollama:PLACEHOLDER-PINNED-TAG
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "2Gi"

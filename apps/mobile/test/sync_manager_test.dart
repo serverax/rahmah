@@ -16,7 +16,7 @@ class MockRahmaApiClient implements RahmaApiClient {
           'title_ar': 'عنوان 1',
           'body_ar': 'نص 1',
           'source_type': 'quran',
-          'citation_label_ar': 'البقرة 1'
+          'citation_label_ar': 'البقرة 1',
         },
       ],
     };
@@ -32,7 +32,7 @@ class MockRahmaApiClient implements RahmaApiClient {
           'slug': 'slug1',
           'title_ar': 'سؤال 1',
           'answer_ar': 'إجابة 1',
-          'citation_status': 'quran_cited'
+          'citation_status': 'quran_cited',
         },
       ],
     };

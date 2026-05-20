@@ -9,11 +9,14 @@ function envSnap() {
   return {
     DATABASE_URL: process.env.DATABASE_URL,
     REDIS_URL: process.env.REDIS_URL,
+    AUTH_MODE: process.env.AUTH_MODE,
+    SESSION_SECRET: process.env.SESSION_SECRET,
     DONATION_PROVIDER: process.env.DONATION_PROVIDER,
     WASM_FATWA_POLICY_GATE_URL: process.env.WASM_FATWA_POLICY_GATE_URL,
     WASM_QURAN_HADITH_CITATION_URL: process.env.WASM_QURAN_HADITH_CITATION_URL,
     WASM_CHILD_SAFETY_URL: process.env.WASM_CHILD_SAFETY_URL,
     WASM_CONTENT_RULE_ENGINE_URL: process.env.WASM_CONTENT_RULE_ENGINE_URL,
+    WASM_RUNTIME_MODE: process.env.WASM_RUNTIME_MODE,
   };
 }
 function envRestore(s) { for (const [k, v] of Object.entries(s)) v === undefined ? delete process.env[k] : process.env[k] = v; }
@@ -29,6 +32,26 @@ test('Sprint62 — /ready v2: readiness_schema_version is "2"', async () => {
   try {
     const r = await app.inject({ method: 'GET', url: '/ready' });
     assert.equal(r.json().readiness_schema_version, '2');
+  } finally { await app.close(); }
+});
+
+test('Sprint62 — /ready v2: explicit integration booleans are present', async () => {
+  const app = buildApp({ autoInit: false });
+  try {
+    const r = await app.inject({ method: 'GET', url: '/ready' });
+    const b = r.json();
+    for (const key of [
+      'database_configured',
+      'database_connected',
+      'rag_configured',
+      'llm_configured',
+      'wasm_runtime_configured',
+      'content_governance_enabled',
+      'production_ready',
+    ]) {
+      assert.equal(typeof b[key], 'boolean', `missing ${key}`);
+    }
+    assert.ok(Array.isArray(b.blockers));
   } finally { await app.close(); }
 });
 
@@ -51,8 +74,7 @@ test('Sprint62 — /ready v2: per-WASM-module structured blocks (4 modules)', as
     for (const k of ['fatwa_policy_gate', 'quran_hadith_citation', 'child_safety', 'content_rule_engine']) {
       assert.ok(b.wasm[k], `missing wasm.${k} block`);
       assert.equal(typeof b.wasm[k].configured, 'boolean');
-      // reachable is null until probe ships — explicit non-true non-false
-      assert.equal(b.wasm[k].reachable, null);
+      assert.equal(typeof b.wasm[k].reachable, 'boolean');
     }
   } finally { await app.close(); }
 });
@@ -63,8 +85,9 @@ test('Sprint62 — /ready v2: islamic_sources block reports approved_sources cou
     const r = await app.inject({ method: 'GET', url: '/ready' });
     const b = r.json();
     assert.equal(typeof b.islamic_sources, 'object');
-    assert.equal(b.islamic_sources.configured, false);
-    assert.equal(b.islamic_sources.approved_sources, 0);
+    assert.equal(typeof b.islamic_sources.approved_sources, 'number');
+    assert.ok(b.islamic_sources.approved_sources >= 0);
+    assert.equal(b.islamic_sources.configured, b.islamic_sources.approved_sources > 0);
   } finally { await app.close(); }
 });
 
@@ -85,8 +108,14 @@ test('Sprint62 — /ready v2: production_ready=false when any required block is 
   const s = envSnap();
   delete process.env.DATABASE_URL;
   delete process.env.REDIS_URL;
+  delete process.env.AUTH_MODE;
+  delete process.env.SESSION_SECRET;
   delete process.env.DONATION_PROVIDER;
   delete process.env.WASM_FATWA_POLICY_GATE_URL;
+  delete process.env.WASM_QURAN_HADITH_CITATION_URL;
+  delete process.env.WASM_CHILD_SAFETY_URL;
+  delete process.env.WASM_CONTENT_RULE_ENGINE_URL;
+  process.env.WASM_RUNTIME_MODE = 'required';
   _resetClientPoolForTests();
   const app = buildApp({ autoInit: false });
   try {

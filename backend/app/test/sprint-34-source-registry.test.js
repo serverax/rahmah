@@ -39,7 +39,7 @@ test('Sprint34 — /api/rag/sources/status returns counts + Arabic notice, never
 
 test('Sprint34 — /api/library/sources/status reports same status truthfully', async () => {
   _resetRagForTests();
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     const r = await app.inject({ method: 'GET', url: '/api/library/sources/status' });
     assert.equal(r.statusCode, 200);

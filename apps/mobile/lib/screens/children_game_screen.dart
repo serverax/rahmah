@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../api/rahma_api_client.dart';
+
+import '../offline/local_content.dart';
+import '../widgets/rahma_widgets.dart';
 
 class ChildrenGameScreen extends StatefulWidget {
   const ChildrenGameScreen({super.key});
@@ -9,133 +11,107 @@ class ChildrenGameScreen extends StatefulWidget {
 }
 
 class _ChildrenGameScreenState extends State<ChildrenGameScreen> {
-  final _api = RahmaApiClient();
   String _selectedAgeGroup = '7-9';
-  late Future<Map<String, dynamic>> _gameFuture;
   int _score = 0;
 
   @override
-  void initState() {
-    super.initState();
-    _gameFuture = _api.gameStatus(ageGroup: _selectedAgeGroup);
-  }
-
-  void _changeAgeGroup(String? age) {
-    if (age != null) {
-      setState(() {
-        _selectedAgeGroup = age;
-        _gameFuture = _api.gameStatus(ageGroup: _selectedAgeGroup);
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: const Text('لعبة الأطفال الإسلامية'),
-          actions: [
-            Center(child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text('⭐ $_score', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            )),
-          ],
-        ),
-        body: Column(
-          children: [
-            _buildAgeSelector(),
-            Expanded(
-              child: FutureBuilder<Map<String, dynamic>>(
-                future: _gameFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (snapshot.hasError) {
-                    return Center(child: Text('خطأ: ${snapshot.error}'));
-                  }
-                  final data = snapshot.data!;
-                  final List scenarios = data['scenarios'] ?? [];
-
-                  if (scenarios.isEmpty) {
-                    return const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(32),
-                        child: Text('لا توجد سيناريوهات متاحة لهذه الفئة العمرية حالياً.', textAlign: TextAlign.center),
+  Widget build(BuildContext context) {
+    final scenarios =
+        LocalContent.games.where((g) => g.age == _selectedAgeGroup).toList();
+    return RahmaScaffold(
+      title: 'الأطفال',
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(18, 8, 18, 28),
+        children: [
+          RahmaChildrenGameCard(
+            points: _score,
+            level: _selectedAgeGroup,
+            onTap: () {},
+          ),
+          const SizedBox(height: 14),
+          const RahmaOfflineBanner(
+            message:
+                'اللعبة تعمل محلياً. مزامنة التقدم تحتاج تفعيل الخادم لاحقاً.',
+          ),
+          const RahmaSectionTitle('الفئة العمرية'),
+          SegmentedButton<String>(
+            segments: const [
+              ButtonSegment(value: '4-6', label: Text('4-6')),
+              ButtonSegment(value: '7-9', label: Text('7-9')),
+              ButtonSegment(value: '10-12', label: Text('10-12')),
+            ],
+            selected: {_selectedAgeGroup},
+            onSelectionChanged: (set) =>
+                setState(() => _selectedAgeGroup = set.first),
+          ),
+          const RahmaSectionTitle('التحديات'),
+          if (scenarios.isEmpty)
+            const RahmaEmptyState(
+              title: 'لا يوجد تحد لهذا العمر حالياً',
+              message: 'جرّب فئة عمرية أخرى أو انتظر تحديث المحتوى المحلي.',
+              icon: Icons.extension_rounded,
+            )
+          else
+            ...scenarios.map(
+              (s) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Rahma3DCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              s.title,
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                          ),
+                          const Icon(
+                            Icons.stars_rounded,
+                            color: RahmaColors.gold,
+                          ),
+                        ],
                       ),
-                    );
-                  }
-
-                  return ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: scenarios.length,
-                    itemBuilder: (context, i) {
-                      final s = scenarios[i];
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 16),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Text(s['title_ar'] ?? '', style: Theme.of(context).textTheme.titleMedium),
-                              const SizedBox(height: 8),
-                              Text(s['body_ar'] ?? ''),
-                              const SizedBox(height: 16),
-                              ...(s['options_json'] as List? ?? []).map((opt) => Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: ElevatedButton(
-                                  onPressed: () => _handleAnswer(s, opt),
-                                  child: Text(opt['text_ar'] ?? ''),
-                                ),
-                              )),
-                            ],
+                      const SizedBox(height: 8),
+                      Text(
+                        s.question,
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                      const SizedBox(height: 14),
+                      for (var i = 0; i < s.options.length; i++)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: FilledButton.tonal(
+                            onPressed: () => _answer(s, i),
+                            child: Text(s.options[i]),
                           ),
                         ),
-                      );
-                    },
-                  );
-                },
+                    ],
+                  ),
+                ),
               ),
             ),
-          ],
-        ),
-      );
-
-  Widget _buildAgeSelector() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: SegmentedButton<String>(
-        segments: const [
-          ButtonSegment(value: '4-6', label: Text('4-6')),
-          ButtonSegment(value: '7-9', label: Text('7-9')),
-          ButtonSegment(value: '10-12', label: Text('10-12')),
         ],
-        selected: {_selectedAgeGroup},
-        onSelectionChanged: (set) => _changeAgeGroup(set.first),
       ),
     );
   }
 
-  void _handleAnswer(Map scenario, Map option) {
-    final bool isCorrect = option['is_correct'] == true;
+  void _answer(LocalGameScenario scenario, int index) {
+    final correct = index == scenario.answer;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(isCorrect ? 'إجابة صحيحة! 🎉' : 'حاول مرة أخرى'),
-        content: Text(option['explanation_ar'] ?? ''),
+      builder: (_) => AlertDialog(
+        title: Text(correct ? 'أحسنت!' : 'حاول مرة أخرى'),
+        content: Text(scenario.explanation),
         actions: [
-          TextButton(
+          RahmaPrimaryButton(
             onPressed: () {
               Navigator.pop(context);
-              if (isCorrect) {
-                setState(() => _score += 10);
-                _api.postJson('/api/mobile/game/progress', {
-                  'scenario_id': scenario['id'].toString(),
-                  'score': 10,
-                });
-              }
+              if (correct) setState(() => _score += 10);
             },
-            child: const Text('موافق'),
+            label: 'متابعة',
+            icon: Icons.arrow_back_rounded,
           ),
         ],
       ),

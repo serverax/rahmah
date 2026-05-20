@@ -1,0 +1,65 @@
+name: Rahma Security and Quality
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  security-quality:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Secret scan
+        run: scripts/security/rahma-secret-scan.sh
+
+      - name: Release security gate
+        run: scripts/security/rahma-release-security-gate.sh
+
+      - name: K8s safety scan
+        run: scripts/security/rahma-k8s-safety-scan.sh
+
+      - name: Dependency audit
+        working-directory: backend/app
+        run: |
+          npm install
+          npm audit --audit-level=high
+
+      - name: Allow-list and repo-name scan
+        run: |
+          set -euo pipefail
+          forbidden_matches="$(rg -n --hidden --glob '!**/.git/**' --glob '!**/build/**' --glob '!**/.dart_tool/**' --glob '!**/node_modules/**' \
+            'IterLaw|RightsNow|Alaa Beauty|OrdinoxAI' \
+            apps/mobile backend deployment scripts docs | \
+            rg -v 'backend/app/src/rag/local-llm|deployment/k3s/rahma/app/50-local-llm-config.yaml|docs/architecture/RAHMA_LOCAL_LLM_RAG_ARCHITECTURE.md' || true)"
+          if [[ -n "${forbidden_matches}" ]]; then
+            printf 'Forbidden project references found:\n%s\n' "${forbidden_matches}"
+            exit 1
+          fi
+
+      - name: Ensure no public Ollama ingress
+        run: |
+          set -euo pipefail
+          if rg -n --hidden --glob '!**/.git/**' 'kind:\s*Ingress|ollama' deployment .github | rg -n 'ollama.*Ingress|Ingress.*ollama'; then
+            echo 'FAIL: public Ollama ingress detected'
+            exit 1
+          fi
+
+      - name: Ensure APK artifacts are not committed
+        run: |
+          set -euo pipefail
+          if git ls-files 'apps/mobile/build/**' '*.apk' | grep -q '.'; then
+            echo 'FAIL: APK build outputs are tracked in git'
+            exit 1
+          fi
+

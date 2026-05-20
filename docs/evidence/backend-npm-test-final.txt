@@ -1,0 +1,13 @@
+# tests 535
+# suites 0
+# pass 535
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 118593.9783
+  32:11  warning  'data' is assigned a value but never used. Allowed unused vars must match /^_/u  no-unused-vars
+
+Ô£û 31 problems (0 errors, 31 warnings)
+  0 errors and 1 warning potentially fixable with the `--fix` option.
+

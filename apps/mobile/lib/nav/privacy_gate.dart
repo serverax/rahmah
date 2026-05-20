@@ -28,7 +28,7 @@ class PrivacyGate extends StatelessWidget {
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
             child: Container(
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withValues(alpha: 0.1),
               alignment: Alignment.center,
               child: const Column(
                 mainAxisSize: MainAxisSize.min,

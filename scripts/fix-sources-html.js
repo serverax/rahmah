@@ -1,0 +1,73 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const p = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'apps', 'web', 'public', 'sources.html');
+const html = `<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>رحمة — مصادر المحتوى</title>
+  <meta name="rahma-api-base" content="" />
+  <link rel="stylesheet" href="/assets/test-ui.css" />
+</head>
+<body>
+  <div class="mobile-viewport">
+    <header class="app-header">
+      <a href="index.html" style="color: white; text-decoration: none; display: block; margin-bottom: 10px;">&larr; العودة</a>
+      <h1>مصادر المحتوى</h1>
+      <div class="header-sub">قائمة المصادر المعتمدة بعد المراجعة.</div>
+    </header>
+    <main class="app-main" style="padding: 20px; padding-bottom: 100px;">
+      <motion id="sourcesStatus" aria-live="polite"></motion>
+      <div id="sources" class="mt-16" aria-live="polite">
+        <div class="card-3d">
+          <div style="font-weight: 700; color: var(--rahma-emerald-dark);">مصحف المدينة النبوية</div>
+          <p style="margin: 8px 0 0; color: var(--rahma-ink-muted);">مجمع الملك فهد لطباعة المصحف</p>
+        </div>
+        <div class="card-3d" style="margin-top: 12px;">
+          <div style="font-weight: 700; color: var(--rahma-emerald-dark);">صحيح البخاري</div>
+          <p style="margin: 8px 0 0; color: var(--rahma-ink-muted);">كتاب الحديث — مراجعة علمية</p>
+        </div>
+      </div>
+    </main>
+    <nav class="app-bottom-nav" aria-label="التنقل السفلي">
+      <a href="index.html"><span class="nav-icon">🏠</span><span>الرئيسية</span></a>
+      <a href="ask.html"><span class="nav-icon">💬</span><span>اسأل</span></a>
+      <a href="answers.html"><span class="nav-icon">📝</span><span>الإجابات</span></a>
+      <a href="library.html" class="active"><span class="nav-icon">📚</span><span>المكتبة</span></a>
+      <a href="privacy.html"><span class="nav-icon">🛡️</span><span>الخصوصية</span></a>
+    </nav>
+  </div>
+  <script src="/assets/app.js"></script>
+  <script src="/assets/library.js"></script>
+  <script>
+    (async () => {
+      const statusEl = document.getElementById('sourcesStatus');
+      const root = document.getElementById('sources');
+      const r = await window.Rahma.fetchJson('/api/library/sources');
+      if (!r.ok) {
+        window.Rahma.renderServiceUnavailablePill(statusEl);
+        return;
+      }
+      statusEl.innerHTML = '';
+      if (r.body && r.body.configured === false) {
+        window.Rahma.renderServiceUnavailablePill(statusEl);
+        return;
+      }
+      const arr = (r.body && Array.isArray(r.body.sources)) ? r.body.sources : [];
+      if (arr.length === 0) return;
+      root.innerHTML = arr.map((s) => \`
+        <div class="card-3d" style="margin-bottom: 12px;">
+          <div style="font-weight: 700; color: var(--rahma-emerald-dark);">\${window.Rahma.escapeHtml(s.source_name_ar || '')}</motion>
+          <p style="margin: 8px 0 0; color: var(--rahma-ink-muted);">\${window.Rahma.escapeHtml(s.source_reference || '')}</p>
+        </div>
+      \`).join('');
+    })();
+  </script>
+</body>
+</html>
+`;
+fs.writeFileSync(p, html.replaceAll('motion', 'div'));
+console.log('fixed sources.html');

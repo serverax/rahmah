@@ -1,0 +1,223 @@
+# Rahma full local stack: Postgres (pgvector), Redis, API, static web, four WASM bridges.
+# NOT for production. Build context is repo root (F:/rahma).
+#
+#   cd deployment/local
+#   copy env.rahma-full.example .env.rahma-full   # set secrets locally
+#   docker compose -f docker-compose.rahma-full.yml --env-file .env.rahma-full build
+#   docker compose -f docker-compose.rahma-full.yml --env-file .env.rahma-full up -d
+#
+# Host ports: 5436 Postgres, 6382 Redis, 18180 API, 18081 web, 8091-8094 WASM
+
+name: rahma-full
+
+services:
+  rahma-postgres-pgvector:
+    image: pgvector/pgvector:pg16
+    container_name: rahma-full-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: rahma
+      POSTGRES_USER: rahma_user
+      POSTGRES_PASSWORD: ${RAHMA_POSTGRES_PASSWORD:?set RAHMA_POSTGRES_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "127.0.0.1:5436:5432"
+    volumes:
+      - rahma_full_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rahma_user -d rahma"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  rahma-redis:
+    image: redis:7.4-alpine
+    container_name: rahma-full-redis
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    ports:
+      - "127.0.0.1:6382:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+
+  rahma-wasm-fatwa:
+    build:
+      context: ../..
+      dockerfile: wasm/fatwa-policy-gate/server/Dockerfile
+    image: rahma-wasm-fatwa:local
+    container_name: rahma-full-wasm-fatwa
+    environment:
+      PORT: "8080"
+      HOST: "0.0.0.0"
+    ports:
+      - "127.0.0.1:8091:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  rahma-wasm-quran:
+    build:
+      context: ../..
+      dockerfile: wasm/quran-hadith-citation/server/Dockerfile
+    image: rahma-wasm-quran:local
+    container_name: rahma-full-wasm-quran
+    environment:
+      PORT: "8080"
+      HOST: "0.0.0.0"
+    ports:
+      - "127.0.0.1:8092:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  rahma-wasm-child:
+    build:
+      context: ../..
+      dockerfile: wasm/child-safety/server/Dockerfile
+    image: rahma-wasm-child:local
+    container_name: rahma-full-wasm-child
+    environment:
+      PORT: "8080"
+      HOST: "0.0.0.0"
+    ports:
+      - "127.0.0.1:8093:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  rahma-wasm-content:
+    build:
+      context: ../..
+      dockerfile: wasm/content-rule-engine/server/Dockerfile
+    image: rahma-wasm-content:local
+    container_name: rahma-full-wasm-content
+    environment:
+      PORT: "8080"
+      HOST: "0.0.0.0"
+    ports:
+      - "127.0.0.1:8094:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  rahma-api:
+    build:
+      context: ../..
+      dockerfile: backend/Dockerfile
+    image: rahma-api:local
+    container_name: rahma-full-api
+    restart: unless-stopped
+    depends_on:
+      rahma-postgres-pgvector:
+        condition: service_healthy
+      rahma-redis:
+        condition: service_healthy
+      rahma-wasm-fatwa:
+        condition: service_healthy
+      rahma-wasm-quran:
+        condition: service_healthy
+      rahma-wasm-child:
+        condition: service_healthy
+      rahma-wasm-content:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      HOST: "0.0.0.0"
+      DATABASE_URL: postgresql://rahma_user:${RAHMA_POSTGRES_PASSWORD}@rahma-postgres-pgvector:5432/rahma
+      REDIS_URL: redis://rahma-redis:6379/0
+      SESSION_SECRET: ${SESSION_SECRET:?set SESSION_SECRET}
+      AUTH_MODE: ${AUTH_MODE:-external}
+      APP_STORE_COMPLIANCE_STATUS: ${APP_STORE_COMPLIANCE_STATUS:-approved}
+      RAG_VECTOR_SEARCH: ${RAG_VECTOR_SEARCH:-true}
+      WASM_RUNTIME_MODE: ${WASM_RUNTIME_MODE:-required}
+      WASM_FATWA_POLICY_GATE_URL: http://rahma-wasm-fatwa:8080
+      WASM_QURAN_HADITH_CITATION_URL: http://rahma-wasm-quran:8080
+      WASM_CHILD_SAFETY_URL: http://rahma-wasm-child:8080
+      WASM_CONTENT_RULE_ENGINE_URL: http://rahma-wasm-content:8080
+      FCM_SERVER_KEY: ${FCM_SERVER_KEY:-}
+      APNS_P8_KEY: ${APNS_P8_KEY:-}
+      PUSH_NOTIFICATIONS_PRODUCTION_REQUIRED: ${PUSH_NOTIFICATIONS_PRODUCTION_REQUIRED:-true}
+      IOS_PUSH_REQUIRED: ${IOS_PUSH_REQUIRED:-true}
+      DONATION_PROVIDER: manual_offline
+      RAHMA_REPO_ROOT: /app
+    ports:
+      - "127.0.0.1:18180:3000"
+    volumes:
+      # Mount repo compliance/RAG/azan paths — API image contains only backend/app/src
+      - ../../data:/app/data:ro
+      - ../../apps/web/public:/app/apps/web/public:ro
+      - ../../apps/mobile:/app/apps/mobile:ro
+      - ../../docs:/app/docs:ro
+      - ../../backend/app/src:/app/src:ro
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 6
+      start_period: 25s
+
+  rahma-web:
+    build:
+      context: ../../apps/web
+      dockerfile: Dockerfile
+    image: rahma-web:local
+    container_name: rahma-full-web
+    restart: unless-stopped
+    depends_on:
+      rahma-api:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:18081:80"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  rahma-migrate:
+    image: node:20-alpine
+    container_name: rahma-full-migrate
+    profiles: ["tools"]
+    working_dir: /workspace
+    volumes:
+      - ../..:/workspace:ro
+    environment:
+      DATABASE_URL: postgresql://rahma_user:${RAHMA_POSTGRES_PASSWORD}@rahma-postgres-pgvector:5432/rahma
+    depends_on:
+      rahma-postgres-pgvector:
+        condition: service_healthy
+    command: ["node", "scripts/db/run-migrations.js"]
+
+  rahma-rag-seed:
+    image: node:20-alpine
+    container_name: rahma-full-rag-seed
+    profiles: ["tools"]
+    working_dir: /workspace
+    volumes:
+      - ../..:/workspace:ro
+    environment:
+      DATABASE_URL: postgresql://rahma_user:${RAHMA_POSTGRES_PASSWORD}@rahma-postgres-pgvector:5432/rahma
+    depends_on:
+      rahma-postgres-pgvector:
+        condition: service_healthy
+    command: ["sh", "-c", "node scripts/rag/seed-approved-sources.js && node scripts/rag/ingest-approved-content.js"]
+
+volumes:
+  rahma_full_pg_data:

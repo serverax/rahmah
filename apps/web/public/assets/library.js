@@ -118,7 +118,12 @@
   }
 
   function renderUnavailableMessage(el) {
-    if (el) el.innerHTML = `<div class="state-error">${ARABIC.unavailable}</div>`;
+    if (!el) return;
+    if (window.Rahma && typeof window.Rahma.renderServiceUnavailablePill === 'function') {
+      window.Rahma.renderServiceUnavailablePill(el);
+      return;
+    }
+    el.innerHTML = '<div class="rahma-service-pill"><strong>غير متاح مؤقتاً</strong><span>سيتم تفعيل الخدمة قريباً بإذن الله</span></div>';
   }
 
   function escapeHtml(s) {

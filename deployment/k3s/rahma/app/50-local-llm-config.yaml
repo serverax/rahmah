@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rahma-local-llm-config
+  namespace: rahma-api
+  labels:
+    app.kubernetes.io/project: rahma
+    app.kubernetes.io/component: local-llm-client
+    app.kubernetes.io/managed-by: manual
+data:
+  RAHMA_LOCAL_LLM_ENABLED: "true"
+  RAHMA_LOCAL_LLM_PROVIDER: "ollama"
+  RAHMA_LOCAL_LLM_MODEL: "qwen2.5:0.5b-instruct-q5_0"
+  RAHMA_LOCAL_LLM_HELPER_MODEL: "smollm2:360m-instruct-q4_0"
+  RAHMA_LOCAL_LLM_BASE_URL: "http://ollama.ordinox-ai.svc.cluster.local:11434"
+  RAHMA_LOCAL_LLM_REQUIRE_APPROVED_CONTEXT: "true"
+  RAHMA_LOCAL_LLM_REQUIRE_CITATIONS: "true"
+  RAHMA_LOCAL_LLM_ALLOW_DIRECT_RELIGIOUS_ANSWERS: "false"
+  RAHMA_LOCAL_LLM_TIMEOUT_MS: "15000"
+  RAHMA_LOCAL_LLM_MAX_TOKENS: "512"
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: rahma-api-egress-to-internal-ollama
+  namespace: rahma-api
+  labels:
+    app.kubernetes.io/project: rahma
+    app.kubernetes.io/component: local-llm-client
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: rahma-api
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ordinox-ai
+      ports:
+        - protocol: TCP
+          port: 11434

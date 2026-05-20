@@ -1,28 +1,30 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
-import 'package:shared_preferences/shared_preferences.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
   NotificationService._internal();
 
-  final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _notificationsPlugin =
+      FlutterLocalNotificationsPlugin();
 
   Future<void> init() async {
     tz.initializeTimeZones();
-    
+
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    const DarwinInitializationSettings initializationSettingsIOS = DarwinInitializationSettings(
+    const DarwinInitializationSettings initializationSettingsIOS =
+        DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
     );
 
-    const InitializationSettings initializationSettings = InitializationSettings(
+    const InitializationSettings initializationSettings =
+        InitializationSettings(
       android: initializationSettingsAndroid,
       iOS: initializationSettingsIOS,
     );
@@ -36,17 +38,38 @@ class NotificationService {
   }
 
   Future<bool> requestPermissions() async {
-    final bool? result = await _notificationsPlugin
-        .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
+    final androidPlugin =
+        _notificationsPlugin.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+    final androidNotificationsAllowed =
+        await androidPlugin?.requestNotificationsPermission();
+    final androidExactAlarmAllowed =
+        await androidPlugin?.requestExactAlarmsPermission();
+
+    if (androidNotificationsAllowed != null ||
+        androidExactAlarmAllowed != null) {
+      return androidNotificationsAllowed != false &&
+          androidExactAlarmAllowed != false;
+    }
+
+    final iosResult = await _notificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin>()
         ?.requestPermissions(
           alert: true,
           badge: true,
           sound: true,
         );
-    return result ?? false;
+    return iosResult ?? false;
   }
 
-  Future<void> scheduleAzan(int id, String title, String body, DateTime scheduledDate, String soundFile) async {
+  Future<void> scheduleAzan(
+    int id,
+    String title,
+    String body,
+    DateTime scheduledDate,
+    String soundFile,
+  ) async {
     await _notificationsPlugin.zonedSchedule(
       id,
       title,
@@ -59,17 +82,19 @@ class NotificationService {
           channelDescription: 'تنبيهات أوقات الصلاة',
           importance: Importance.max,
           priority: Priority.high,
-          sound: RawResourceAndroidNotificationSound(soundFile.split('.').first),
+          sound:
+              RawResourceAndroidNotificationSound(soundFile.split('.').first),
         ),
         iOS: DarwinNotificationDetails(
           presentAlert: true,
           presentBadge: true,
           presentSound: true,
-          sound: '$soundFile',
+          sound: soundFile,
         ),
       ),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
     );
   }
 
@@ -77,34 +102,66 @@ class NotificationService {
     await _notificationsPlugin.cancelAll();
   }
 
-  Future<void> scheduleDailyPrayerTimes(Map<String, dynamic> times, List<String> enabledPrayers, String selectedAzanFile) async {
+  Future<void> scheduleDailyPrayerTimes(
+    Map<String, dynamic> times,
+    List<String> enabledPrayers,
+    String selectedAzanFile,
+  ) async {
     await cancelAll();
-    
+
     final now = DateTime.now();
-    final dateStr = now.toIso8601String().split('T').first;
 
-    for (final prayer in enabledPrayers) {
-      final timeStr = times[prayer];
-      if (timeStr == null) continue;
-
-      final parts = timeStr.split(':');
-      final scheduledTime = DateTime(
-        now.year,
-        now.month,
-        now.day,
-        int.parse(parts[0]),
-        int.parse(parts[1]),
+    for (final entry in buildDailyPrayerSchedule(
+      times: times,
+      enabledPrayers: enabledPrayers,
+      now: now,
+    )) {
+      await scheduleAzan(
+        entry.prayer.hashCode,
+        'أذان ${entry.prayer}',
+        'حان الآن موعد صلاة ${entry.prayer}',
+        entry.scheduledTime,
+        selectedAzanFile,
       );
-
-      if (scheduledTime.isAfter(now)) {
-        await scheduleAzan(
-          prayer.hashCode,
-          'أذان $prayer',
-          'حان الآن موعد صلاة $prayer',
-          scheduledTime,
-          selectedAzanFile,
-        );
-      }
     }
   }
+
+  static DateTime? parsePrayerTimeForToday(String? timeStr, DateTime now) {
+    if (timeStr == null) return null;
+    final match = RegExp(r'^([01]?\d|2[0-3]):([0-5]\d)$').firstMatch(timeStr);
+    if (match == null) return null;
+    final hour = int.parse(match.group(1)!);
+    final minute = int.parse(match.group(2)!);
+    return DateTime(now.year, now.month, now.day, hour, minute);
+  }
+
+  static List<PrayerNotificationSchedule> buildDailyPrayerSchedule({
+    required Map<String, dynamic> times,
+    required List<String> enabledPrayers,
+    required DateTime now,
+  }) {
+    final schedules = <PrayerNotificationSchedule>[];
+    for (final prayer in enabledPrayers) {
+      final value = times[prayer];
+      final scheduledTime = parsePrayerTimeForToday(value?.toString(), now);
+      if (scheduledTime == null || !scheduledTime.isAfter(now)) continue;
+      schedules.add(
+        PrayerNotificationSchedule(
+          prayer: prayer,
+          scheduledTime: scheduledTime,
+        ),
+      );
+    }
+    return schedules;
+  }
+}
+
+class PrayerNotificationSchedule {
+  const PrayerNotificationSchedule({
+    required this.prayer,
+    required this.scheduledTime,
+  });
+
+  final String prayer;
+  final DateTime scheduledTime;
 }

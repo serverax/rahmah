@@ -35,10 +35,21 @@ export function isAuthConfigured() {
     return true;
   }
   if (mode === 'external') {
-    const sec = process.env.SESSION_SECRET;
-    return typeof sec === 'string' && sec.length >= 32;
+    return isValidProductionSessionSecret(process.env.SESSION_SECRET);
   }
   return false;
+}
+
+export function isValidProductionSessionSecret(secret) {
+  if (typeof secret !== 'string') return false;
+  const trimmed = secret.trim();
+  if (trimmed.length < 32) return false;
+  if (/CHANGE_ME|REPLACE_ME|PLACEHOLDER/i.test(trimmed)) return false;
+  if (/^(changeme|change_me|replace_me|placeholder|your[-_]?secret|dev[-_]?secret|secret|password)$/i.test(trimmed)) {
+    return false;
+  }
+  if (/^(.)\1+$/.test(trimmed)) return false;
+  return /[a-z]/.test(trimmed) && /[A-Z]/.test(trimmed) && /[0-9]/.test(trimmed);
 }
 
 export function isSheikhLoginEnabled() {

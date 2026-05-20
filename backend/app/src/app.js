@@ -5,6 +5,11 @@ import { configureQuranRepository, isQuranRepositoryConfigured } from './service
 import { configureGameRepository, isGameRepositoryConfigured } from './services/game-repository.js';
 import { configureLibraryRepository, isLibraryRepositoryConfigured } from './services/library-repository.js';
 import { configurePrivacyRepository, isPrivacyRepositoryConfigured } from './services/privacy-repository.js';
+import { createIslamicSourceRegistry } from './rag/source-registry.js';
+import { createIslamicRetrieval } from './rag/retrieval.js';
+import { configureRag, isRagRegistryConfigured, isRagRetrievalConfigured } from './rag/rag-status.js';
+import { configureRagRouteRetrieval } from './routes/rag.js';
+import { createRahmaAlgorithmService, configureRahmaAlgorithm, isRahmaAlgorithmConfigured } from './services/rahma-algorithm.service.js';
 
 import healthRoute from './routes/health.js';
 import readyRoute from './routes/ready.js';
@@ -30,6 +35,7 @@ import askSheikhV4Route from './routes/ask-sheikh-v4.js';
 import prayerRoute from './routes/prayer.js';
 import quranRoute from './routes/quran.js';
 import azanAudioRoute from './routes/azan-audio.js';
+import selfImprovementRoute from './routes/self-improvement.js';
 
 export function buildApp(opts = {}) {
   // Initialize Repositories with DB pool if not already configured (allow test overrides)
@@ -41,6 +47,19 @@ export function buildApp(opts = {}) {
       if (!isGameRepositoryConfigured())    configureGameRepository({ pool });
       if (!isLibraryRepositoryConfigured()) configureLibraryRepository({ pool });
       if (!isPrivacyRepositoryConfigured()) configurePrivacyRepository({ pool });
+      if (!isRagRegistryConfigured() || !isRagRetrievalConfigured()) {
+        const registry = createIslamicSourceRegistry({ pool });
+        const retrieval = createIslamicRetrieval({ pool });
+        configureRag({
+          registry,
+          retrieval,
+          enabled: true,
+        });
+        configureRagRouteRetrieval(retrieval);
+      }
+      if (!isRahmaAlgorithmConfigured()) {
+        configureRahmaAlgorithm(createRahmaAlgorithmService({ pool }));
+      }
     }
   }
 
@@ -76,6 +95,7 @@ export function buildApp(opts = {}) {
   app.register(prayerRoute, { prefix: '/api' });
   app.register(quranRoute, { prefix: '/api/quran' });
   app.register(azanAudioRoute, { prefix: '/api/azan-audio' });
+  app.register(selfImprovementRoute, { prefix: '/api/engine/self-improvement' });
 
   return app;
 }

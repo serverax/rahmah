@@ -46,7 +46,7 @@ test('Sprint32 — isPrincipalRole rejects public_user (no principal)', () => {
 test('Sprint32 — /api/auth/status reports roles_supported + oidc block + no secret leak', async () => {
   const s = envSnap();
   process.env.AUTH_MODE = 'external';
-  process.env.SESSION_SECRET = 'a'.repeat(32);
+  process.env.SESSION_SECRET = 'RahmaTestSessionKey2026Aa1Bb2Cc3Dd4Ee5Ff6';
   process.env.AUTH_PROVIDER = 'oidc-keycloak';
   process.env.OIDC_ISSUER = 'https://example.invalid';
   process.env.OIDC_CLIENT_ID = 'rahma_test_client';
@@ -56,7 +56,7 @@ test('Sprint32 — /api/auth/status reports roles_supported + oidc block + no se
     const r = await app.inject({ method: 'GET', url: '/api/auth/status' });
     const raw = r.body;
     assert.ok(!raw.includes('super_secret_value'), 'client secret leaked');
-    assert.ok(!raw.includes('a'.repeat(32)), 'session secret leaked');
+    assert.ok(!raw.includes('RahmaTestSessionKey2026Aa1Bb2Cc3Dd4Ee5Ff6'), 'session secret leaked');
     const body = r.json();
     assert.equal(body.auth_configured, true);
     assert.equal(body.mode, 'external');

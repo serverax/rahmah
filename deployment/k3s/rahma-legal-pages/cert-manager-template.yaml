@@ -1,0 +1,17 @@
+# Domain-ready cert-manager template only.
+# Apply only after cert-manager is installed and <admin-email> is real.
+# Replace <real-domain> in ingress-domain-template.yaml separately.
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: rahma-letsencrypt-prod
+spec:
+  acme:
+    email: <admin-email>
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: rahma-letsencrypt-prod-account-key
+    solvers:
+      - http01:
+          ingress:
+            class: traefik

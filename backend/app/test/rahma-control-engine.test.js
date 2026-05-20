@@ -1,4 +1,4 @@
-import { test } from 'node:test';
+import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildApp } from '../src/app.js';
 import {
@@ -17,6 +17,13 @@ import { recommend } from '../src/engine/recommendation-engine.js';
 import { ingestionDecide } from '../src/engine/data-ingestion-controller.js';
 import { logDecision } from '../src/engine/audit-logger.js';
 import { _resetSheikhAuditForTests } from '../src/audit/sheikh-action-audit.js';
+
+beforeEach(() => {
+  delete process.env.WASM_CONTENT_RULE_ENGINE_URL;
+  delete process.env.WASM_CHILD_SAFETY_URL;
+  delete process.env.WASM_FATWA_POLICY_GATE_URL;
+  delete process.env.WASM_QURAN_HADITH_CITATION_URL;
+});
 
 // -------------- Metadata ----------------------------------------------------
 

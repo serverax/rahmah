@@ -1,112 +1,100 @@
 import 'package:flutter/material.dart';
-import '../api/rahma_api_client.dart';
 
-class QuranReaderScreen extends StatefulWidget {
-  const QuranReaderScreen({super.key, required this.surahId, required this.surahName});
+import '../offline/local_content.dart';
+import '../widgets/rahma_widgets.dart';
+
+class QuranReaderScreen extends StatelessWidget {
+  const QuranReaderScreen({
+    super.key,
+    required this.surahId,
+    required this.surahName,
+  });
 
   final int surahId;
   final String surahName;
 
   @override
-  State<QuranReaderScreen> createState() => _QuranReaderScreenState();
-}
+  Widget build(BuildContext context) {
+    final surah = LocalContent.surahs.firstWhere(
+      (s) => s.id == surahId,
+      orElse: () => LocalContent.surahs.first,
+    );
+    final ayahs = surah.ayahs.isNotEmpty
+        ? surah.ayahs
+        : const [
+            'هذه السورة غير مخزنة بالكامل في النسخة المحلية الحالية.',
+            'سيظهر النص الكامل بعد تفعيل قاعدة القرآن المحلية الكاملة أو الاتصال بالخادم.',
+          ];
 
-class _QuranReaderScreenState extends State<QuranReaderScreen> {
-  final _api = RahmaApiClient();
-  late Future<Map<String, dynamic>> _detailFuture;
-  late Future<Map<String, dynamic>> _statusFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _detailFuture = _api.quranSurahDetail(widget.surahId);
-    _statusFuture = _api.get('/api/quran/status'); // Manual call for status
-  }
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: Text(widget.surahName),
-        ),
-        body: Column(
-          children: [
-            _buildStatusHeader(),
-            Expanded(
-              child: FutureBuilder<Map<String, dynamic>>(
-                future: _detailFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (snapshot.hasError) {
-                    return Center(child: Text('خطأ: ${snapshot.error}'));
-                  }
-                  final data = snapshot.data!;
-                  final List ayahs = data['ayahs'] ?? [];
-
-                  return ListView.separated(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: ayahs.length,
-                    separatorBuilder: (context, i) => const Divider(),
-                    itemBuilder: (context, i) {
-                      final a = ayahs[i];
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            a['text_uthmani'] ?? '',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontFamily: 'Amiri',
-                              fontSize: 24,
-                              height: 2.0,
-                            ),
-                            textDirection: TextDirection.rtl,
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('آية ${a['ayah_number']}', style: Theme.of(context).textTheme.bodySmall),
-                              IconButton(
-                                icon: const Icon(Icons.bookmark_border, size: 20),
-                                onPressed: () {
-                                  // TODO: Bookmark
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
+    return RahmaScaffold(
+      title: surahName,
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(18, 8, 18, 28),
+        children: [
+          const RahmaOfflineBanner(
+            message: 'النص العربي للقرآن لا يُحوّر ولا يُعاد صياغته.',
+          ),
+          const SizedBox(height: 14),
+          RahmaPrayerHeroCard(
+            title: surah.nameAr,
+            subtitle:
+                '${surah.nameEn} • ${surah.type} • ${surah.ayahCount} آية',
+            nextPrayer: 'النص',
+            countdown: 'مصحف محلي',
+            trailing: const Icon(
+              Icons.bookmark_border,
+              color: RahmaColors.warmGold,
+              size: 48,
+            ),
+          ),
+          const RahmaSectionTitle('النص'),
+          Rahma3DCard(
+            child: Column(
+              children: [
+                for (var i = 0; i < ayahs.length; i++) ...[
+                  Text(
+                    ayahs[i],
+                    textAlign: TextAlign.center,
+                    textDirection: TextDirection.rtl,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          height: 2.0,
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '﴿${i + 1}﴾',
+                    style: const TextStyle(
+                      color: RahmaColors.gold,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  if (i != ayahs.length - 1) const Divider(height: 28),
+                ],
+              ],
+            ),
+          ),
+          const RahmaSectionTitle('أدوات القراءة'),
+          const Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              Chip(
+                avatar: Icon(Icons.text_fields, size: 18),
+                label: Text('حجم الخط'),
               ),
-            ),
-          ],
-        ),
-      );
-
-  Widget _buildStatusHeader() {
-    return FutureBuilder<Map<String, dynamic>>(
-      future: _statusFuture,
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) return const SizedBox.shrink();
-        final data = snapshot.data!;
-        if (data['is_sample_mode'] == true) {
-          return Container(
-            color: Colors.orange.shade100,
-            width: double.infinity,
-            padding: const EdgeInsets.all(8),
-            child: Text(
-              data['sample_note_ar'] ?? 'وضع العينة: المحتوى محدود.',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-            ),
-          );
-        }
-        return const SizedBox.shrink();
-      },
+              Chip(
+                avatar: Icon(Icons.volume_up, size: 18),
+                label: Text('التلاوة لاحقاً'),
+              ),
+              Chip(
+                avatar: Icon(Icons.bookmark, size: 18),
+                label: Text('حفظ الموضع'),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

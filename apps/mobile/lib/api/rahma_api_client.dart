@@ -24,24 +24,33 @@ class RahmaApiClient {
   Future<Map<String, dynamic>> get(String path) async {
     return _withRetry(() async {
       final uri = Uri.parse('${RahmaConfig.apiBase}$path');
-      final response = await _http.get(uri).timeout(const Duration(seconds: 10));
+      final response =
+          await _http.get(uri).timeout(const Duration(seconds: 10));
       return _decode(response);
     });
   }
 
-  Future<Map<String, dynamic>> postJson(String path, Map<String, dynamic> body) async {
+  Future<Map<String, dynamic>> postJson(
+    String path,
+    Map<String, dynamic> body,
+  ) async {
     return _withRetry(() async {
       final uri = Uri.parse('${RahmaConfig.apiBase}$path');
-      final response = await _http.post(
-        uri,
-        headers: {'Content-Type': 'application/json; charset=utf-8'},
-        body: jsonEncode(body),
-      ).timeout(const Duration(seconds: 10));
+      final response = await _http
+          .post(
+            uri,
+            headers: {'Content-Type': 'application/json; charset=utf-8'},
+            body: jsonEncode(body),
+          )
+          .timeout(const Duration(seconds: 10));
       return _decode(response);
     });
   }
 
-  Future<Map<String, dynamic>> _withRetry(Future<Map<String, dynamic>> Function() action, {int maxRetries = 3}) async {
+  Future<Map<String, dynamic>> _withRetry(
+    Future<Map<String, dynamic>> Function() action, {
+    int maxRetries = 3,
+  }) async {
     if (!isConfigured) {
       throw RahmaApiError(
         'api_not_configured',
@@ -84,27 +93,56 @@ class RahmaApiClient {
 
   // -------- Convenience endpoint wrappers ------------------------------------
 
-  Future<Map<String, dynamic>> health()        => get('/health');
-  Future<Map<String, dynamic>> ready()         => get('/ready');
-  Future<Map<String, dynamic>> mobileStatus()  => get('/api/mobile/status');
-  Future<Map<String, dynamic>> prayerTimes(double lat, double lng) => get('/api/prayer-times?lat=$lat&lng=$lng');
-  Future<Map<String, dynamic>> quranSurahs()   => get('/api/quran/surahs');
-  Future<Map<String, dynamic>> quranSurahDetail(int id) => get('/api/quran/surahs/$id');
-  Future<Map<String, dynamic>> gameStatus({String? ageGroup}) => get('/api/mobile/game/status${ageGroup != null ? '?age_group=$ageGroup' : ''}');
-  Future<Map<String, dynamic>> libraryItems({String? category}) => get('/api/library/items${category != null ? '?category=$category' : ''}');
-  Future<Map<String, dynamic>> azanAudioOptions() => get('/api/azan-audio/options');
+  Future<Map<String, dynamic>> health() => get('/health');
+  Future<Map<String, dynamic>> ready() => get('/ready');
+  Future<Map<String, dynamic>> mobileStatus() => get('/api/mobile/status');
+  Future<Map<String, dynamic>> prayerTimes(double lat, double lng) =>
+      get('/api/prayer-times?lat=$lat&lng=$lng');
+  Future<Map<String, dynamic>> quranSurahs() => get('/api/quran/surahs');
+  Future<Map<String, dynamic>> quranSurahDetail(int id) =>
+      get('/api/quran/surahs/$id');
+  Future<Map<String, dynamic>> gameStatus({String? ageGroup}) => get(
+        '/api/mobile/game/status${ageGroup != null ? '?age_group=$ageGroup' : ''}',
+      );
+  Future<Map<String, dynamic>> libraryItems({String? category}) =>
+      get('/api/library/items${category != null ? '?category=$category' : ''}');
+  Future<Map<String, dynamic>> azanAudioOptions() =>
+      get('/api/azan-audio/options');
+
+  Future<Map<String, dynamic>> ragQuery(
+    String question, {
+    String lang = 'ar',
+    bool childSafe = false,
+  }) =>
+      postJson('/api/rag/query', {
+        'question_ar': question,
+        'language': lang,
+        'child_safe': childSafe,
+        'use_live_rag': true,
+      });
 
   // Deprecated Aliases
   Future<Map<String, dynamic>> contentSources() => libraryItems();
-  Future<Map<String, dynamic>> publicAnswers()  => listPublicQA();
+  Future<Map<String, dynamic>> publicAnswers() => listPublicQA();
 
-  Future<Map<String, dynamic>> submitQuestion(String text, {String lang = 'ar', String displayPref = 'ar'}) =>
+  Future<Map<String, dynamic>> submitQuestion(
+    String text, {
+    String lang = 'ar',
+    String displayPref = 'ar',
+    bool isAnonymous = true,
+  }) =>
       postJson('/api/ask-sheikh/questions', {
         'question_text_$lang': text,
         'language': lang,
         'display_language_preference': displayPref,
+        'is_anonymous': isAnonymous,
       });
 
-  Future<Map<String, dynamic>> listPublicQA({String? category, String lang = 'ar'}) =>
-      get('/api/ask-sheikh/public?language=$lang${category != null ? '&category=$category' : ''}');
+  Future<Map<String, dynamic>> listPublicQA({
+    String? category,
+    String lang = 'ar',
+  }) =>
+      get(
+        '/api/ask-sheikh/public?language=$lang${category != null ? '&category=$category' : ''}',
+      );
 }

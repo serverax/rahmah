@@ -43,12 +43,15 @@ class LocationService {
     }
 
     if (permission == LocationPermission.deniedForever) {
-      return _getStoredOrFallback('Location permissions are permanently denied');
+      return _getStoredOrFallback(
+        'Location permissions are permanently denied',
+      );
     }
 
     try {
       final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(accuracy: LocationAccuracy.low),
+        locationSettings:
+            const LocationSettings(accuracy: LocationAccuracy.low),
       );
       await saveLocation(position.latitude, position.longitude, 'gps');
       return LocationResult(

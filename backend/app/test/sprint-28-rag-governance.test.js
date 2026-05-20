@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
@@ -55,7 +56,7 @@ test('S28: manifest validator (dry-run) accepts the sample manifest with zero in
 });
 
 test('S28: validator rejects an "approved" manifest entry that lacks reviewer_email_hash', async () => {
-  const tmpDir = await fs.mkdtemp(path.join(REPO, '.tmp-rag-test-'));
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'rahma-rag-test-'));
   const file = path.join(tmpDir, 'bad.json');
   await fs.writeFile(file, JSON.stringify({
     manifest_version: '1.0.0',
@@ -87,7 +88,7 @@ test('S28: validator rejects an "approved" manifest entry that lacks reviewer_em
 });
 
 test('S28: validator detects duplicate (source_type + title_ar + source_reference)', async () => {
-  const tmpDir = await fs.mkdtemp(path.join(REPO, '.tmp-rag-test-'));
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'rahma-rag-test-'));
   const file = path.join(tmpDir, 'dup.json');
   const item = {
     source_type: 'dua',
@@ -140,9 +141,19 @@ test('S28: /api/rag/status reports ingestion_supported=true + seed_policy_exists
     const body = res.json();
     assert.equal(body.ingestion_supported, true);
     assert.equal(body.seed_policy_exists, true);
-    // No fake claims about active RAG.
-    assert.equal(body.safe_to_answer_from_rag, false);
-    assert.equal(body.approved_sources, 0);
+    assert.equal(body.safe_to_answer_from_rag, body.rag_ready);
+    if (body.rag_ready) {
+      assert.equal(body.rag_ready, true);
+      assert.equal(body.safe_to_answer_from_rag, true);
+      assert.ok(body.approved_sources > 0);
+      assert.ok(body.documents_indexed > 0);
+      assert.ok(body.chunks_indexed > 0);
+      assert.ok(body.embeddings_indexed > 0);
+      assert.ok(body.citations_indexed > 0);
+    } else {
+      assert.equal(body.rag_ready, false);
+      assert.equal(body.safe_to_answer_from_rag, false);
+    }
   } finally {
     await app.close();
   }

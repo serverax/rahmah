@@ -298,6 +298,7 @@ export function engineMetadata() {
       'data-ingestion-controller',
       'audit-logger',
       'rahma-control-engine',
+      'self-improvement-engine',
     ],
     supported_events: SUPPORTED_EVENTS.slice(),
     safety_rules_loaded: [
@@ -312,6 +313,8 @@ export function engineMetadata() {
       'sensitive_topics_filtered_for_younger_bands',
       'duplicate_content_blocked',
       'missing_source_for_religious_type_blocked',
+      'human_approval_required_for_code_generation',
+      'human_approval_required_for_public_release',
     ],
   });
 }

@@ -57,7 +57,7 @@ test('Sprint64 — POST /api/auth/session/start: 503 auth_not_configured by defa
 test('Sprint64 — POST /api/auth/session/start: 400 password_grant_not_supported when auth=external', async () => {
   const s = envSnap();
   process.env.AUTH_MODE = 'external';
-  process.env.SESSION_SECRET = 'a'.repeat(32);
+  process.env.SESSION_SECRET = 'RahmaTestSessionKey2026Aa1Bb2Cc3Dd4Ee5Ff6';
   const app = buildApp();
   try {
     const r = await app.inject({ method: 'POST', url: '/api/auth/session/start', payload: {} });
@@ -69,7 +69,7 @@ test('Sprint64 — POST /api/auth/session/start: 400 password_grant_not_supporte
 test('Sprint64 — POST /api/auth/session/refresh: 401 session_expired (no token)', async () => {
   const s = envSnap();
   process.env.AUTH_MODE = 'external';
-  process.env.SESSION_SECRET = 'a'.repeat(32);
+  process.env.SESSION_SECRET = 'RahmaTestSessionKey2026Aa1Bb2Cc3Dd4Ee5Ff6';
   const app = buildApp();
   try {
     const r = await app.inject({ method: 'POST', url: '/api/auth/session/refresh', payload: {} });
@@ -127,7 +127,7 @@ test('Sprint64 — validateDeviceRegistration: pure helper rejects bad shape', (
 test('Sprint64 — auth surface NEVER echoes a candidate password', async () => {
   const s = envSnap();
   process.env.AUTH_MODE = 'external';
-  process.env.SESSION_SECRET = 'a'.repeat(32);
+  process.env.SESSION_SECRET = 'RahmaTestSessionKey2026Aa1Bb2Cc3Dd4Ee5Ff6';
   const app = buildApp();
   try {
     const r = await app.inject({

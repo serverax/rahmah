@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rahma-legal-pages-nodeport
+  namespace: rahma-legal-pages
+  labels:
+    app.kubernetes.io/name: rahma-legal-pages
+    app.kubernetes.io/part-of: rahma
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: rahma-legal-pages
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      nodePort: 30080

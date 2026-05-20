@@ -226,7 +226,7 @@ CREATE TABLE IF NOT EXISTS ibadat_answers (
   category_id     INTEGER REFERENCES ibadat_categories(id) ON DELETE SET NULL,
   confidence      TEXT NOT NULL CHECK (confidence IN ('high','medium','low')),
   blocked         BOOLEAN NOT NULL DEFAULT FALSE,
-  disclaimer      TEXT NOT NULL DEFAULT 'هذه إجابة إرشادية عامة، وليست فتوى شخصية.',
+  disclaimer      TEXT NOT NULL DEFAULT 'This is general educational guidance, not a personal fatwa.',
   created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

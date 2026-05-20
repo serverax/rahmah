@@ -9,18 +9,18 @@
   'use strict';
 
   const API_BASE = (() => {
-    // Allow override via meta tag for staging deploys.
     const m = document.querySelector('meta[name="rahma-api-base"]');
     if (m && typeof m.getAttribute === 'function') {
       const v = m.getAttribute('content');
       if (v && v.length > 0) return v;
     }
-    // Default: same origin (when frontend served from the backend host).
     return '';
   })();
 
   const ARABIC = Object.freeze({
     serviceUnavailable: 'الخدمة غير متاحة حالياً',
+    servicePillTitle: 'غير متاح مؤقتاً',
+    servicePillSubtitle: 'سيتم تفعيل الخدمة قريباً بإذن الله',
     loadingHealth: 'جارٍ التحقق من حالة الخدمة...',
     healthOk: 'الخدمة متصلة',
     engineFoundation: 'محرك التحكم: الأساس فقط',
@@ -31,11 +31,34 @@
     networkError: 'تعذّر الاتصال بالخادم',
   });
 
-  async function fetchJson(path) {
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function serviceUnavailablePillHtml() {
+    return `<div class="rahma-service-pill" role="status" aria-live="polite">
+      <span class="rahma-service-pill__dot" aria-hidden="true"></span>
+      <span class="rahma-service-pill__text">
+        <strong>${ARABIC.servicePillTitle}</strong>
+        <span>${ARABIC.servicePillSubtitle}</span>
+      </span>
+    </div>`;
+  }
+
+  async function fetchJson(path, options) {
     try {
       const res = await fetch(`${API_BASE}${path}`, {
-        method: 'GET',
-        headers: { 'accept': 'application/json' },
+        method: (options && options.method) || 'GET',
+        headers: {
+          accept: 'application/json',
+          ...((options && options.headers) || {}),
+        },
+        body: options && options.body,
       });
       if (!res.ok) return { ok: false, status: res.status, error: 'http_error' };
       const body = await res.json();
@@ -48,20 +71,29 @@
   function renderArabicState(el, kind, message) {
     if (!el) return;
     const cls = kind === 'error' ? 'state-error' : (kind === 'loading' ? 'state-loading' : 'state-empty');
-    el.innerHTML = `<div class="${cls}">${message}</div>`;
+    el.innerHTML = `<div class="${cls}">${escapeHtml(message)}</div>`;
+  }
+
+  function renderServiceUnavailablePill(el) {
+    if (!el) return;
+    el.innerHTML = serviceUnavailablePillHtml();
   }
 
   async function loadBackendStatus(container) {
     if (!container) return;
-    container.innerHTML = `<div class="state-loading">${ARABIC.loadingHealth}</div>`;
-    const [healthRes, readyRes, engineRes, ragRes] = await Promise.all([
+    const isHome = document.body && document.body.dataset && document.body.dataset.rahmaPage === 'home';
+    container.innerHTML = `<span class="chip chip-loading">${ARABIC.loadingHealth}</span>`;
+    const [healthRes, engineRes, ragRes] = await Promise.all([
       fetchJson('/health'),
-      fetchJson('/ready'),
       fetchJson('/api/engine/status'),
       fetchJson('/api/rag/status'),
     ]);
     if (!healthRes.ok) {
-      renderArabicState(container, 'error', ARABIC.serviceUnavailable);
+      if (isHome) {
+        container.innerHTML = '';
+        return;
+      }
+      renderServiceUnavailablePill(container);
       return;
     }
     const chips = [];
@@ -79,27 +111,33 @@
     container.innerHTML = chips.join(' ');
   }
 
-  // Expose for inline page scripts.
   window.Rahma = Object.freeze({
     API_BASE,
     ARABIC,
+    escapeHtml,
     fetchJson,
     renderArabicState,
+    renderServiceUnavailablePill,
     loadBackendStatus,
+    serviceUnavailablePillHtml,
   });
 
-  // Auto-load status on any element with [data-rahma-status].
   document.addEventListener('DOMContentLoaded', () => {
     const el = document.querySelector('[data-rahma-status]');
-    if (el) loadBackendStatus(el).catch(() => {
-      renderArabicState(el, 'error', ARABIC.serviceUnavailable);
-    });
-    // Tag the active bottom-nav link based on the current pathname.
+    if (el) {
+      loadBackendStatus(el).catch(() => {
+        const isHome = document.body && document.body.dataset && document.body.dataset.rahmaPage === 'home';
+        if (!isHome) renderServiceUnavailablePill(el);
+        else el.innerHTML = '';
+      });
+    }
     const path = window.location.pathname.replace(/\/+$/, '') || '/';
+    const file = path.split('/').pop() || 'index.html';
     document.querySelectorAll('.app-bottom-nav a').forEach((a) => {
       const href = a.getAttribute('href') || '';
-      const norm = href.replace(/\/+$/, '') || '/';
-      if (norm === path || norm + '.html' === path) {
+      const norm = href.replace(/^\//, '').replace(/\/+$/, '') || 'index.html';
+      const current = file === '' ? 'index.html' : file;
+      if (norm === current || norm === path.replace(/^\//, '')) {
         a.classList.add('active');
       }
     });

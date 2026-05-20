@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rahma-web
+  namespace: rahma-web
+  labels:
+    app.kubernetes.io/name: rahma-web
+    app.kubernetes.io/part-of: rahma
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: rahma-web
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

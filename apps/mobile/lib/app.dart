@@ -6,13 +6,19 @@ import 'screens/home_screen.dart';
 import 'screens/quran_screen.dart';
 import 'screens/ask_sheikh_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/improvement_center_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/hadith_screen.dart';
 import 'screens/children_game_screen.dart';
 import 'screens/donation_screen.dart';
 import 'screens/dua_screen.dart';
 import 'screens/library_screen.dart';
+import 'screens/verified_answers_screen.dart';
+import 'screens/sources_screen.dart';
 import 'screens/azan_audio_settings_screen.dart';
+import 'screens/prayer_screen.dart';
+import 'screens/qibla_screen.dart';
+import 'screens/splash_screen.dart';
 import 'theme/rahma_theme.dart';
 
 class RahmaApp extends StatelessWidget {
@@ -40,17 +46,23 @@ class RahmaApp extends StatelessWidget {
 
       initialRoute: '/',
       routes: {
-        '/':           (_) => const BottomNavShell(),
-        '/home':        (_) => const HomeScreen(),
-        '/quran':       (_) => const QuranScreen(),
-        '/ask':         (_) => const AskSheikhScreen(),
-        '/dua':         (_) => const DuaScreen(),
-        '/library':     (_) => const IslamicLibraryScreen(),
-        '/settings':    (_) => const SettingsScreen(),
-        '/onboarding':  (_) => const OnboardingScreen(),
-        '/hadith':      (_) => const HadithScreen(),
-        '/game':        (_) => const ChildrenGameScreen(),
-        '/donations':   (_) => const DonationScreen(),
+        '/': (_) => const SplashScreen(),
+        '/app': (_) => const BottomNavShell(),
+        '/home': (_) => const HomeScreen(),
+        '/quran': (_) => const QuranScreen(),
+        '/ask': (_) => const AskSheikhScreen(),
+        '/prayer': (_) => const PrayerScreen(),
+        '/qibla': (_) => const QiblaScreen(),
+        '/dua': (_) => const DuaScreen(),
+        '/library': (_) => const IslamicLibraryScreen(),
+        '/answers': (_) => const VerifiedAnswersScreen(),
+        '/sources': (_) => const SourcesScreen(),
+        '/settings': (_) => const SettingsScreen(),
+        '/improvement-center': (_) => const ImprovementCenterScreen(),
+        '/onboarding': (_) => const OnboardingScreen(),
+        '/hadith': (_) => const HadithScreen(),
+        '/game': (_) => const ChildrenGameScreen(),
+        '/donations': (_) => const DonationScreen(),
         '/settings/azan-audio': (_) => const AzanAudioSettingsScreen(),
       },
     );

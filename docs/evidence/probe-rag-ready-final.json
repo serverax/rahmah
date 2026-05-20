@@ -1,0 +1,627 @@
+{
+  "base": "http://127.0.0.1:18180",
+  "tested_at": "2026-05-19T14:39:59.494Z",
+  "health": {
+    "status": 200,
+    "json": {
+      "ok": true,
+      "service": "rahma-api",
+      "legacy_service_name": "sakina-backend",
+      "status": "healthy"
+    },
+    "text": "{\"ok\":true,\"service\":\"rahma-api\",\"legacy_service_name\":\"sakina-backend\",\"status\":\"healthy\"}"
+  },
+  "ready": {
+    "status": 200,
+    "json": {
+      "ok": true,
+      "readiness_schema_version": "2",
+      "service": "rahma-api",
+      "legacy_service_name": "sakina-backend",
+      "platform": "mobile-only",
+      "public_ingress": "disabled",
+      "public_ingress_state": {
+        "disabled": true,
+        "status": "disabled"
+      },
+      "version": "0.1.0",
+      "git_commit": null,
+      "database_configured": true,
+      "database_connected": true,
+      "rag_configured": true,
+      "llm_configured": false,
+      "wasm_runtime_configured": true,
+      "wasm_ready": true,
+      "wasm_execution_proven": true,
+      "app_store_compliance_ready": true,
+      "azan_audio_production_ready": true,
+      "notification_ready": true,
+      "redis_ready": true,
+      "auth_ready": true,
+      "pgvector_ready": true,
+      "content_governance_enabled": true,
+      "algorithm_ready": true,
+      "algorithm_version": "rahma-algorithm-v1",
+      "last_algorithm_test_at": "2026-05-19T14:35:12.165Z",
+      "production_ready": true,
+      "blockers": [],
+      "database": {
+        "configured": true,
+        "connected": true,
+        "checked": true,
+        "error_type": null,
+        "migration_table_exists": true,
+        "applied_migrations_count": 28,
+        "pending_migrations_count": null
+      },
+      "redis": {
+        "configured": true,
+        "reachable": true,
+        "ready": true,
+        "error_type": null
+      },
+      "pgvector": {
+        "configured": true,
+        "extension_present": true,
+        "embedding_column_present": true,
+        "vector_index_present": true,
+        "vector_rows": 25,
+        "ready": true
+      },
+      "local_llm": {
+        "configured": false,
+        "provider": "ollama",
+        "require_approved_context": true,
+        "require_citations": true,
+        "direct_religious_answers_disabled": true
+      },
+      "wasm": {
+        "mode": "required",
+        "configured": true,
+        "ready": true,
+        "reachable": true,
+        "execution_proven": true,
+        "disable_approved": false,
+        "modules": [
+          {
+            "name": "fatwa-policy-gate",
+            "configured": true,
+            "reachable": true,
+            "execution_proven": true,
+            "error_type": null
+          },
+          {
+            "name": "quran-hadith-citation",
+            "configured": true,
+            "reachable": true,
+            "execution_proven": true,
+            "error_type": null
+          },
+          {
+            "name": "child-safety",
+            "configured": true,
+            "reachable": true,
+            "execution_proven": true,
+            "error_type": null
+          },
+          {
+            "name": "content-rule-engine",
+            "configured": true,
+            "reachable": true,
+            "execution_proven": true,
+            "error_type": null
+          }
+        ],
+        "fatwa_policy_gate": {
+          "configured": true,
+          "reachable": true,
+          "execution_proven": true,
+          "error_type": null
+        },
+        "quran_hadith_citation": {
+          "configured": true,
+          "reachable": true,
+          "execution_proven": true,
+          "error_type": null
+        },
+        "child_safety": {
+          "configured": true,
+          "reachable": true,
+          "execution_proven": true,
+          "error_type": null
+        },
+        "content_rule_engine": {
+          "configured": true,
+          "reachable": true,
+          "execution_proven": true,
+          "error_type": null
+        }
+      },
+      "azan_audio": {
+        "configured": true,
+        "production_ready": true,
+        "assets_available": true,
+        "approved_assets": 1,
+        "verified_assets": 1,
+        "default_azan_id": "makkah_public_01",
+        "blocker": null
+      },
+      "notifications": {
+        "azan_alerts_configured": true,
+        "native_notifications_configured": true,
+        "fcm_configured": true,
+        "apns_configured": true,
+        "push_production_ready": true,
+        "push_required": true
+      },
+      "islamic_sources": {
+        "configured": true,
+        "approved_sources": 2
+      },
+      "donations": {
+        "configured": true,
+        "provider": "manual_offline"
+      },
+      "auth": {
+        "configured": true,
+        "ready": true,
+        "mode": "external"
+      },
+      "ibadat": {
+        "scope": "ibadat",
+        "source_required": true,
+        "answer_without_source_blocked": true
+      },
+      "sources": {
+        "registry_required": true,
+        "retrieval_configured": false,
+        "answer_generation_enabled": false,
+        "verified_sources_required": true
+      },
+      "ask_sheikh_hasan": {
+        "enabled": true,
+        "sheikh_login_required": true,
+        "sheikh_auth_configured": false,
+        "public_answers_enabled": true,
+        "citation_required_for_public_answers": true,
+        "moderation_required": true,
+        "repository_configured": true,
+        "whatsapp_configured": false
+      },
+      "public_qa": {
+        "enabled": true,
+        "private_user_identity_hidden": true,
+        "report_content_required": true,
+        "repository_configured": true
+      },
+      "app_store": {
+        "compliance_mode": true,
+        "compliance_status": "approved",
+        "ready": true,
+        "files_present": true,
+        "pages_wired": true,
+        "placeholder_free": true,
+        "required": [
+          {
+            "key": "privacy_policy",
+            "doc": "docs/app-store/PRIVACY_POLICY_DRAFT.md",
+            "page": "apps/web/public/privacy.html",
+            "doc_present": true,
+            "page_present": true,
+            "wired": true,
+            "placeholder_free": true,
+            "ready": true
+          },
+          {
+            "key": "terms",
+            "doc": "docs/app-store/TERMS_AND_CONDITIONS_DRAFT.md",
+            "page": "apps/web/public/terms.html",
+            "doc_present": true,
+            "page_present": true,
+            "wired": true,
+            "placeholder_free": true,
+            "ready": true
+          },
+          {
+            "key": "child_safety",
+            "doc": "docs/app-store/CHILD_SAFETY_POLICY_DRAFT.md",
+            "page": "apps/web/public/child-safety.html",
+            "doc_present": true,
+            "page_present": true,
+            "wired": true,
+            "placeholder_free": true,
+            "ready": true
+          },
+          {
+            "key": "islamic_ai_disclaimer",
+            "doc": "docs/app-store/AI_ISLAMIC_DISCLAIMER.md",
+            "page": "apps/web/public/ask.html",
+            "doc_present": true,
+            "page_present": true,
+            "wired": true,
+            "placeholder_free": true,
+            "ready": true
+          },
+          {
+            "key": "account_deletion",
+            "doc": "docs/app-store/ACCOUNT_DELETION_POLICY_DRAFT.md",
+            "page": "apps/web/public/account-deletion.html",
+            "doc_present": true,
+            "page_present": true,
+            "wired": true,
+            "placeholder_free": true,
+            "ready": true
+          },
+          {
+            "key": "data_handling",
+            "doc": "docs/compliance/RAHMA_PRIVACY_AND_DATA_SAFETY_MODEL.md",
+            "page": "apps/web/public/data-export.html",
+            "doc_present": true,
+            "page_present": true,
+            "wired": true,
+            "placeholder_free": true,
+            "ready": true
+          },
+          {
+            "key": "support_contact",
+            "doc": "docs/compliance/RAHMA_APP_STORE_COMPLIANCE_REQUIREMENTS.md",
+            "page": "apps/web/public/support.html",
+            "doc_present": true,
+            "page_present": true,
+            "wired": true,
+            "placeholder_free": true,
+            "ready": true
+          }
+        ],
+        "apple_foundation_required": true,
+        "google_play_foundation_required": true,
+        "account_deletion_required": true,
+        "content_reporting_required": true,
+        "moderation_required": true
+      },
+      "cache": {
+        "configured": true,
+        "mode": "memory",
+        "redis_url_configured": true,
+        "external_network_required": false,
+        "safe_fallback_enabled": true
+      },
+      "rag": {
+        "mode": "live",
+        "approved_sources": 2,
+        "pending_review_sources": 9,
+        "unverified_sources": 0,
+        "blocked_sources": 2,
+        "documents_indexed": 7,
+        "chunks_indexed": 25,
+        "embeddings_indexed": 25,
+        "vector_embeddings_indexed": 25,
+        "citations_indexed": 25,
+        "last_ingestion_at": "2026-05-19T14:28:10.932Z",
+        "last_verified_at": "2026-05-19T14:35:11.584Z",
+        "last_algorithm_test_at": "2026-05-19T14:35:12.165Z",
+        "rag_ready": true,
+        "algorithm_ready": true,
+        "algorithm_version": "rahma-algorithm-v1",
+        "blocker_reason": null,
+        "blockers": []
+      },
+      "sheikh_audit": {
+        "configured": false
+      },
+      "engine": {
+        "implemented": true,
+        "mode": "deterministic_rules",
+        "rag_registry_configured": true,
+        "rag_retrieval_configured": true
+      },
+      "safe_to_serve_public": true,
+      "environment": "production"
+    },
+    "text": "{\"ok\":true,\"readiness_schema_version\":\"2\",\"service\":\"rahma-api\",\"legacy_service_name\":\"sakina-backend\",\"platform\":\"mobile-only\",\"public_ingress\":\"disabled\",\"public_ingress_state\":{\"disabled\":true,\"status\":\"disabled\"},\"version\":\"0.1.0\",\"git_commit\":null,\"database_configured\":true,\"database_connected\":true,\"rag_configured\":true,\"llm_configured\":false,\"wasm_runtime_configured\":true,\"wasm_ready\":true,\"wasm_execution_proven\":true,\"app_store_compliance_ready\":true,\"azan_audio_production_ready\":true,\"notification_ready\":true,\"redis_ready\":true,\"auth_ready\":true,\"pgvector_ready\":true,\"content_governance_enabled\":true,\"algorithm_ready\":true,\"algorithm_version\":\"rahma-algorithm-v1\",\"last_algorithm_test_at\":\"2026-05-19T14:35:12.165Z\",\"production_ready\":true,\"blockers\":[],\"database\":{\"configured\":true,\"connected\":true,\"checked\":true,\"error_type\":null,\"migration_table_exists\":true,\"applied_migrations_count\":28,\"pending_migrations_count\":null},\"redis\":{\"configured\":true,\"reachable\":true,\"ready\":true,\"error_type\":null},\"pgvector\":{\"configured\":true,\"extension_present\":true,\"embedding_column_present\":true,\"vector_index_present\":true,\"vector_rows\":25,\"ready\":true},\"local_llm\":{\"configured\":false,\"provider\":\"ollama\",\"require_approved_context\":true,\"require_citations\":true,\"direct_religious_answers_disabled\":true},\"wasm\":{\"mode\":\"required\",\"configured\":true,\"ready\":true,\"reachable\":true,\"execution_proven\":true,\"disable_approved\":false,\"modules\":[{\"name\":\"fatwa-policy-gate\",\"configured\":true,\"reachable\":true,\"execution_proven\":true,\"error_type\":null},{\"name\":\"quran-hadith-citation\",\"configured\":true,\"reachable\":true,\"execution_proven\":true,\"error_type\":null},{\"name\":\"child-safety\",\"configured\":true,\"reachable\":true,\"execution_proven\":true,\"error_type\":null},{\"name\":\"content-rule-engine\",\"configured\":true,\"reachable\":true,\"execution_proven\":true,\"error_type\":null}],\"fatwa_policy_gate\":{\"configured\":true,\"reachable\":true,\"execution_proven\":true,\"error_type\":null},\"quran_hadith_citation\":{\"configured\":true,\"reachable\":true,\"execution_proven\":true,\"error_type\":null},\"child_safety\":{\"configured\":true,\"reachable\":true,\"execution_proven\":true,\"error_type\":null},\"content_rule_engine\":{\"configured\":true,\"reachable\":true,\"execution_proven\":true,\"error_type\":null}},\"azan_audio\":{\"configured\":true,\"production_ready\":true,\"assets_available\":true,\"approved_assets\":1,\"verified_assets\":1,\"default_azan_id\":\"makkah_public_01\",\"blocker\":null},\"notifications\":{\"azan_alerts_configured\":true,\"native_notifications_configured\":true,\"fcm_configured\":true,\"apns_configured\":true,\"push_production_ready\":true,\"push_required\":true},\"islamic_sources\":{\"configured\":true,\"approved_sources\":2},\"donations\":{\"configured\":true,\"provider\":\"manual_offline\"},\"auth\":{\"configured\":true,\"ready\":true,\"mode\":\"external\"},\"ibadat\":{\"scope\":\"ibadat\",\"source_required\":true,\"answer_without_source_blocked\":true},\"sources\":{\"registry_required\":true,\"retrieval_configured\":false,\"answer_generation_enabled\":false,\"verified_sources_required\":true},\"ask_sheikh_hasan\":{\"enabled\":true,\"sheikh_login_required\":true,\"sheikh_auth_configured\":false,\"public_answers_enabled\":true,\"citation_required_for_public_answers\":true,\"moderation_required\":true,\"repository_configured\":true,\"whatsapp_configured\":false},\"public_qa\":{\"enabled\":true,\"private_user_identity_hidden\":true,\"report_content_required\":true,\"repository_configured\":true},\"app_store\":{\"compliance_mode\":true,\"compliance_status\":\"approved\",\"ready\":true,\"files_present\":true,\"pages_wired\":true,\"placeholder_free\":true,\"required\":[{\"key\":\"privacy_policy\",\"doc\":\"docs/app-store/PRIVACY_POLICY_DRAFT.md\",\"page\":\"apps/web/public/privacy.html\",\"doc_present\":true,\"page_present\":true,\"wired\":true,\"placeholder_free\":true,\"ready\":true},{\"key\":\"terms\",\"doc\":\"docs/app-store/TERMS_AND_CONDITIONS_DRAFT.md\",\"page\":\"apps/web/public/terms.html\",\"doc_present\":true,\"page_present\":true,\"wired\":true,\"placeholder_free\":true,\"ready\":true},{\"key\":\"child_safety\",\"doc\":\"docs/app-store/CHILD_SAFETY_POLICY_DRAFT.md\",\"page\":\"apps/web/public/child-safety.html\",\"doc_present\":true,\"page_present\":true,\"wired\":true,\"placeholder_free\":true,\"ready\":true},{\"key\":\"islamic_ai_disclaimer\",\"doc\":\"docs/app-store/AI_ISLAMIC_DISCLAIMER.md\",\"page\":\"apps/web/public/ask.html\",\"doc_present\":true,\"page_present\":true,\"wired\":true,\"placeholder_free\":true,\"ready\":true},{\"key\":\"account_deletion\",\"doc\":\"docs/app-store/ACCOUNT_DELETION_POLICY_DRAFT.md\",\"page\":\"apps/web/public/account-deletion.html\",\"doc_present\":true,\"page_present\":true,\"wired\":true,\"placeholder_free\":true,\"ready\":true},{\"key\":\"data_handling\",\"doc\":\"docs/compliance/RAHMA_PRIVACY_AND_DATA_SAFETY_MODEL.md\",\"page\":\"apps/web/public/data-export.html\",\"doc_present\":true,\"page_present\":true,\"wired\":true,\"placeholder_free\":true,\"ready\":true},{\"key\":\"support_contact\",\"doc\":\"docs/compliance/RAHMA_APP_STORE_COMPLIANCE_REQUIREMENTS.md\",\"page\":\"apps/web/public/support.html\",\"doc_present\":true,\"page_present\":true,\"wired\":true,\"placeholder_free\":true,\"ready\":true}],\"apple_foundation_required\":true,\"google_play_foundation_required\":true,\"account_deletion_required\":true,\"content_reporting_required\":true,\"moderation_required\":true},\"cache\":{\"configured\":true,\"mode\":\"memory\",\"redis_url_configured\":true,\"external_network_required\":false,\"safe_fallback_enabled\":true},\"rag\":{\"mode\":\"live\",\"approved_sources\":2,\"pending_review_sources\":9,\"unverified_sources\":0,\"blocked_sources\":2,\"documents_indexed\":7,\"chunks_indexed\":25,\"embeddings_indexed\":25,\"vector_embeddings_indexed\":25,\"citations_indexed\":25,\"last_ingestion_at\":\"2026-05-19T14:28:10.932Z\",\"last_verified_at\":\"2026-05-19T14:35:11.584Z\",\"last_algorithm_test_at\":\"2026-05-19T14:35:12.165Z\",\"rag_ready\":true,\"algorithm_ready\":true,\"algorithm_version\":\"rahma-algorithm-v1\",\"blocker_reason\":null,\"blockers\":[]},\"sheikh_audit\":{\"configured\":false},\"engine\":{\"implemented\":true,\"mode\":\"deterministic_rules\",\"rag_registry_configured\":true,\"rag_retrieval_configured\":true},\"safe_to_serve_public\":true,\"environment\":\"production\"}"
+  },
+  "categories": {
+    "status": 200,
+    "json": {
+      "ok": true,
+      "categories": [
+        {
+          "id": "quran",
+          "title_ar": "Ïº┘ä┘éÏ▒Ïó┘å Ïº┘ä┘âÏ▒┘è┘à",
+          "description_ar": "Ïó┘èÏºÏ¬ ┘êÏ¬┘üÏ│┘èÏ▒ ┘àÏ«Ï¬ÏÁÏ▒ Ï¿Ï╣Ï» Ïº┘ä┘àÏ▒ÏºÏ¼Ï╣Ï®."
+        },
+        {
+          "id": "hadith",
+          "title_ar": "Ïº┘äÏ¡Ï»┘èÏ½ Ïº┘äÏ┤Ï▒┘è┘ü",
+          "description_ar": "ÏúÏ¡ÏºÏ»┘èÏ½ ÏÁÏ¡┘èÏ¡Ï® ┘àÏ╣ Ï¿┘èÏº┘å Ï»Ï▒Ï¼Ï® Ïº┘äÏÁÏ¡Ï®."
+        },
+        {
+          "id": "dua",
+          "title_ar": "Ïº┘äÏúÏ»Ï╣┘èÏ®",
+          "description_ar": "ÏúÏ»Ï╣┘èÏ® ┘àÏúÏ½┘êÏ▒Ï® Ï¿Ï╣Ï» Ïº┘äÏ¬Ï¡┘é┘é ┘à┘å Ïº┘ä┘àÏÁÏ»Ï▒."
+        },
+        {
+          "id": "azkar",
+          "title_ar": "Ïº┘äÏúÏ░┘âÏºÏ▒",
+          "description_ar": "ÏúÏ░┘âÏºÏ▒ Ïº┘ä┘è┘ê┘à ┘êÏº┘ä┘à┘åÏºÏ│Ï¿ÏºÏ¬."
+        },
+        {
+          "id": "prayer",
+          "title_ar": "Ïº┘äÏÁ┘äÏºÏ®",
+          "description_ar": "ÏúÏ¡┘âÏº┘à Ïº┘äÏÁ┘äÏºÏ® Ï¿Ï╣Ï» Ïº┘ä┘àÏ▒ÏºÏ¼Ï╣Ï®."
+        },
+        {
+          "id": "fasting",
+          "title_ar": "Ïº┘äÏÁ┘èÏº┘à",
+          "description_ar": "ÏúÏ¡┘âÏº┘à Ïº┘äÏÁ┘èÏº┘à Ï¿Ï╣Ï» Ïº┘ä┘àÏ▒ÏºÏ¼Ï╣Ï®."
+        },
+        {
+          "id": "zakat",
+          "title_ar": "Ïº┘äÏ▓┘âÏºÏ®",
+          "description_ar": "ÏúÏ¡┘âÏº┘à Ïº┘äÏ▓┘âÏºÏ® Ï¿Ï╣Ï» Ïº┘ä┘àÏ▒ÏºÏ¼Ï╣Ï®."
+        },
+        {
+          "id": "hajj",
+          "title_ar": "Ïº┘äÏ¡Ï¼ ┘êÏº┘äÏ╣┘àÏ▒Ï®",
+          "description_ar": "ÏúÏ¡┘âÏº┘à Ïº┘äÏ¡Ï¼ ┘êÏº┘äÏ╣┘àÏ▒Ï® Ï¿Ï╣Ï» Ïº┘ä┘àÏ▒ÏºÏ¼Ï╣Ï®."
+        },
+        {
+          "id": "akhlaq",
+          "title_ar": "Ïº┘äÏúÏ«┘äÏº┘é Ïº┘äÏÑÏ│┘äÏº┘à┘èÏ®",
+          "description_ar": "Ï»Ï▒┘êÏ│ ┘ü┘è Ïº┘äÏúÏ«┘äÏº┘é ┘ä┘äÏúÏ│Ï▒Ï®."
+        },
+        {
+          "id": "child_content",
+          "title_ar": "Ï¬Ï╣┘ä┘è┘à Ïº┘äÏúÏÀ┘üÏº┘ä",
+          "description_ar": "┘àÏ¡Ï¬┘ê┘ë ┘äÏÀ┘è┘ü ┘ê┘à┘åÏºÏ│Ï¿ ┘ä┘äÏúÏÀ┘üÏº┘ä."
+        },
+        {
+          "id": "family",
+          "title_ar": "Ïº┘äÏúÏ│Ï▒Ï®",
+          "description_ar": "┘à┘êÏºÏÂ┘èÏ╣ Ïº┘äÏúÏ│Ï▒Ï® Ï¿ÏúÏ│┘ä┘êÏ¿ ┘àÏ▒ÏºÏ¼┘ÄÏ╣."
+        },
+        {
+          "id": "seerah",
+          "title_ar": "Ïº┘äÏ│┘èÏ▒Ï® Ïº┘ä┘åÏ¿┘ê┘èÏ®",
+          "description_ar": "┘à┘êÏº┘é┘ü ┘à┘å Ïº┘äÏ│┘èÏ▒Ï® Ï¿ÏúÏ│┘ä┘êÏ¿ ┘à┘åÏºÏ│Ï¿."
+        }
+      ]
+    },
+    "text": "{\"ok\":true,\"categories\":[{\"id\":\"quran\",\"title_ar\":\"Ïº┘ä┘éÏ▒Ïó┘å Ïº┘ä┘âÏ▒┘è┘à\",\"description_ar\":\"Ïó┘èÏºÏ¬ ┘êÏ¬┘üÏ│┘èÏ▒ ┘àÏ«Ï¬ÏÁÏ▒ Ï¿Ï╣Ï» Ïº┘ä┘àÏ▒ÏºÏ¼Ï╣Ï®.\"},{\"id\":\"hadith\",\"title_ar\":\"Ïº┘äÏ¡Ï»┘èÏ½ Ïº┘äÏ┤Ï▒┘è┘ü\",\"description_ar\":\"ÏúÏ¡ÏºÏ»┘èÏ½ ÏÁÏ¡┘èÏ¡Ï® ┘àÏ╣ Ï¿┘èÏº┘å Ï»Ï▒Ï¼Ï® Ïº┘äÏÁÏ¡Ï®.\"},{\"id\":\"dua\",\"title_ar\":\"Ïº┘äÏúÏ»Ï╣┘èÏ®\",\"description_ar\":\"ÏúÏ»Ï╣┘èÏ® ┘àÏúÏ½┘êÏ▒Ï® Ï¿Ï╣Ï» Ïº┘äÏ¬Ï¡┘é┘é ┘à┘å Ïº┘ä┘àÏÁÏ»Ï▒.\"},{\"id\":\"azkar\",\"title_ar\":\"Ïº┘äÏúÏ░┘âÏºÏ▒\",\"description_ar\":\"ÏúÏ░┘âÏºÏ▒ Ïº┘ä┘è┘ê┘à ┘êÏº┘ä┘à┘åÏºÏ│Ï¿ÏºÏ¬.\"},{\"id\":\"prayer\",\"title_ar\":\"Ïº┘äÏÁ┘äÏºÏ®\",\"description_ar\":\"ÏúÏ¡┘âÏº┘à Ïº┘äÏÁ┘äÏºÏ® Ï¿Ï╣Ï» Ïº┘ä┘àÏ▒ÏºÏ¼Ï╣Ï®.\"},{\"id\":\"fasting\",\"title_ar\":\"Ïº┘äÏÁ┘èÏº┘à\",\"description_ar\":\"ÏúÏ¡┘âÏº┘à Ïº┘äÏÁ┘èÏº┘à Ï¿Ï╣Ï» Ïº┘ä┘àÏ▒ÏºÏ¼Ï╣Ï®.\"},{\"id\":\"zakat\",\"title_ar\":\"Ïº┘äÏ▓┘âÏºÏ®\",\"description_ar\":\"ÏúÏ¡┘âÏº┘à Ïº┘äÏ▓┘âÏºÏ® Ï¿Ï╣Ï» Ïº┘ä┘àÏ▒ÏºÏ¼Ï╣Ï®.\"},{\"id\":\"hajj\",\"title_ar\":\"Ïº┘äÏ¡Ï¼ ┘êÏº┘äÏ╣┘àÏ▒Ï®\",\"description_ar\":\"ÏúÏ¡┘âÏº┘à Ïº┘äÏ¡Ï¼ ┘êÏº┘äÏ╣┘àÏ▒Ï® Ï¿Ï╣Ï» Ïº┘ä┘àÏ▒ÏºÏ¼Ï╣Ï®.\"},{\"id\":\"akhlaq\",\"title_ar\":\"Ïº┘äÏúÏ«┘äÏº┘é Ïº┘äÏÑÏ│┘äÏº┘à┘èÏ®\",\"description_ar\":\"Ï»Ï▒┘êÏ│ ┘ü┘è Ïº┘äÏúÏ«┘äÏº┘é ┘ä┘äÏúÏ│Ï▒Ï®.\"},{\"id\":\"child_content\",\"title_ar\":\"Ï¬Ï╣┘ä┘è┘à Ïº┘äÏúÏÀ┘üÏº┘ä\",\"description_ar\":\"┘àÏ¡Ï¬┘ê┘ë ┘äÏÀ┘è┘ü ┘ê┘à┘åÏºÏ│Ï¿ ┘ä┘äÏúÏÀ┘üÏº┘ä.\"},{\"id\":\"family\",\"title_ar\":\"Ïº┘äÏúÏ│Ï▒Ï®\",\"description_ar\":\"┘à┘êÏºÏÂ┘èÏ╣ Ïº┘äÏúÏ│Ï▒Ï® Ï¿ÏúÏ│┘ä┘êÏ¿ ┘àÏ▒ÏºÏ¼┘ÄÏ╣.\"},{\"id\":\"seerah\",\"title_ar\":\"Ïº┘äÏ│┘èÏ▒Ï® Ïº┘ä┘åÏ¿┘ê┘èÏ®\",\"description_ar\":\"┘à┘êÏº┘é┘ü ┘à┘å Ïº┘äÏ│┘èÏ▒Ï® Ï¿ÏúÏ│┘ä┘êÏ¿ ┘à┘åÏºÏ│Ï¿.\"}]}"
+  },
+  "public_qa": {
+    "status": 200,
+    "json": {
+      "ok": true,
+      "items": [
+        {
+          "id": "225fe100-d0f5-46f4-a834-bf864817a51f",
+          "question": "┘àÏº ┘àÏ╣┘å┘ë Ïº┘äÏÑÏ¡Ï│Ïº┘åÏƒ",
+          "answer": "Ïº┘äÏÑÏ¡Ï│Ïº┘å ┘ç┘ê Ïú┘å ┘èÏ¡Ï▒ÏÁ Ïº┘ä┘àÏ│┘ä┘à Ï╣┘ä┘ë Ï╣Ï¿ÏºÏ»Ï® Ïº┘ä┘ä┘ç ┘ê┘àÏ▒Ïº┘éÏ¿Ï¬┘ç ┘ü┘è Ïº┘äÏ│Ï▒ ┘êÏº┘äÏ╣┘ä┘åÏî ┘êÏú┘å ┘èÏ¡Ï│┘å ┘ü┘è ┘é┘ê┘ä┘ç ┘êÏ╣┘à┘ä┘ç.",
+          "category": "Ï╣Ïº┘à",
+          "published_at": "2026-05-19T14:34:51.899Z",
+          "arabic_available": true,
+          "english_available": false
+        },
+        {
+          "id": "cccbc08c-b21b-4705-974d-66b46ffa41b9",
+          "question": "Ï¬Ï╣┘ä┘à Ï╣┘å Ïº┘äÏÁÏ»┘é ┘ä┘äÏúÏÀ┘üÏº┘ä",
+          "answer": "Ïº┘äÏÁÏ»┘é Ï«┘ä┘é Ï¼┘à┘è┘ä. ┘è┘é┘ê┘ä Ïº┘äÏÀ┘ü┘ä Ïº┘äÏ¡┘é┘è┘éÏ®Ïî ┘ê┘èÏ¡Ïº┘üÏ© Ï╣┘ä┘ë Ïº┘äÏú┘àÏº┘åÏ®Ïî ┘ê┘èÏ╣Ï¬Ï░Ï▒ ÏÑÏ░Ïº ÏúÏ«ÏÀÏú.",
+          "category": "Ï¬Ï▒Ï¿┘èÏ® Ïº┘äÏúÏÀ┘üÏº┘ä",
+          "published_at": "2026-05-19T14:34:51.899Z",
+          "arabic_available": true,
+          "english_available": false
+        },
+        {
+          "id": "eac33631-f2b2-4821-aedd-bf336efe9294",
+          "question": "┘àÏº Ï¡┘â┘à ÏÁ┘äÏºÏ® Ïº┘äÏ¼┘àÏ╣Ï® ┘ü┘è Ïº┘äÏ│┘üÏ▒Ïƒ",
+          "answer": "ÏÑÏ░Ïº ┘âÏº┘å Ïº┘ä┘àÏ│Ïº┘üÏ▒ ┘ü┘è Ï│┘üÏ▒ ┘èÏ¿┘èÏ¡ Ïº┘ä┘éÏÁÏ▒ ┘ê┘ä┘à ┘è┘é┘à Ï¿ÏÁ┘äÏºÏ® Ïº┘äÏ¼┘àÏ╣Ï® ┘ü┘è Ï¿┘äÏ»┘çÏî ┘üÏº┘äÏ¼┘à┘ç┘êÏ▒ Ï╣┘ä┘ë Ïú┘å┘ç ┘èÏÁ┘ä┘è Ïº┘äÏ©┘çÏ▒ ÏúÏ▒Ï¿Ï╣Ïº┘ï ┘ê┘äÏº Ï¬Ï¼Ï¿ Ï╣┘ä┘è┘ç Ïº┘äÏ¼┘àÏ╣Ï®. ┘êÏº┘äÏ¬┘üÏÁ┘è┘ä ┘èÏ«Ï¬┘ä┘ü Ï¿Ï¡Ï│Ï¿ Ïº┘ä┘àÏ░┘çÏ¿ ┘êÏº┘ä┘àÏ│Ïº┘üÏ®Ïî ┘ü┘è┘ÅÏ▒Ï¼┘ë ┘àÏ▒ÏºÏ¼Ï╣Ï® Ï╣Ïº┘ä┘à ┘ä┘äÏ¡Ïº┘äÏ® Ïº┘äÏ«ÏºÏÁÏ®.",
+          "category": "Ïº┘ä┘ü┘é┘ç",
+          "published_at": "2026-05-19T14:34:51.899Z",
+          "arabic_available": true,
+          "english_available": false
+        },
+        {
+          "id": "411c727f-0c9f-4226-b806-9cc044cf3ff7",
+          "question": "┘ç┘ä ┘èÏ¼┘êÏ▓ ┘éÏ▒ÏºÏíÏ® Ïº┘äÏúÏ░┘âÏºÏ▒ ┘à┘å Ïº┘ä┘çÏºÏ¬┘üÏƒ",
+          "answer": "┘åÏ╣┘àÏî ┘éÏ▒ÏºÏíÏ® Ïº┘äÏúÏ░┘âÏºÏ▒ ┘à┘å Ïº┘ä┘çÏºÏ¬┘ü Ï¼ÏºÏªÏ▓Ï® ÏÑÏ░Ïº ┘ä┘à ┘èÏ┤Ï¬Ï¬ Ïº┘äÏ¼┘çÏºÏ▓ Ïº┘ä┘é┘äÏ¿ Ï╣┘å Ïº┘äÏ«Ï┤┘êÏ╣. Ïº┘ä┘à┘éÏÁ┘êÏ» Ï¡ÏÂ┘êÏ▒ Ïº┘ä┘é┘äÏ¿ ┘êÏº┘ä┘àÏ¡Ïº┘üÏ©Ï® Ï╣┘ä┘ë Ïº┘äÏ░┘âÏ▒ ┘äÏº ┘àÏ¼Ï▒Ï» ÏÑ┘àÏ│Ïº┘â Ïº┘äÏ┤ÏºÏ┤Ï®.",
+          "category": "Ïº┘äÏúÏ░┘âÏºÏ▒",
+          "published_at": "2026-05-19T14:34:51.899Z",
+          "arabic_available": true,
+          "english_available": false
+        }
+      ],
+      "arabic_available": true,
+      "english_available": false
+    },
+    "text": "{\"ok\":true,\"items\":[{\"id\":\"225fe100-d0f5-46f4-a834-bf864817a51f\",\"question\":\"┘àÏº ┘àÏ╣┘å┘ë Ïº┘äÏÑÏ¡Ï│Ïº┘åÏƒ\",\"answer\":\"Ïº┘äÏÑÏ¡Ï│Ïº┘å ┘ç┘ê Ïú┘å ┘èÏ¡Ï▒ÏÁ Ïº┘ä┘àÏ│┘ä┘à Ï╣┘ä┘ë Ï╣Ï¿ÏºÏ»Ï® Ïº┘ä┘ä┘ç ┘ê┘àÏ▒Ïº┘éÏ¿Ï¬┘ç ┘ü┘è Ïº┘äÏ│Ï▒ ┘êÏº┘äÏ╣┘ä┘åÏî ┘êÏú┘å ┘èÏ¡Ï│┘å ┘ü┘è ┘é┘ê┘ä┘ç ┘êÏ╣┘à┘ä┘ç.\",\"category\":\"Ï╣Ïº┘à\",\"published_at\":\"2026-05-19T14:34:51.899Z\",\"arabic_available\":true,\"english_available\":false},{\"id\":\"cccbc08c-b21b-4705-974d-66b46ffa41b9\",\"question\":\"Ï¬Ï╣┘ä┘à Ï╣┘å Ïº┘äÏÁÏ»┘é ┘ä┘äÏúÏÀ┘üÏº┘ä\",\"answer\":\"Ïº┘äÏÁÏ»┘é Ï«┘ä┘é Ï¼┘à┘è┘ä. ┘è┘é┘ê┘ä Ïº┘äÏÀ┘ü┘ä Ïº┘äÏ¡┘é┘è┘éÏ®Ïî ┘ê┘èÏ¡Ïº┘üÏ© Ï╣┘ä┘ë Ïº┘äÏú┘àÏº┘åÏ®Ïî ┘ê┘èÏ╣Ï¬Ï░Ï▒ ÏÑÏ░Ïº ÏúÏ«ÏÀÏú.\",\"category\":\"Ï¬Ï▒Ï¿┘èÏ® Ïº┘äÏúÏÀ┘üÏº┘ä\",\"published_at\":\"2026-05-19T14:34:51.899Z\",\"arabic_available\":true,\"english_available\":false},{\"id\":\"eac33631-f2b2-4821-aedd-bf336efe9294\",\"question\":\"┘àÏº Ï¡┘â┘à ÏÁ┘äÏºÏ® Ïº┘äÏ¼┘àÏ╣Ï® ┘ü┘è Ïº┘äÏ│┘üÏ▒Ïƒ\",\"answer\":\"ÏÑÏ░Ïº ┘âÏº┘å Ïº┘ä┘àÏ│Ïº┘üÏ▒ ┘ü┘è Ï│┘üÏ▒ ┘èÏ¿┘èÏ¡ Ïº┘ä┘éÏÁÏ▒ ┘ê┘ä┘à ┘è┘é┘à Ï¿ÏÁ┘äÏºÏ® Ïº┘äÏ¼┘àÏ╣Ï® ┘ü┘è Ï¿┘äÏ»┘çÏî ┘üÏº┘äÏ¼┘à┘ç┘êÏ▒ Ï╣┘ä┘ë Ïú┘å┘ç ┘èÏÁ┘ä┘è Ïº┘äÏ©┘çÏ▒ ÏúÏ▒Ï¿Ï╣Ïº┘ï ┘ê┘äÏº Ï¬Ï¼Ï¿ Ï╣┘ä┘è┘ç Ïº┘äÏ¼┘àÏ╣Ï®. ┘êÏº┘äÏ¬┘üÏÁ┘è┘ä ┘èÏ«Ï¬┘ä┘ü Ï¿Ï¡Ï│Ï¿ Ïº┘ä┘àÏ░┘çÏ¿ ┘êÏº┘ä┘àÏ│Ïº┘üÏ®Ïî ┘ü┘è┘ÅÏ▒Ï¼┘ë ┘àÏ▒ÏºÏ¼Ï╣Ï® Ï╣Ïº┘ä┘à ┘ä┘äÏ¡Ïº┘äÏ® Ïº┘äÏ«ÏºÏÁÏ®.\",\"category\":\"Ïº┘ä┘ü┘é┘ç\",\"published_at\":\"2026-05-19T14:34:51.899Z\",\"arabic_available\":true,\"english_available\":false},{\"id\":\"411c727f-0c9f-4226-b806-9cc044cf3ff7\",\"question\":\"┘ç┘ä ┘èÏ¼┘êÏ▓ ┘éÏ▒ÏºÏíÏ® Ïº┘äÏúÏ░┘âÏºÏ▒ ┘à┘å Ïº┘ä┘çÏºÏ¬┘üÏƒ\",\"answer\":\"┘åÏ╣┘àÏî ┘éÏ▒ÏºÏíÏ® Ïº┘äÏúÏ░┘âÏºÏ▒ ┘à┘å Ïº┘ä┘çÏºÏ¬┘ü Ï¼ÏºÏªÏ▓Ï® ÏÑÏ░Ïº ┘ä┘à ┘èÏ┤Ï¬Ï¬ Ïº┘äÏ¼┘çÏºÏ▓ Ïº┘ä┘é┘äÏ¿ Ï╣┘å Ïº┘äÏ«Ï┤┘êÏ╣. Ïº┘ä┘à┘éÏÁ┘êÏ» Ï¡ÏÂ┘êÏ▒ Ïº┘ä┘é┘äÏ¿ ┘êÏº┘ä┘àÏ¡Ïº┘üÏ©Ï® Ï╣┘ä┘ë Ïº┘äÏ░┘âÏ▒ ┘äÏº ┘àÏ¼Ï▒Ï» ÏÑ┘àÏ│Ïº┘â Ïº┘äÏ┤ÏºÏ┤Ï®.\",\"category\":\"Ïº┘äÏúÏ░┘âÏºÏ▒\",\"published_at\":\"2026-05-19T14:34:51.899Z\",\"arabic_available\":true,\"english_available\":false}],\"arabic_available\":true,\"english_available\":false}"
+  },
+  "public_qa_alt": {
+    "status": 200,
+    "json": {
+      "ok": true,
+      "configured": true,
+      "cached": false,
+      "items": [
+        {
+          "id": "225fe100-d0f5-46f4-a834-bf864817a51f",
+          "question": "┘àÏº ┘àÏ╣┘å┘ë Ïº┘äÏÑÏ¡Ï│Ïº┘åÏƒ",
+          "answer": "Ïº┘äÏÑÏ¡Ï│Ïº┘å ┘ç┘ê Ïú┘å ┘èÏ¡Ï▒ÏÁ Ïº┘ä┘àÏ│┘ä┘à Ï╣┘ä┘ë Ï╣Ï¿ÏºÏ»Ï® Ïº┘ä┘ä┘ç ┘ê┘àÏ▒Ïº┘éÏ¿Ï¬┘ç ┘ü┘è Ïº┘äÏ│Ï▒ ┘êÏº┘äÏ╣┘ä┘åÏî ┘êÏú┘å ┘èÏ¡Ï│┘å ┘ü┘è ┘é┘ê┘ä┘ç ┘êÏ╣┘à┘ä┘ç.",
+          "category": "Ï╣Ïº┘à",
+          "published_at": "2026-05-19T14:34:51.899Z",
+          "arabic_available": true,
+          "english_available": false
+        },
+        {
+          "id": "cccbc08c-b21b-4705-974d-66b46ffa41b9",
+          "question": "Ï¬Ï╣┘ä┘à Ï╣┘å Ïº┘äÏÁÏ»┘é ┘ä┘äÏúÏÀ┘üÏº┘ä",
+          "answer": "Ïº┘äÏÁÏ»┘é Ï«┘ä┘é Ï¼┘à┘è┘ä. ┘è┘é┘ê┘ä Ïº┘äÏÀ┘ü┘ä Ïº┘äÏ¡┘é┘è┘éÏ®Ïî ┘ê┘èÏ¡Ïº┘üÏ© Ï╣┘ä┘ë Ïº┘äÏú┘àÏº┘åÏ®Ïî ┘ê┘èÏ╣Ï¬Ï░Ï▒ ÏÑÏ░Ïº ÏúÏ«ÏÀÏú.",
+          "category": "Ï¬Ï▒Ï¿┘èÏ® Ïº┘äÏúÏÀ┘üÏº┘ä",
+          "published_at": "2026-05-19T14:34:51.899Z",
+          "arabic_available": true,
+          "english_available": false
+        },
+        {
+          "id": "eac33631-f2b2-4821-aedd-bf336efe9294",
+          "question": "┘àÏº Ï¡┘â┘à ÏÁ┘äÏºÏ® Ïº┘äÏ¼┘àÏ╣Ï® ┘ü┘è Ïº┘äÏ│┘üÏ▒Ïƒ",
+          "answer": "ÏÑÏ░Ïº ┘âÏº┘å Ïº┘ä┘àÏ│Ïº┘üÏ▒ ┘ü┘è Ï│┘üÏ▒ ┘èÏ¿┘èÏ¡ Ïº┘ä┘éÏÁÏ▒ ┘ê┘ä┘à ┘è┘é┘à Ï¿ÏÁ┘äÏºÏ® Ïº┘äÏ¼┘àÏ╣Ï® ┘ü┘è Ï¿┘äÏ»┘çÏî ┘üÏº┘äÏ¼┘à┘ç┘êÏ▒ Ï╣┘ä┘ë Ïú┘å┘ç ┘èÏÁ┘ä┘è Ïº┘äÏ©┘çÏ▒ ÏúÏ▒Ï¿Ï╣Ïº┘ï ┘ê┘äÏº Ï¬Ï¼Ï¿ Ï╣┘ä┘è┘ç Ïº┘äÏ¼┘àÏ╣Ï®. ┘êÏº┘äÏ¬┘üÏÁ┘è┘ä ┘èÏ«Ï¬┘ä┘ü Ï¿Ï¡Ï│Ï¿ Ïº┘ä┘àÏ░┘çÏ¿ ┘êÏº┘ä┘àÏ│Ïº┘üÏ®Ïî ┘ü┘è┘ÅÏ▒Ï¼┘ë ┘àÏ▒ÏºÏ¼Ï╣Ï® Ï╣Ïº┘ä┘à ┘ä┘äÏ¡Ïº┘äÏ® Ïº┘äÏ«ÏºÏÁÏ®.",
+          "category": "Ïº┘ä┘ü┘é┘ç",
+          "published_at": "2026-05-19T14:34:51.899Z",
+          "arabic_available": true,
+          "english_available": false
+        },
+        {
+          "id": "411c727f-0c9f-4226-b806-9cc044cf3ff7",
+          "question": "┘ç┘ä ┘èÏ¼┘êÏ▓ ┘éÏ▒ÏºÏíÏ® Ïº┘äÏúÏ░┘âÏºÏ▒ ┘à┘å Ïº┘ä┘çÏºÏ¬┘üÏƒ",
+          "answer": "┘åÏ╣┘àÏî ┘éÏ▒ÏºÏíÏ® Ïº┘äÏúÏ░┘âÏºÏ▒ ┘à┘å Ïº┘ä┘çÏºÏ¬┘ü Ï¼ÏºÏªÏ▓Ï® ÏÑÏ░Ïº ┘ä┘à ┘èÏ┤Ï¬Ï¬ Ïº┘äÏ¼┘çÏºÏ▓ Ïº┘ä┘é┘äÏ¿ Ï╣┘å Ïº┘äÏ«Ï┤┘êÏ╣. Ïº┘ä┘à┘éÏÁ┘êÏ» Ï¡ÏÂ┘êÏ▒ Ïº┘ä┘é┘äÏ¿ ┘êÏº┘ä┘àÏ¡Ïº┘üÏ©Ï® Ï╣┘ä┘ë Ïº┘äÏ░┘âÏ▒ ┘äÏº ┘àÏ¼Ï▒Ï» ÏÑ┘àÏ│Ïº┘â Ïº┘äÏ┤ÏºÏ┤Ï®.",
+          "category": "Ïº┘äÏúÏ░┘âÏºÏ▒",
+          "published_at": "2026-05-19T14:34:51.899Z",
+          "arabic_available": true,
+          "english_available": false
+        }
+      ]
+    },
+    "text": "{\"ok\":true,\"configured\":true,\"cached\":false,\"items\":[{\"id\":\"225fe100-d0f5-46f4-a834-bf864817a51f\",\"question\":\"┘àÏº ┘àÏ╣┘å┘ë Ïº┘äÏÑÏ¡Ï│Ïº┘åÏƒ\",\"answer\":\"Ïº┘äÏÑÏ¡Ï│Ïº┘å ┘ç┘ê Ïú┘å ┘èÏ¡Ï▒ÏÁ Ïº┘ä┘àÏ│┘ä┘à Ï╣┘ä┘ë Ï╣Ï¿ÏºÏ»Ï® Ïº┘ä┘ä┘ç ┘ê┘àÏ▒Ïº┘éÏ¿Ï¬┘ç ┘ü┘è Ïº┘äÏ│Ï▒ ┘êÏº┘äÏ╣┘ä┘åÏî ┘êÏú┘å ┘èÏ¡Ï│┘å ┘ü┘è ┘é┘ê┘ä┘ç ┘êÏ╣┘à┘ä┘ç.\",\"category\":\"Ï╣Ïº┘à\",\"published_at\":\"2026-05-19T14:34:51.899Z\",\"arabic_available\":true,\"english_available\":false},{\"id\":\"cccbc08c-b21b-4705-974d-66b46ffa41b9\",\"question\":\"Ï¬Ï╣┘ä┘à Ï╣┘å Ïº┘äÏÁÏ»┘é ┘ä┘äÏúÏÀ┘üÏº┘ä\",\"answer\":\"Ïº┘äÏÁÏ»┘é Ï«┘ä┘é Ï¼┘à┘è┘ä. ┘è┘é┘ê┘ä Ïº┘äÏÀ┘ü┘ä Ïº┘äÏ¡┘é┘è┘éÏ®Ïî ┘ê┘èÏ¡Ïº┘üÏ© Ï╣┘ä┘ë Ïº┘äÏú┘àÏº┘åÏ®Ïî ┘ê┘èÏ╣Ï¬Ï░Ï▒ ÏÑÏ░Ïº ÏúÏ«ÏÀÏú.\",\"category\":\"Ï¬Ï▒Ï¿┘èÏ® Ïº┘äÏúÏÀ┘üÏº┘ä\",\"published_at\":\"2026-05-19T14:34:51.899Z\",\"arabic_available\":true,\"english_available\":false},{\"id\":\"eac33631-f2b2-4821-aedd-bf336efe9294\",\"question\":\"┘àÏº Ï¡┘â┘à ÏÁ┘äÏºÏ® Ïº┘äÏ¼┘àÏ╣Ï® ┘ü┘è Ïº┘äÏ│┘üÏ▒Ïƒ\",\"answer\":\"ÏÑÏ░Ïº ┘âÏº┘å Ïº┘ä┘àÏ│Ïº┘üÏ▒ ┘ü┘è Ï│┘üÏ▒ ┘èÏ¿┘èÏ¡ Ïº┘ä┘éÏÁÏ▒ ┘ê┘ä┘à ┘è┘é┘à Ï¿ÏÁ┘äÏºÏ® Ïº┘äÏ¼┘àÏ╣Ï® ┘ü┘è Ï¿┘äÏ»┘çÏî ┘üÏº┘äÏ¼┘à┘ç┘êÏ▒ Ï╣┘ä┘ë Ïú┘å┘ç ┘èÏÁ┘ä┘è Ïº┘äÏ©┘çÏ▒ ÏúÏ▒Ï¿Ï╣Ïº┘ï ┘ê┘äÏº Ï¬Ï¼Ï¿ Ï╣┘ä┘è┘ç Ïº┘äÏ¼┘àÏ╣Ï®. ┘êÏº┘äÏ¬┘üÏÁ┘è┘ä ┘èÏ«Ï¬┘ä┘ü Ï¿Ï¡Ï│Ï¿ Ïº┘ä┘àÏ░┘çÏ¿ ┘êÏº┘ä┘àÏ│Ïº┘üÏ®Ïî ┘ü┘è┘ÅÏ▒Ï¼┘ë ┘àÏ▒ÏºÏ¼Ï╣Ï® Ï╣Ïº┘ä┘à ┘ä┘äÏ¡Ïº┘äÏ® Ïº┘äÏ«ÏºÏÁÏ®.\",\"category\":\"Ïº┘ä┘ü┘é┘ç\",\"published_at\":\"2026-05-19T14:34:51.899Z\",\"arabic_available\":true,\"english_available\":false},{\"id\":\"411c727f-0c9f-4226-b806-9cc044cf3ff7\",\"question\":\"┘ç┘ä ┘èÏ¼┘êÏ▓ ┘éÏ▒ÏºÏíÏ® Ïº┘äÏúÏ░┘âÏºÏ▒ ┘à┘å Ïº┘ä┘çÏºÏ¬┘üÏƒ\",\"answer\":\"┘åÏ╣┘àÏî ┘éÏ▒ÏºÏíÏ® Ïº┘äÏúÏ░┘âÏºÏ▒ ┘à┘å Ïº┘ä┘çÏºÏ¬┘ü Ï¼ÏºÏªÏ▓Ï® ÏÑÏ░Ïº ┘ä┘à ┘èÏ┤Ï¬Ï¬ Ïº┘äÏ¼┘çÏºÏ▓ Ïº┘ä┘é┘äÏ¿ Ï╣┘å Ïº┘äÏ«Ï┤┘êÏ╣. Ïº┘ä┘à┘éÏÁ┘êÏ» Ï¡ÏÂ┘êÏ▒ Ïº┘ä┘é┘äÏ¿ ┘êÏº┘ä┘àÏ¡Ïº┘üÏ©Ï® Ï╣┘ä┘ë Ïº┘äÏ░┘âÏ▒ ┘äÏº ┘àÏ¼Ï▒Ï» ÏÑ┘àÏ│Ïº┘â Ïº┘äÏ┤ÏºÏ┤Ï®.\",\"category\":\"Ïº┘äÏúÏ░┘âÏºÏ▒\",\"published_at\":\"2026-05-19T14:34:51.899Z\",\"arabic_available\":true,\"english_available\":false}]}"
+  },
+  "rag": {
+    "normal": {
+      "status": 200,
+      "json": {
+        "ok": true,
+        "answer": "┘àÏº ┘àÏ╣┘å┘ë Ïº┘äÏÑÏ¡Ï│Ïº┘åÏƒ Ïº┘äÏÑÏ¡Ï│Ïº┘å ┘ç┘ê Ïú┘å ┘èÏ¡Ï▒ÏÁ Ïº┘ä┘àÏ│┘ä┘à Ï╣┘ä┘ë Ï╣Ï¿ÏºÏ»Ï® Ïº┘ä┘ä┘ç ┘ê┘àÏ▒Ïº┘éÏ¿Ï¬┘ç ┘ü┘è Ïº┘äÏ│Ï▒ ┘êÏº┘äÏ╣┘ä┘åÏî ┘êÏú┘å ┘èÏ¡Ï│┘å ┘ü┘è ┘é┘ê┘ä┘ç ┘êÏ╣┘à┘ä┘ç.\n\n┘▒┘ä┘ä┘æ┘Ä┘ç┘Å ┘ä┘ÄÏº┘ô ÏÑ┘É┘ä┘Ä┘Ç┘░┘ç┘Ä ÏÑ┘É┘ä┘æ┘ÄÏº ┘ç┘Å┘ê┘Ä ┘▒┘ä┘ÆÏ¡┘Ä┘ë┘æ┘Å ┘▒┘ä┘Æ┘é┘Ä┘è┘æ┘Å┘ê┘à┘Å █Ü ┘ä┘ÄÏº Ï¬┘ÄÏú┘ÆÏ«┘ÅÏ░┘Å┘ç┘Å█Ñ Ï│┘É┘å┘ÄÏ®┘î ┘ê┘Ä┘ä┘ÄÏº ┘å┘Ä┘ê┘Æ┘à┘î █Ü ┘ä┘æ┘Ä┘ç┘Å█Ñ ┘à┘ÄÏº ┘ü┘É┘ë ┘▒┘äÏ│┘æ┘Ä┘à┘Ä┘Ç┘░┘ê┘Ä┘░Ï¬┘É ┘ê┘Ä┘à┘ÄÏº ┘ü┘É┘ë ┘▒┘ä┘ÆÏú┘ÄÏ▒┘ÆÏÂ┘É █ù ┘à┘Ä┘å Ï░┘ÄÏº ┘▒┘ä┘æ┘ÄÏ░┘É┘ë ┘è┘ÄÏ┤┘Æ┘ü┘ÄÏ╣┘Å Ï╣┘É┘åÏ»┘Ä┘ç┘Å█Ñ┘ô ÏÑ┘É┘ä┘æ┘ÄÏº Ï¿┘ÉÏÑ┘ÉÏ░┘Æ┘å┘É┘ç┘É█ª █Ü ┘è┘ÄÏ╣┘Æ┘ä┘Ä┘à┘Å ┘à┘ÄÏº Ï¿┘Ä┘è┘Æ┘å┘Ä Ïú┘Ä┘è┘ÆÏ»┘É┘è┘ç┘É┘à┘Æ ┘ê┘Ä┘à┘ÄÏº Ï«┘Ä┘ä┘Æ┘ü┘Ä┘ç┘Å┘à┘Æ █û ┘ê┘Ä┘ä┘ÄÏº ┘è┘ÅÏ¡┘É┘èÏÀ┘Å┘ê┘å┘Ä Ï¿┘ÉÏ┤┘Ä┘ë┘ÆÏí┘ì ┘à┘æ┘É┘å┘Æ Ï╣┘É┘ä┘Æ┘à┘É┘ç┘É█ª┘ô ÏÑ┘É┘ä┘æ┘ÄÏº Ï¿┘É┘à┘ÄÏº Ï┤┘ÄÏº┘ôÏí┘Ä █Ü ┘ê┘ÄÏ│┘ÉÏ╣┘Ä ┘â┘ÅÏ▒┘ÆÏ│┘É┘è┘æ┘Å┘ç┘Å ┘▒┘äÏ│┘æ┘Ä┘à┘Ä┘Ç┘░┘ê┘Ä┘░Ï¬┘É ┘ê┘Ä┘▒┘ä┘ÆÏú┘ÄÏ▒┘ÆÏÂ┘Ä █û ┘ê┘Ä┘ä┘ÄÏº ┘è┘Ä┘Ç┘ö┘Å┘êÏ»┘Å┘ç┘Å█Ñ Ï¡┘É┘ü┘ÆÏ©┘Å┘ç┘Å┘à┘ÄÏº █Ü ┘ê┘Ä┘ç┘Å┘ê┘Ä ┘▒┘ä┘ÆÏ╣┘Ä┘ä┘É┘ë┘æ┘Å ┘▒┘ä┘ÆÏ╣┘ÄÏ©┘É┘è┘à┘Å\n\n┘ä┘Ä┘à┘Æ ┘è┘Ä┘ä┘ÉÏ»┘Æ ┘ê┘Ä┘ä┘Ä┘à┘Æ ┘è┘Å┘ê┘ä┘ÄÏ»┘Æ\n\n┘ê┘Ä┘à┘É┘å Ï┤┘ÄÏ▒┘æ┘É ┘▒┘ä┘å┘æ┘Ä┘ü┘æ┘Ä┘Ç┘░Ï½┘Ä┘Ç┘░Ï¬┘É ┘ü┘É┘ë ┘▒┘ä┘ÆÏ╣┘Å┘é┘ÄÏ»┘É",
+        "answer_ar": "┘àÏº ┘àÏ╣┘å┘ë Ïº┘äÏÑÏ¡Ï│Ïº┘åÏƒ Ïº┘äÏÑÏ¡Ï│Ïº┘å ┘ç┘ê Ïú┘å ┘èÏ¡Ï▒ÏÁ Ïº┘ä┘àÏ│┘ä┘à Ï╣┘ä┘ë Ï╣Ï¿ÏºÏ»Ï® Ïº┘ä┘ä┘ç ┘ê┘àÏ▒Ïº┘éÏ¿Ï¬┘ç ┘ü┘è Ïº┘äÏ│Ï▒ ┘êÏº┘äÏ╣┘ä┘åÏî ┘êÏú┘å ┘èÏ¡Ï│┘å ┘ü┘è ┘é┘ê┘ä┘ç ┘êÏ╣┘à┘ä┘ç.\n\n┘▒┘ä┘ä┘æ┘Ä┘ç┘Å ┘ä┘ÄÏº┘ô ÏÑ┘É┘ä┘Ä┘Ç┘░┘ç┘Ä ÏÑ┘É┘ä┘æ┘ÄÏº ┘ç┘Å┘ê┘Ä ┘▒┘ä┘ÆÏ¡┘Ä┘ë┘æ┘Å ┘▒┘ä┘Æ┘é┘Ä┘è┘æ┘Å┘ê┘à┘Å █Ü ┘ä┘ÄÏº Ï¬┘ÄÏú┘ÆÏ«┘ÅÏ░┘Å┘ç┘Å█Ñ Ï│┘É┘å┘ÄÏ®┘î ┘ê┘Ä┘ä┘ÄÏº ┘å┘Ä┘ê┘Æ┘à┘î █Ü ┘ä┘æ┘Ä┘ç┘Å█Ñ ┘à┘ÄÏº ┘ü┘É┘ë ┘▒┘äÏ│┘æ┘Ä┘à┘Ä┘Ç┘░┘ê┘Ä┘░Ï¬┘É ┘ê┘Ä┘à┘ÄÏº ┘ü┘É┘ë ┘▒┘ä┘ÆÏú┘ÄÏ▒┘ÆÏÂ┘É █ù ┘à┘Ä┘å Ï░┘ÄÏº ┘▒┘ä┘æ┘ÄÏ░┘É┘ë ┘è┘ÄÏ┤┘Æ┘ü┘ÄÏ╣┘Å Ï╣┘É┘åÏ»┘Ä┘ç┘Å█Ñ┘ô ÏÑ┘É┘ä┘æ┘ÄÏº Ï¿┘ÉÏÑ┘ÉÏ░┘Æ┘å┘É┘ç┘É█ª █Ü ┘è┘ÄÏ╣┘Æ┘ä┘Ä┘à┘Å ┘à┘ÄÏº Ï¿┘Ä┘è┘Æ┘å┘Ä Ïú┘Ä┘è┘ÆÏ»┘É┘è┘ç┘É┘à┘Æ ┘ê┘Ä┘à┘ÄÏº Ï«┘Ä┘ä┘Æ┘ü┘Ä┘ç┘Å┘à┘Æ █û ┘ê┘Ä┘ä┘ÄÏº ┘è┘ÅÏ¡┘É┘èÏÀ┘Å┘ê┘å┘Ä Ï¿┘ÉÏ┤┘Ä┘ë┘ÆÏí┘ì ┘à┘æ┘É┘å┘Æ Ï╣┘É┘ä┘Æ┘à┘É┘ç┘É█ª┘ô ÏÑ┘É┘ä┘æ┘ÄÏº Ï¿┘É┘à┘ÄÏº Ï┤┘ÄÏº┘ôÏí┘Ä █Ü ┘ê┘ÄÏ│┘ÉÏ╣┘Ä ┘â┘ÅÏ▒┘ÆÏ│┘É┘è┘æ┘Å┘ç┘Å ┘▒┘äÏ│┘æ┘Ä┘à┘Ä┘Ç┘░┘ê┘Ä┘░Ï¬┘É ┘ê┘Ä┘▒┘ä┘ÆÏú┘ÄÏ▒┘ÆÏÂ┘Ä █û ┘ê┘Ä┘ä┘ÄÏº ┘è┘Ä┘Ç┘ö┘Å┘êÏ»┘Å┘ç┘Å█Ñ Ï¡┘É┘ü┘ÆÏ©┘Å┘ç┘Å┘à┘ÄÏº █Ü ┘ê┘Ä┘ç┘Å┘ê┘Ä ┘▒┘ä┘ÆÏ╣┘Ä┘ä┘É┘ë┘æ┘Å ┘▒┘ä┘ÆÏ╣┘ÄÏ©┘É┘è┘à┘Å\n\n┘ä┘Ä┘à┘Æ ┘è┘Ä┘ä┘ÉÏ»┘Æ ┘ê┘Ä┘ä┘Ä┘à┘Æ ┘è┘Å┘ê┘ä┘ÄÏ»┘Æ\n\n┘ê┘Ä┘à┘É┘å Ï┤┘ÄÏ▒┘æ┘É ┘▒┘ä┘å┘æ┘Ä┘ü┘æ┘Ä┘Ç┘░Ï½┘Ä┘Ç┘░Ï¬┘É ┘ü┘É┘ë ┘▒┘ä┘ÆÏ╣┘Å┘é┘ÄÏ»┘É",
+        "citations": [
+          {
+            "source_id": "rahma-internal-reviewed-starter-qa",
+            "source_uuid": "c56b4d34-0f24-4236-9414-b142cdfc98d9",
+            "source_title": "┘àÏ╣┘å┘ë Ïº┘äÏÑÏ¡Ï│Ïº┘å",
+            "source_type": "article",
+            "document_id": "65e67c4d-707b-484a-a368-94e17ab6e9ec",
+            "chunk_id": "52425a41-760a-4f4a-8970-c097b470802c",
+            "reference_label": "Rahma reviewed learning QA 1",
+            "url": null,
+            "local_reference": "internal-reviewed-starter-qa:qa-ihsan-001",
+            "verified": true,
+            "citation_label": "Rahma reviewed learning QA 1"
+          },
+          {
+            "source_id": "tanzil-quran-text",
+            "source_uuid": "c1934a06-f212-4dff-b0b4-8fcd926d5af0",
+            "source_title": "Ïó┘èÏ® Ïº┘ä┘âÏ▒Ï│┘è",
+            "source_type": "quran",
+            "document_id": "aab44307-c769-4c75-9b6a-9a91b3b75016",
+            "chunk_id": "bab8c987-3098-491c-acc0-60afadada9fa",
+            "reference_label": "Quran 2:255",
+            "url": "https://tanzil.net/docs/Text_License",
+            "local_reference": "Quran 2:255",
+            "verified": true,
+            "citation_label": "Ïó┘èÏ® Ïº┘ä┘âÏ▒Ï│┘è 2:255"
+          },
+          {
+            "source_id": "tanzil-quran-text",
+            "source_uuid": "c1934a06-f212-4dff-b0b4-8fcd926d5af0",
+            "source_title": "Ïº┘äÏÑÏ«┘äÏºÏÁ",
+            "source_type": "quran",
+            "document_id": "78ee2a21-e1a2-4384-8d58-895439091191",
+            "chunk_id": "4eb87436-de71-449c-98d2-33c0e14010cc",
+            "reference_label": "Quran 112:3",
+            "url": "https://tanzil.net/docs/Text_License",
+            "local_reference": "Quran 112:3",
+            "verified": true,
+            "citation_label": "Ïº┘äÏÑÏ«┘äÏºÏÁ 112:3"
+          },
+          {
+            "source_id": "tanzil-quran-text",
+            "source_uuid": "c1934a06-f212-4dff-b0b4-8fcd926d5af0",
+            "source_title": "Ïº┘ä┘ü┘ä┘é",
+            "source_type": "quran",
+            "document_id": "aa4f68ed-9bf6-496d-aae7-b668b710d0b3",
+            "chunk_id": "cf51dbd8-d319-4bf2-842e-35b02bac5456",
+            "reference_label": "Quran 113:4",
+            "url": "https://tanzil.net/docs/Text_License",
+            "local_reference": "Quran 113:4",
+            "verified": true,
+            "citation_label": "Ïº┘ä┘ü┘ä┘é 113:4"
+          }
+        ],
+        "safety_status": "verified_sources",
+        "requires_scholar_review": false,
+        "learning_recommendation": null,
+        "audit_id": "fe6e4a49-f13d-4349-88b5-595d6d1cd48f",
+        "language": "ar",
+        "intent": "unknown",
+        "risk_level": "medium",
+        "retrieval_strategy": "vector_search",
+        "algorithm_version": "rahma-algorithm-v1"
+      },
+      "text": "{\"ok\":true,\"answer\":\"┘àÏº ┘àÏ╣┘å┘ë Ïº┘äÏÑÏ¡Ï│Ïº┘åÏƒ Ïº┘äÏÑÏ¡Ï│Ïº┘å ┘ç┘ê Ïú┘å ┘èÏ¡Ï▒ÏÁ Ïº┘ä┘àÏ│┘ä┘à Ï╣┘ä┘ë Ï╣Ï¿ÏºÏ»Ï® Ïº┘ä┘ä┘ç ┘ê┘àÏ▒Ïº┘éÏ¿Ï¬┘ç ┘ü┘è Ïº┘äÏ│Ï▒ ┘êÏº┘äÏ╣┘ä┘åÏî ┘êÏú┘å ┘èÏ¡Ï│┘å ┘ü┘è ┘é┘ê┘ä┘ç ┘êÏ╣┘à┘ä┘ç.\\n\\n┘▒┘ä┘ä┘æ┘Ä┘ç┘Å ┘ä┘ÄÏº┘ô ÏÑ┘É┘ä┘Ä┘Ç┘░┘ç┘Ä ÏÑ┘É┘ä┘æ┘ÄÏº ┘ç┘Å┘ê┘Ä ┘▒┘ä┘ÆÏ¡┘Ä┘ë┘æ┘Å ┘▒┘ä┘Æ┘é┘Ä┘è┘æ┘Å┘ê┘à┘Å █Ü ┘ä┘ÄÏº Ï¬┘ÄÏú┘ÆÏ«┘ÅÏ░┘Å┘ç┘Å█Ñ Ï│┘É┘å┘ÄÏ®┘î ┘ê┘Ä┘ä┘ÄÏº ┘å┘Ä┘ê┘Æ┘à┘î █Ü ┘ä┘æ┘Ä┘ç┘Å█Ñ ┘à┘ÄÏº ┘ü┘É┘ë ┘▒┘äÏ│┘æ┘Ä┘à┘Ä┘Ç┘░┘ê┘Ä┘░Ï¬┘É ┘ê┘Ä┘à┘ÄÏº ┘ü┘É┘ë ┘▒┘ä┘ÆÏú┘ÄÏ▒┘ÆÏÂ┘É █ù ┘à┘Ä┘å Ï░┘ÄÏº ┘▒┘ä┘æ┘ÄÏ░┘É┘ë ┘è┘ÄÏ┤┘Æ┘ü┘ÄÏ╣┘Å Ï╣┘É┘åÏ»┘Ä┘ç┘Å█Ñ┘ô ÏÑ┘É┘ä┘æ┘ÄÏº Ï¿┘ÉÏÑ┘ÉÏ░┘Æ┘å┘É┘ç┘É█ª █Ü ┘è┘ÄÏ╣┘Æ┘ä┘Ä┘à┘Å ┘à┘ÄÏº Ï¿┘Ä┘è┘Æ┘å┘Ä Ïú┘Ä┘è┘ÆÏ»┘É┘è┘ç┘É┘à┘Æ ┘ê┘Ä┘à┘ÄÏº Ï«┘Ä┘ä┘Æ┘ü┘Ä┘ç┘Å┘à┘Æ █û ┘ê┘Ä┘ä┘ÄÏº ┘è┘ÅÏ¡┘É┘èÏÀ┘Å┘ê┘å┘Ä Ï¿┘ÉÏ┤┘Ä┘ë┘ÆÏí┘ì ┘à┘æ┘É┘å┘Æ Ï╣┘É┘ä┘Æ┘à┘É┘ç┘É█ª┘ô ÏÑ┘É┘ä┘æ┘ÄÏº Ï¿┘É┘à┘ÄÏº Ï┤┘ÄÏº┘ôÏí┘Ä █Ü ┘ê┘ÄÏ│┘ÉÏ╣┘Ä ┘â┘ÅÏ▒┘ÆÏ│┘É┘è┘æ┘Å┘ç┘Å ┘▒┘äÏ│┘æ┘Ä┘à┘Ä┘Ç┘░┘ê┘Ä┘░Ï¬┘É ┘ê┘Ä┘▒┘ä┘ÆÏú┘ÄÏ▒┘ÆÏÂ┘Ä █û ┘ê┘Ä┘ä┘ÄÏº ┘è┘Ä┘Ç┘ö┘Å┘êÏ»┘Å┘ç┘Å█Ñ Ï¡┘É┘ü┘ÆÏ©┘Å┘ç┘Å┘à┘ÄÏº █Ü ┘ê┘Ä┘ç┘Å┘ê┘Ä ┘▒┘ä┘ÆÏ╣┘Ä┘ä┘É┘ë┘æ┘Å ┘▒┘ä┘ÆÏ╣┘ÄÏ©┘É┘è┘à┘Å\\n\\n┘ä┘Ä┘à┘Æ ┘è┘Ä┘ä┘ÉÏ»┘Æ ┘ê┘Ä┘ä┘Ä┘à┘Æ ┘è┘Å┘ê┘ä┘ÄÏ»┘Æ\\n\\n┘ê┘Ä┘à┘É┘å Ï┤┘ÄÏ▒┘æ┘É ┘▒┘ä┘å┘æ┘Ä┘ü┘æ┘Ä┘Ç┘░Ï½┘Ä┘Ç┘░Ï¬┘É ┘ü┘É┘ë ┘▒┘ä┘ÆÏ╣┘Å┘é┘ÄÏ»┘É\",\"answer_ar\":\"┘àÏº ┘àÏ╣┘å┘ë Ïº┘äÏÑÏ¡Ï│Ïº┘åÏƒ Ïº┘äÏÑÏ¡Ï│Ïº┘å ┘ç┘ê Ïú┘å ┘èÏ¡Ï▒ÏÁ Ïº┘ä┘àÏ│┘ä┘à Ï╣┘ä┘ë Ï╣Ï¿ÏºÏ»Ï® Ïº┘ä┘ä┘ç ┘ê┘àÏ▒Ïº┘éÏ¿Ï¬┘ç ┘ü┘è Ïº┘äÏ│Ï▒ ┘êÏº┘äÏ╣┘ä┘åÏî ┘êÏú┘å ┘èÏ¡Ï│┘å ┘ü┘è ┘é┘ê┘ä┘ç ┘êÏ╣┘à┘ä┘ç.\\n\\n┘▒┘ä┘ä┘æ┘Ä┘ç┘Å ┘ä┘ÄÏº┘ô ÏÑ┘É┘ä┘Ä┘Ç┘░┘ç┘Ä ÏÑ┘É┘ä┘æ┘ÄÏº ┘ç┘Å┘ê┘Ä ┘▒┘ä┘ÆÏ¡┘Ä┘ë┘æ┘Å ┘▒┘ä┘Æ┘é┘Ä┘è┘æ┘Å┘ê┘à┘Å █Ü ┘ä┘ÄÏº Ï¬┘ÄÏú┘ÆÏ«┘ÅÏ░┘Å┘ç┘Å█Ñ Ï│┘É┘å┘ÄÏ®┘î ┘ê┘Ä┘ä┘ÄÏº ┘å┘Ä┘ê┘Æ┘à┘î █Ü ┘ä┘æ┘Ä┘ç┘Å█Ñ ┘à┘ÄÏº ┘ü┘É┘ë ┘▒┘äÏ│┘æ┘Ä┘à┘Ä┘Ç┘░┘ê┘Ä┘░Ï¬┘É ┘ê┘Ä┘à┘ÄÏº ┘ü┘É┘ë ┘▒┘ä┘ÆÏú┘ÄÏ▒┘ÆÏÂ┘É █ù ┘à┘Ä┘å Ï░┘ÄÏº ┘▒┘ä┘æ┘ÄÏ░┘É┘ë ┘è┘ÄÏ┤┘Æ┘ü┘ÄÏ╣┘Å Ï╣┘É┘åÏ»┘Ä┘ç┘Å█Ñ┘ô ÏÑ┘É┘ä┘æ┘ÄÏº Ï¿┘ÉÏÑ┘ÉÏ░┘Æ┘å┘É┘ç┘É█ª █Ü ┘è┘ÄÏ╣┘Æ┘ä┘Ä┘à┘Å ┘à┘ÄÏº Ï¿┘Ä┘è┘Æ┘å┘Ä Ïú┘Ä┘è┘ÆÏ»┘É┘è┘ç┘É┘à┘Æ ┘ê┘Ä┘à┘ÄÏº Ï«┘Ä┘ä┘Æ┘ü┘Ä┘ç┘Å┘à┘Æ █û ┘ê┘Ä┘ä┘ÄÏº ┘è┘ÅÏ¡┘É┘èÏÀ┘Å┘ê┘å┘Ä Ï¿┘ÉÏ┤┘Ä┘ë┘ÆÏí┘ì ┘à┘æ┘É┘å┘Æ Ï╣┘É┘ä┘Æ┘à┘É┘ç┘É█ª┘ô ÏÑ┘É┘ä┘æ┘ÄÏº Ï¿┘É┘à┘ÄÏº Ï┤┘ÄÏº┘ôÏí┘Ä █Ü ┘ê┘ÄÏ│┘ÉÏ╣┘Ä ┘â┘ÅÏ▒┘ÆÏ│┘É┘è┘æ┘Å┘ç┘Å ┘▒┘äÏ│┘æ┘Ä┘à┘Ä┘Ç┘░┘ê┘Ä┘░Ï¬┘É ┘ê┘Ä┘▒┘ä┘ÆÏú┘ÄÏ▒┘ÆÏÂ┘Ä █û ┘ê┘Ä┘ä┘ÄÏº ┘è┘Ä┘Ç┘ö┘Å┘êÏ»┘Å┘ç┘Å█Ñ Ï¡┘É┘ü┘ÆÏ©┘Å┘ç┘Å┘à┘ÄÏº █Ü ┘ê┘Ä┘ç┘Å┘ê┘Ä ┘▒┘ä┘ÆÏ╣┘Ä┘ä┘É┘ë┘æ┘Å ┘▒┘ä┘ÆÏ╣┘ÄÏ©┘É┘è┘à┘Å\\n\\n┘ä┘Ä┘à┘Æ ┘è┘Ä┘ä┘ÉÏ»┘Æ ┘ê┘Ä┘ä┘Ä┘à┘Æ ┘è┘Å┘ê┘ä┘ÄÏ»┘Æ\\n\\n┘ê┘Ä┘à┘É┘å Ï┤┘ÄÏ▒┘æ┘É ┘▒┘ä┘å┘æ┘Ä┘ü┘æ┘Ä┘Ç┘░Ï½┘Ä┘Ç┘░Ï¬┘É ┘ü┘É┘ë ┘▒┘ä┘ÆÏ╣┘Å┘é┘ÄÏ»┘É\",\"citations\":[{\"source_id\":\"rahma-internal-reviewed-starter-qa\",\"source_uuid\":\"c56b4d34-0f24-4236-9414-b142cdfc98d9\",\"source_title\":\"┘àÏ╣┘å┘ë Ïº┘äÏÑÏ¡Ï│Ïº┘å\",\"source_type\":\"article\",\"document_id\":\"65e67c4d-707b-484a-a368-94e17ab6e9ec\",\"chunk_id\":\"52425a41-760a-4f4a-8970-c097b470802c\",\"reference_label\":\"Rahma reviewed learning QA 1\",\"url\":null,\"local_reference\":\"internal-reviewed-starter-qa:qa-ihsan-001\",\"verified\":true,\"citation_label\":\"Rahma reviewed learning QA 1\"},{\"source_id\":\"tanzil-quran-text\",\"source_uuid\":\"c1934a06-f212-4dff-b0b4-8fcd926d5af0\",\"source_title\":\"Ïó┘èÏ® Ïº┘ä┘âÏ▒Ï│┘è\",\"source_type\":\"quran\",\"document_id\":\"aab44307-c769-4c75-9b6a-9a91b3b75016\",\"chunk_id\":\"bab8c987-3098-491c-acc0-60afadada9fa\",\"reference_label\":\"Quran 2:255\",\"url\":\"https://tanzil.net/docs/Text_License\",\"local_reference\":\"Quran 2:255\",\"verified\":true,\"citation_label\":\"Ïó┘èÏ® Ïº┘ä┘âÏ▒Ï│┘è 2:255\"},{\"source_id\":\"tanzil-quran-text\",\"source_uuid\":\"c1934a06-f212-4dff-b0b4-8fcd926d5af0\",\"source_title\":\"Ïº┘äÏÑÏ«┘äÏºÏÁ\",\"source_type\":\"quran\",\"document_id\":\"78ee2a21-e1a2-4384-8d58-895439091191\",\"chunk_id\":\"4eb87436-de71-449c-98d2-33c0e14010cc\",\"reference_label\":\"Quran 112:3\",\"url\":\"https://tanzil.net/docs/Text_License\",\"local_reference\":\"Quran 112:3\",\"verified\":true,\"citation_label\":\"Ïº┘äÏÑÏ«┘äÏºÏÁ 112:3\"},{\"source_id\":\"tanzil-quran-text\",\"source_uuid\":\"c1934a06-f212-4dff-b0b4-8fcd926d5af0\",\"source_title\":\"Ïº┘ä┘ü┘ä┘é\",\"source_type\":\"quran\",\"document_id\":\"aa4f68ed-9bf6-496d-aae7-b668b710d0b3\",\"chunk_id\":\"cf51dbd8-d319-4bf2-842e-35b02bac5456\",\"reference_label\":\"Quran 113:4\",\"url\":\"https://tanzil.net/docs/Text_License\",\"local_reference\":\"Quran 113:4\",\"verified\":true,\"citation_label\":\"Ïº┘ä┘ü┘ä┘é 113:4\"}],\"safety_status\":\"verified_sources\",\"requires_scholar_review\":false,\"learning_recommendation\":null,\"audit_id\":\"fe6e4a49-f13d-4349-88b5-595d6d1cd48f\",\"language\":\"ar\",\"intent\":\"unknown\",\"risk_level\":\"medium\",\"retrieval_strategy\":\"vector_search\",\"algorithm_version\":\"rahma-algorithm-v1\"}"
+    },
+    "insufficient": {
+      "status": 200,
+      "json": {
+        "ok": true,
+        "answer": "I found approved content, but the match is too weak to answer confidently.",
+        "answer_ar": "I found approved content, but the match is too weak to answer confidently.",
+        "citations": [],
+        "safety_status": "low_confidence",
+        "requires_scholar_review": false,
+        "learning_recommendation": null,
+        "audit_id": "cb828069-bf28-458b-8e72-0bd00d206233",
+        "language": "en",
+        "intent": "unknown",
+        "risk_level": "medium",
+        "retrieval_strategy": null,
+        "algorithm_version": "rahma-algorithm-v1"
+      },
+      "text": "{\"ok\":true,\"answer\":\"I found approved content, but the match is too weak to answer confidently.\",\"answer_ar\":\"I found approved content, but the match is too weak to answer confidently.\",\"citations\":[],\"safety_status\":\"low_confidence\",\"requires_scholar_review\":false,\"learning_recommendation\":null,\"audit_id\":\"cb828069-bf28-458b-8e72-0bd00d206233\",\"language\":\"en\",\"intent\":\"unknown\",\"risk_level\":\"medium\",\"retrieval_strategy\":null,\"algorithm_version\":\"rahma-algorithm-v1\"}"
+    },
+    "injection": {
+      "status": 200,
+      "json": {
+        "ok": true,
+        "answer": "I cannot answer this because the request appears to contain prompt-injection or unsafe instructions.",
+        "answer_ar": "I cannot answer this because the request appears to contain prompt-injection or unsafe instructions.",
+        "citations": [],
+        "safety_status": "blocked_prompt_injection",
+        "requires_scholar_review": false,
+        "learning_recommendation": null,
+        "audit_id": "85a3de1c-67f6-4894-a810-847ab08b817b",
+        "language": "en",
+        "intent": "blocked_prompt_injection",
+        "risk_level": "blocked",
+        "retrieval_strategy": null,
+        "algorithm_version": "rahma-algorithm-v1"
+      },
+      "text": "{\"ok\":true,\"answer\":\"I cannot answer this because the request appears to contain prompt-injection or unsafe instructions.\",\"answer_ar\":\"I cannot answer this because the request appears to contain prompt-injection or unsafe instructions.\",\"citations\":[],\"safety_status\":\"blocked_prompt_injection\",\"requires_scholar_review\":false,\"learning_recommendation\":null,\"audit_id\":\"85a3de1c-67f6-4894-a810-847ab08b817b\",\"language\":\"en\",\"intent\":\"blocked_prompt_injection\",\"risk_level\":\"blocked\",\"retrieval_strategy\":null,\"algorithm_version\":\"rahma-algorithm-v1\"}"
+    },
+    "fiqh": {
+      "status": 200,
+      "json": {
+        "ok": true,
+        "answer": "┘çÏ░Ïº Ïº┘äÏ│ÏñÏº┘ä ┘èÏ¡Ï¬ÏºÏ¼ ÏÑ┘ä┘ë ┘àÏ▒ÏºÏ¼Ï╣Ï® ┘à┘å Ï╣Ïº┘ä┘à ┘àÏ«Ï¬ÏÁ. ┘äÏº ┘è┘à┘â┘å┘åÏº Ï¬┘éÏ»┘è┘à ÏÑÏ¼ÏºÏ¿Ï® Ï║┘èÏ▒ ┘àÏ»Ï╣┘ê┘àÏ®.",
+        "answer_ar": "┘çÏ░Ïº Ïº┘äÏ│ÏñÏº┘ä ┘èÏ¡Ï¬ÏºÏ¼ ÏÑ┘ä┘ë ┘àÏ▒ÏºÏ¼Ï╣Ï® ┘à┘å Ï╣Ïº┘ä┘à ┘àÏ«Ï¬ÏÁ. ┘äÏº ┘è┘à┘â┘å┘åÏº Ï¬┘éÏ»┘è┘à ÏÑÏ¼ÏºÏ¿Ï® Ï║┘èÏ▒ ┘àÏ»Ï╣┘ê┘àÏ®.",
+        "citations": [],
+        "safety_status": "scholar_review_required",
+        "requires_scholar_review": true,
+        "learning_recommendation": null,
+        "audit_id": "c429afe4-56b1-4541-bc7c-d65d2de10851",
+        "language": "ar",
+        "intent": "fiqh_fatwa_like",
+        "risk_level": "high",
+        "retrieval_strategy": null,
+        "algorithm_version": "rahma-algorithm-v1"
+      },
+      "text": "{\"ok\":true,\"answer\":\"┘çÏ░Ïº Ïº┘äÏ│ÏñÏº┘ä ┘èÏ¡Ï¬ÏºÏ¼ ÏÑ┘ä┘ë ┘àÏ▒ÏºÏ¼Ï╣Ï® ┘à┘å Ï╣Ïº┘ä┘à ┘àÏ«Ï¬ÏÁ. ┘äÏº ┘è┘à┘â┘å┘åÏº Ï¬┘éÏ»┘è┘à ÏÑÏ¼ÏºÏ¿Ï® Ï║┘èÏ▒ ┘àÏ»Ï╣┘ê┘àÏ®.\",\"answer_ar\":\"┘çÏ░Ïº Ïº┘äÏ│ÏñÏº┘ä ┘èÏ¡Ï¬ÏºÏ¼ ÏÑ┘ä┘ë ┘àÏ▒ÏºÏ¼Ï╣Ï® ┘à┘å Ï╣Ïº┘ä┘à ┘àÏ«Ï¬ÏÁ. ┘äÏº ┘è┘à┘â┘å┘åÏº Ï¬┘éÏ»┘è┘à ÏÑÏ¼ÏºÏ¿Ï® Ï║┘èÏ▒ ┘àÏ»Ï╣┘ê┘àÏ®.\",\"citations\":[],\"safety_status\":\"scholar_review_required\",\"requires_scholar_review\":true,\"learning_recommendation\":null,\"audit_id\":\"c429afe4-56b1-4541-bc7c-d65d2de10851\",\"language\":\"ar\",\"intent\":\"fiqh_fatwa_like\",\"risk_level\":\"high\",\"retrieval_strategy\":null,\"algorithm_version\":\"rahma-algorithm-v1\"}"
+    }
+  },
+  "db": {
+    "migrations": 28,
+    "approved_sources": 2,
+    "documents": 7,
+    "chunks": 25,
+    "embeddings": 25,
+    "citations": 25,
+    "published_questions": 4,
+    "published_answers": 4
+  }
+}

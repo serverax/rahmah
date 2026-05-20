@@ -1,0 +1,142 @@
+{
+  "ok": true,
+  "base": "http://127.0.0.1:18180",
+  "features": {
+    "backend": {
+      "checks": [
+        {
+          "name": "GET_/health",
+          "pass": true,
+          "detail": null
+        },
+        {
+          "name": "GET_/ready",
+          "pass": true,
+          "detail": null
+        },
+        {
+          "name": "production_ready_boolean",
+          "pass": true,
+          "detail": null
+        }
+      ],
+      "blockers": []
+    },
+    "ask_sheikh": {
+      "checks": [
+        {
+          "name": "GET_categories",
+          "pass": true,
+          "detail": null
+        },
+        {
+          "name": "POST_question",
+          "pass": true,
+          "detail": "aaf0168a-be9d-4179-a0df-7d7a9aecc80c"
+        }
+      ],
+      "blockers": []
+    },
+    "verified_answers": {
+      "checks": [
+        {
+          "name": "GET_public_qa",
+          "pass": true,
+          "detail": "count=4"
+        }
+      ],
+      "blockers": []
+    },
+    "rag": {
+      "checks": [
+        {
+          "name": "POST_query",
+          "pass": true,
+          "detail": null
+        },
+        {
+          "name": "has_safety_status",
+          "pass": true,
+          "detail": "verified_sources"
+        },
+        {
+          "name": "citations_when_verified",
+          "pass": true,
+          "detail": null
+        },
+        {
+          "name": "prompt_injection_blocked",
+          "pass": true,
+          "detail": "blocked_prompt_injection"
+        },
+        {
+          "name": "fiqh_scholar_or_safe",
+          "pass": true,
+          "detail": "scholar_review_required"
+        }
+      ],
+      "blockers": []
+    },
+    "quran": {
+      "checks": [
+        {
+          "name": "GET_status",
+          "pass": true,
+          "detail": null
+        }
+      ],
+      "blockers": []
+    },
+    "sources": {
+      "checks": [
+        {
+          "name": "GET_sources",
+          "pass": true,
+          "detail": null
+        }
+      ],
+      "blockers": []
+    },
+    "game": {
+      "checks": [
+        {
+          "name": "GET_status",
+          "pass": true,
+          "detail": null
+        }
+      ],
+      "blockers": []
+    },
+    "azan": {
+      "checks": [
+        {
+          "name": "GET_options",
+          "pass": true,
+          "detail": null
+        },
+        {
+          "name": "approved_playback_truthful",
+          "pass": true,
+          "detail": "approved=1"
+        }
+      ],
+      "blockers": []
+    },
+    "prayer": {
+      "checks": [
+        {
+          "name": "GET_prayer_times",
+          "pass": true,
+          "detail": null
+        }
+      ],
+      "blockers": []
+    }
+  },
+  "blockers": [],
+  "tested_at": "2026-05-19T14:40:02.659Z",
+  "ready_summary": {
+    "production_ready": true,
+    "blockers": []
+  }
+}

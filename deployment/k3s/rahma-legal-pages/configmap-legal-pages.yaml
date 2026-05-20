@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rahma-legal-pages
+  namespace: rahma-legal-pages
+  labels:
+    app.kubernetes.io/name: rahma-legal-pages
+    app.kubernetes.io/part-of: rahma
+data:
+  privacy.html: |
+    <!doctype html>
+    <html lang="ar" dir="rtl">
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>سياسة الخصوصية - رحمة</title>
+      <style>body{margin:0;font-family:Tahoma,Arial,sans-serif;background:#061f24;color:#fff;line-height:1.8}main{max-width:860px;margin:auto;padding:32px}a{color:#d6b25e}.card{background:rgba(255,255,255,.08);border:1px solid rgba(214,178,94,.45);border-radius:18px;padding:24px}</style>
+    </head>
+    <body><main><section class="card">
+      <h1>سياسة الخصوصية - رحمة</h1>
+      <p>رحمة تطبيق تعليمي إسلامي. قد تُرسل أسئلة المستخدم إلى خادم رحمة عند تفعيل الاتصال من أجل الرد أو المراجعة، وقد تُحفظ الأسئلة وحالة المراجعة وسجلات أمان محدودة.</p>
+      <p>الموقع اختياري لحساب مواقيت الصلاة والقبلة. لا نبيع البيانات الشخصية. لا توجد إعلانات في هذا الإصدار. قد تُستخدم بيانات تقنية محدودة للتشخيص والأمان.</p>
+      <p>قسم الأطفال تعليمي ويجب استخدامه بإشراف ولي الأمر. لا ينبغي للأطفال إرسال معلومات شخصية.</p>
+      <p>يمكن طلب الدعم أو حذف البيانات عبر البريد: support@ordinoxai.com</p>
+      <p>هذه صفحة مؤقتة على عنوان IP للاختبار فقط. يجب استخدام نطاق HTTPS قبل التقديم النهائي للمتاجر.</p>
+    </section></main></body>
+    </html>
+  terms.html: |
+    <!doctype html>
+    <html lang="ar" dir="rtl">
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>الشروط والتنبيه الشرعي - رحمة</title>
+      <style>body{margin:0;font-family:Tahoma,Arial,sans-serif;background:#061f24;color:#fff;line-height:1.8}main{max-width:860px;margin:auto;padding:32px}a{color:#d6b25e}.card{background:rgba(255,255,255,.08);border:1px solid rgba(214,178,94,.45);border-radius:18px;padding:24px}</style>
+    </head>
+    <body><main><section class="card">
+      <h1>الشروط والتنبيه الشرعي - رحمة</h1>
+      <p>رحمة يقدم محتوى تعليمياً إسلامياً ومراجع موثقة حيثما توفرت. لا يقدم التطبيق فتوى رسمية ولا يغني عن سؤال أهل العلم المؤهلين.</p>
+      <p>المسائل الشخصية أو الحساسة أو المالية أو الطبية أو القانونية أو المتعلقة بالزواج والطلاق يجب عرضها على عالم مؤهل.</p>
+      <p>الإجابات قد تكون محدودة بالمصادر المعتمدة المتاحة داخل النظام. عند غياب المصدر أو انخفاض الثقة يجب أن يرفض التطبيق الإجابة أو يطلب مراجعة علمية.</p>
+      <p>للدعم: support@ordinoxai.com</p>
+      <p>هذه صفحة مؤقتة على عنوان IP للاختبار فقط. يجب استخدام نطاق HTTPS قبل التقديم النهائي للمتاجر.</p>
+    </section></main></body>
+    </html>
+  support.html: |
+    <!doctype html>
+    <html lang="ar" dir="rtl">
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>الدعم - رحمة</title>
+      <style>body{margin:0;font-family:Tahoma,Arial,sans-serif;background:#061f24;color:#fff;line-height:1.8}main{max-width:860px;margin:auto;padding:32px}a{color:#d6b25e}.card{background:rgba(255,255,255,.08);border:1px solid rgba(214,178,94,.45);border-radius:18px;padding:24px}</style>
+    </head>
+    <body><main><section class="card">
+      <h1>الدعم - رحمة</h1>
+      <p>للدعم الفني، الخصوصية، حذف البيانات، وسلامة الأطفال راسلونا عبر:</p>
+      <p><a href="mailto:support@ordinoxai.com">support@ordinoxai.com</a></p>
+      <p>يرجى عدم إرسال معلومات حساسة أو تفاصيل شخصية خاصة بالأطفال عبر البريد إلا عند الضرورة.</p>
+      <p>هذه صفحة مؤقتة على عنوان IP للاختبار فقط. يجب استخدام نطاق HTTPS قبل التقديم النهائي للمتاجر.</p>
+    </section></main></body>
+    </html>

@@ -32,7 +32,7 @@ export async function callWasmBridge(url, path, payload) {
           'Content-Type': 'application/json',
           'Content-Length': Buffer.byteLength(body),
         },
-        timeout: 2000,
+        timeout: Number(process.env.WASM_BRIDGE_TIMEOUT_MS || 2000),
       }, (res) => {
         let data = '';
         res.on('data', (chunk) => { data += chunk; });

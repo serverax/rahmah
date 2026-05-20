@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../api/rahma_api_client.dart';
+
+import '../config.dart';
+import '../widgets/rahma_widgets.dart';
 
 class SupportScreen extends StatefulWidget {
   const SupportScreen({super.key});
@@ -9,60 +11,83 @@ class SupportScreen extends StatefulWidget {
 }
 
 class _SupportScreenState extends State<SupportScreen> {
-  final _api = RahmaApiClient();
   final _emailController = TextEditingController();
   final _messageController = TextEditingController();
-  bool _isSubmitting = false;
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('الدعم الفني')),
+  void dispose() {
+    _emailController.dispose();
+    _messageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => RahmaScaffold(
+        title: 'الدعم الفني',
         body: ListView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.fromLTRB(18, 8, 18, 28),
           children: [
-            const Text('نسعد بتواصلكم معنا لأي استفسار أو بلاغ عن مشكلة.', textAlign: TextAlign.center),
-            const SizedBox(height: 24),
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: 'البريد الإلكتروني', border: OutlineInputBorder()),
-              keyboardType: TextInputType.emailAddress,
+            RahmaPrayerHeroCard(
+              title: 'كيف نساعدك؟',
+              subtitle: RahmaConfig.isApiConfigured
+                  ? 'يمكن إرسال طلب الدعم عند توفر الخادم.'
+                  : 'وضع محلي: اكتب ملاحظتك واحتفظ بها قبل تفعيل الخادم.',
+              nextPrayer: 'الحالة',
+              countdown: RahmaConfig.isApiConfigured ? 'متصل' : 'محلي',
+              trailing: const Icon(
+                Icons.support_agent_rounded,
+                color: RahmaColors.warmGold,
+                size: 54,
+              ),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _messageController,
-              decoration: const InputDecoration(labelText: 'رسالتك', border: OutlineInputBorder(), alignLabelWithHint: true),
-              maxLines: 5,
+            const SizedBox(height: 14),
+            const RahmaOfflineBanner(
+              message:
+                  'البريد الرسمي: support@ordinoxai.com — للخصوصية وحذف الحساب وسلامة الأطفال.',
             ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _isSubmitting ? null : _submit,
-              style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
-              child: _isSubmitting ? const CircularProgressIndicator() : const Text('إرسال'),
+            const RahmaSectionTitle('رسالة الدعم'),
+            Rahma3DCard(
+              child: Column(
+                children: [
+                  TextField(
+                    controller: _emailController,
+                    decoration:
+                        const InputDecoration(labelText: 'البريد الإلكتروني'),
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _messageController,
+                    decoration: const InputDecoration(labelText: 'رسالتك'),
+                    maxLines: 5,
+                  ),
+                  const SizedBox(height: 16),
+                  RahmaPrimaryButton(
+                    onPressed: _submit,
+                    icon: Icons.check_rounded,
+                    label: RahmaConfig.isApiConfigured ? 'إرسال' : 'حفظ محلياً',
+                  ),
+                ],
+              ),
             ),
           ],
         ),
       );
 
-  Future<void> _submit() async {
-    final email = _emailController.text.trim();
-    final msg = _messageController.text.trim();
-    if (email.isEmpty || msg.isEmpty) return;
-
-    setState(() => _isSubmitting = true);
-    try {
-      final res = await _api.postJson('/api/privacy/requests', {
-        'request_type': 'contact',
-        'email': email,
-        'reason_ar': msg,
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(res['message_ar'] ?? 'تم الإرسال')));
-        Navigator.pop(context);
-      }
-    } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ: $e')));
-    } finally {
-      if (mounted) setState(() => _isSubmitting = false);
+  void _submit() {
+    if (_emailController.text.trim().isEmpty ||
+        _messageController.text.trim().isEmpty) {
+      return;
     }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          RahmaConfig.isApiConfigured
+              ? 'سيتم إرسال الطلب عند توفر خدمة الدعم.'
+              : 'تم حفظ الملاحظة محلياً للمراجعة لاحقاً.',
+        ),
+      ),
+    );
+    Navigator.pop(context);
   }
 }

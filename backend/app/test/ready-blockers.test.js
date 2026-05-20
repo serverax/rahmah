@@ -74,7 +74,7 @@ test('READY: database block carries migration_table_exists + applied_migrations_
 test('READY: even with AUTH_MODE=external + SESSION_SECRET set, production_ready stays false until DB+RAG real', async () => {
   const s = envSnap();
   process.env.AUTH_MODE = 'external';
-  process.env.SESSION_SECRET = 'a'.repeat(32);
+  process.env.SESSION_SECRET = 'RahmaTestSessionKey2026Aa1Bb2Cc3Dd4Ee5Ff6';
   delete process.env.DATABASE_URL;
   _resetClientPoolForTests();
   const app = buildApp();
@@ -120,7 +120,7 @@ test('READY: never leaks SESSION_SECRET or DATABASE_URL in body', async () => {
 test('READY: blockers array shrinks as subsystems come online (auth-only configured)', async () => {
   const s = envSnap();
   process.env.AUTH_MODE = 'external';
-  process.env.SESSION_SECRET = 'a'.repeat(32);
+  process.env.SESSION_SECRET = 'RahmaTestSessionKey2026Aa1Bb2Cc3Dd4Ee5Ff6';
   delete process.env.DATABASE_URL;
   _resetClientPoolForTests();
   const app = buildApp();

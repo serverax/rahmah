@@ -1,0 +1,42 @@
+﻿# Placeholder only. Internal ClusterIP service, no public ingress.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rahma-policy-gate-wasm
+  namespace: rahma-wasm
+spec:
+  replicas: 1
+  template:
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        allowPrivilegeEscalation: false
+      containers:
+        - name: policy
+          image: ghcr.io/serverax/rahma-policy-gate-wasm:PLACEHOLDER-PINNED-TAG
+          resources:
+            requests:
+              cpu: "20m"
+              memory: "32Mi"
+            limits:
+              cpu: "100m"
+              memory: "128Mi"
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rahma-policy-gate-wasm
+  namespace: rahma-wasm
+spec:
+  type: ClusterIP
+  selector:
+    app: rahma-policy-gate-wasm
+  ports:
+    - port: 80
+      targetPort: 8080

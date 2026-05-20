@@ -2,8 +2,14 @@
 .env
 .env.local
 .env.*.local
+deployment/local/.env.rahma-full
 *.key
 *.pem
+*.jks
+*.keystore
+key.properties
+android/key.properties
+apps/mobile/android/key.properties
 
 # Top-level / generic secrets dirs (rendered output goes here)
 /secrets/
@@ -72,3 +78,4 @@ build/
 
 # Generated
 *.generated.*
+.local-test-postgres/

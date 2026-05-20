@@ -67,7 +67,7 @@ test('S26 fix: external mode requires SESSION_SECRET ≥ 32 chars', () => {
   process.env.AUTH_MODE = 'external';
   delete process.env.SESSION_SECRET;
   assert.equal(isAuthConfigured(), false);
-  process.env.SESSION_SECRET = 'a'.repeat(32);
+  process.env.SESSION_SECRET = 'RahmaTestSessionKey2026Aa1Bb2Cc3Dd4Ee5Ff6';
   assert.equal(isAuthConfigured(), true);
   envRestore(s);
 });

@@ -1,0 +1,25 @@
+{
+  "db_status": "DB_VERIFIED_LIVE",
+  "tables_checked": 104,
+  "missing_tables": [],
+  "missing_indexes": [],
+  "missing_constraints": [],
+  "rag_ready": true,
+  "content_governance_ready": true,
+  "app_ready": true,
+  "blockers": [],
+  "migration_files_checked": 28,
+  "migration_hash_mismatches": [],
+  "migration_files_missing_from_db": [],
+  "optional_extensions": [
+    {
+      "name": "pgcrypto",
+      "present": true
+    },
+    {
+      "name": "vector",
+      "present": true,
+      "optional": true
+    }
+  ]
+}

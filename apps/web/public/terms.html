@@ -4,23 +4,37 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>رحمة — شروط الاستخدام</title>
-  <link rel="stylesheet" href="/assets/styles.css" />
+  <meta name="rahma-api-base" content="" />
+  <link rel="stylesheet" href="/assets/test-ui.css" />
 </head>
 <body>
-  <div class="app-shell">
+  <div class="mobile-viewport">
     <header class="app-header">
       <h1>شروط الاستخدام</h1>
       <div class="header-sub">قواعد التعامل مع تطبيق رحمة.</div>
     </header>
-    <main class="app-main">
-      <div id="terms" aria-live="polite"><div class="state-loading">جارٍ التحميل...</div></div>
+    <main class="app-main" style="padding: 20px; padding-bottom: 100px;">
+      <div class="backend-status" data-rahma-status aria-live="polite"></div>
+      <article class="card-3d">
+        <h3 style="color: var(--rahma-emerald-dark); margin-top: 0;">شروط الاستخدام</h3>
+        <p>باستخدام رحمة فإنكم توافقون على هذه الشروط. يقدم التطبيق محتوىً إسلامياً تعليمياً وأدوات للقرآن والصلاة والمراجعة الشرعية، ولا يستبدل العالم المؤهل.</p>
+        <p>لا يجوز إساءة استخدام الخدمة أو إرسال محتوى مضلل أو مسيء أو خاص بالآخرين. الإجابات العامة لا تظهر إلا بعد المراجعة والاعتماد عند الحاجة.</p>
+        <p>المسائل الفقهية الشخصية أو الحساسة، ومنها المال والزواج والطلاق والميراث والطب والقانون، تحتاج إلى مراجعة عالم مؤهل أو جهة مختصة. قد يرفض التطبيق الإجابة إذا لم تتوفر مصادر معتمدة.</p>
+        <p>ميزات التبرع أو الصدقة غير نشطة إلا إذا صرّح التطبيق والخادم بوجود مزود دفع قانوني ومكوّن. لا يدّعي رحمة نجاح أي دفع دون تأكيد حقيقي.</p>
+        <p>للدعم: <a href="mailto:support@ordinoxai.com">support@ordinoxai.com</a></p>
+      </article>
+      <div id="terms" aria-live="polite"><div class="state-loading">جارٍ تحميل النسخة الموسّعة...</div></div>
+      <div class="card-3d mt-16">
+        <h3 style="color: var(--rahma-emerald-dark); margin-top: 0;">تنبيه شرعي</h3>
+        <p>رحمة لا تستبدل العالم المؤهل. الأسئلة الحساسة والفتاوى الشخصية تُحال للمراجعة أو تُرفض عند غياب المصادر، ولا تُجاب من الذاكرة. الإرشاد تعليمي وليس فتوى رسمية.</p>
+      </div>
     </main>
     <nav class="app-bottom-nav" aria-label="التنقل السفلي">
-      <a href="/">الرئيسية</a>
-      <a href="/ask.html">اسأل</a>
-      <a href="/answers.html">الإجابات</a>
-      <a href="/library.html">المكتبة</a>
-      <a href="/privacy.html">الخصوصية</a>
+      <a href="/"><span class="nav-icon">🏠</span><span>الرئيسية</span></a>
+      <a href="/ask.html"><span class="nav-icon">💬</span><span>اسأل</span></a>
+      <a href="/answers.html"><span class="nav-icon">📝</span><span>الإجابات</span></a>
+      <a href="/library.html"><span class="nav-icon">📚</span><span>المكتبة</span></a>
+      <a href="/privacy.html"><span class="nav-icon">🛡️</span><span>الخصوصية</span></a>
     </nav>
   </div>
   <script src="/assets/app.js"></script>
@@ -33,7 +47,7 @@
         return;
       }
       const t = r.body.terms;
-      root.innerHTML = `<article class="card">
+      root.innerHTML = `<article class="card-3d">
         <div class="card-title">${escapeHtml(t.title_ar)}</div>
         <div class="card-body" style="white-space:pre-line">${escapeHtml(t.body_ar)}</div>
       </article>`;
@@ -42,3 +56,4 @@
   </script>
 </body>
 </html>
+

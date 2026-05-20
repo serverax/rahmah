@@ -1,0 +1,51 @@
+name: Rahma K3s Manual Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: 'Apply manifests after dry-run passes'
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: rahma-k3s-production
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: 'latest'
+
+      - name: Load kubeconfig
+        env:
+          RAHMA_KUBECONFIG_B64: ${{ secrets.RAHMA_KUBECONFIG_B64 }}
+        run: |
+          set -euo pipefail
+          test -n "${RAHMA_KUBECONFIG_B64}"
+          mkdir -p "$HOME/.kube"
+          printf '%s' "${RAHMA_KUBECONFIG_B64}" | base64 -d > "$HOME/.kube/config"
+          chmod 600 "$HOME/.kube/config"
+          kubectl config current-context
+
+      - name: Validate manifests
+        run: |
+          set -euo pipefail
+          kubectl diff -f deployment/k3s/ || true
+          kubectl apply --dry-run=server -f deployment/k3s/
+
+      - name: Apply manifests
+        if: ${{ inputs.apply }}
+        run: kubectl apply -f deployment/k3s/
+

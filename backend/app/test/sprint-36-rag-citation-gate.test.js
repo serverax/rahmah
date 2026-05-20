@@ -7,6 +7,7 @@ import {
 } from '../src/rag/rag-status.js';
 import { configureRagRouteRetrieval, _resetRagRouteForTests } from '../src/routes/rag.js';
 import { decideRagAnswer, filterApprovedCandidates, _MESSAGES } from '../src/rag/answer-gate.js';
+import { _resetRahmaAlgorithmForTests } from '../src/services/rahma-algorithm.service.js';
 
 test('Sprint36 — answer gate: retrieval unavailable → rag_unavailable + Arabic notice', () => {
   const d = decideRagAnswer({ retrieval_available: false });
@@ -81,7 +82,8 @@ test('Sprint36 — answer gate: cited path returns citations array with source l
 test('Sprint36 — POST /api/rag/query: rag_unavailable when no retrieval adapter wired', async () => {
   _resetRagForTests();
   _resetRagRouteForTests();
-  const app = buildApp();
+  _resetRahmaAlgorithmForTests();
+  const app = buildApp({ autoInit: false });
   try {
     const r = await app.inject({
       method: 'POST', url: '/api/rag/query',
@@ -100,10 +102,11 @@ test('Sprint36 — POST /api/rag/query: rag_unavailable when no retrieval adapte
 test('Sprint36 — POST /api/rag/query: insufficient_sources when retrieval returns []', async () => {
   _resetRagForTests();
   _resetRagRouteForTests();
+  _resetRahmaAlgorithmForTests();
   const fakeRetrieval = { retrieve: async () => ({ ok: true, candidates: [] }) };
   configureRag({ registry: { countSourcesByStatus: async () => ({ approved: 0, pending_review: 0, unverified: 0, rejected: 0 }) }, retrieval: fakeRetrieval, enabled: true });
   configureRagRouteRetrieval(fakeRetrieval);
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     const r = await app.inject({
       method: 'POST', url: '/api/rag/query',
@@ -118,12 +121,14 @@ test('Sprint36 — POST /api/rag/query: insufficient_sources when retrieval retu
     await app.close();
     _resetRagForTests();
     _resetRagRouteForTests();
+    _resetRahmaAlgorithmForTests();
   }
 });
 
 test('Sprint36 — POST /api/rag/query: cited when retrieval returns approved candidate', async () => {
   _resetRagForTests();
   _resetRagRouteForTests();
+  _resetRahmaAlgorithmForTests();
   const fakeRetrieval = {
     retrieve: async () => ({
       ok: true,
@@ -143,7 +148,7 @@ test('Sprint36 — POST /api/rag/query: cited when retrieval returns approved ca
   };
   configureRag({ registry: { countSourcesByStatus: async () => ({ approved: 1, pending_review: 0, unverified: 0, rejected: 0 }) }, retrieval: fakeRetrieval, enabled: true });
   configureRagRouteRetrieval(fakeRetrieval);
-  const app = buildApp();
+  const app = buildApp({ autoInit: false });
   try {
     const r = await app.inject({
       method: 'POST', url: '/api/rag/query',
@@ -159,6 +164,7 @@ test('Sprint36 — POST /api/rag/query: cited when retrieval returns approved ca
     await app.close();
     _resetRagForTests();
     _resetRagRouteForTests();
+    _resetRahmaAlgorithmForTests();
   }
 });
 

@@ -17,6 +17,14 @@ test('GET /ready exposes ibadat safety flags', async () => {
     assert.equal(body.legacy_service_name, 'sakina-backend');
     assert.equal(body.platform, 'mobile-only');
     assert.equal(body.public_ingress, 'disabled');
+    assert.equal(typeof body.database_configured, 'boolean');
+    assert.equal(typeof body.database_connected, 'boolean');
+    assert.equal(typeof body.rag_configured, 'boolean');
+    assert.equal(typeof body.llm_configured, 'boolean');
+    assert.equal(typeof body.wasm_runtime_configured, 'boolean');
+    assert.equal(typeof body.content_governance_enabled, 'boolean');
+    assert.equal(typeof body.production_ready, 'boolean');
+    assert.ok(Array.isArray(body.blockers));
     assert.equal(typeof body.database, 'object');
     assert.equal(typeof body.database.configured, 'boolean');
     assert.equal(typeof body.database.connected, 'boolean');

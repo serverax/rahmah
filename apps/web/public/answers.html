@@ -11,14 +11,14 @@
 <body>
   <div class="mobile-viewport">
     <header class="app-header">
-      <a href="/" style="color: white; text-decoration: none; display: block; margin-bottom: 10px;">&larr; العودة</a>
+      <a href="index.html" style="color: white; text-decoration: none; display: block; margin-bottom: 10px;">&larr; العودة</a>
       <h1>إجابات موثقة</h1>
       <div class="header-sub">فتاوى وإجابات معتمدة من الشيخ حسن.</div>
     </header>
 
     <main class="app-main" style="padding: 20px; padding-bottom: 100px;">
       
-      <div class="backend-status" data-rahma-status aria-live="polite"></div>
+      <div id="answersApiStatus" aria-live="polite"></div>
 
       <div class="input-3d" style="display: flex; gap: 10px; align-items: center;">
         <span>🔍</span>
@@ -60,20 +60,23 @@
   <script>
     (async function () {
       const listEl = document.getElementById('answersList');
+      const statusEl = document.getElementById('answersApiStatus');
       if (!window.Rahma) return;
       const R = window.Rahma;
-      try {
-        const res = await R.fetchJson('/api/ask-sheikh/public');
-        if (!res.ok) {
-          listEl.innerHTML = `<div class="state-error">تعذّر تحميل الإجابات. ${res.error || ''}</div>`;
-          return;
-        }
-        const items = Array.isArray(res.body.items) ? res.body.items : [];
-        if (items.length === 0) {
-          listEl.innerHTML = `<div class="state-empty">لا توجد إجابات منشورة حالياً.</div>`;
-          return;
-        }
-        listEl.innerHTML = items.map(a => `
+      const staticSamples = [
+        {
+          question_text_ar: 'كيف أحافظ على الصلاة في وقتها؟',
+          answer_text_ar: 'ابدأ بتثبيت تذكير لكل صلاة، واختر صحبة تعينك، واجعل قضاء الصلاة الفائتة دافعاً لا سبباً لليأس.',
+          category_id: 'الصلاة',
+        },
+        {
+          question_text_ar: 'هل يمكنني قراءة الأذكار من الهاتف؟',
+          answer_text_ar: 'نعم، قراءة الأذكار من الهاتف جائزة، والمقصود حضور القلب والمحافظة على الذكر.',
+          category_id: 'الأذكار',
+        },
+      ];
+      function renderItems(items) {
+        listEl.innerHTML = items.map((a) => `
           <div class="card-3d" style="margin-bottom: 16px;">
             <div style="color: var(--rahma-emerald); font-weight: 600; margin-bottom: 8px;">سؤال:</div>
             <p style="margin-top: 0; font-family: var(--font-heading); font-size: 1.2rem;">${R.escapeHtml(a.question_text_ar || a.question || '')}</p>
@@ -85,8 +88,23 @@
             </div>
           </div>
         `).join('');
-      } catch (err) {
-        listEl.innerHTML = `<div class="state-error">تعذّر الاتصال بالخادم.</div>`;
+      }
+      try {
+        const res = await R.fetchJson('/api/ask-sheikh/public');
+        if (!res.ok) {
+          R.renderServiceUnavailablePill(statusEl);
+          renderItems(staticSamples);
+          return;
+        }
+        const items = Array.isArray(res.body.items) ? res.body.items : [];
+        if (items.length === 0) {
+          listEl.innerHTML = '<div class="state-empty">لا توجد إجابات منشورة حالياً.</div>';
+          return;
+        }
+        renderItems(items);
+      } catch (_err) {
+        R.renderServiceUnavailablePill(statusEl);
+        renderItems(staticSamples);
       }
     })();
   </script>

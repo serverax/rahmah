@@ -3,7 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:rahma_mobile/nav/privacy_gate.dart';
 
 void main() {
-  testWidgets('PrivacyGate shows child when disabled', (WidgetTester tester) async {
+  testWidgets('PrivacyGate shows child when disabled',
+      (WidgetTester tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: PrivacyGate(
@@ -17,7 +18,8 @@ void main() {
     expect(find.text('وضع الخصوصية مفعل'), findsNothing);
   });
 
-  testWidgets('PrivacyGate hides child when enabled', (WidgetTester tester) async {
+  testWidgets('PrivacyGate hides child when enabled',
+      (WidgetTester tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: PrivacyGate(

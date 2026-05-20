@@ -1,32 +1,40 @@
 {
   "configured": true,
-  "status": "PASS_FOUNDATION",
-  "blocker": null,
+  "status": "BLOCKED_INVALID_AUDIO_ASSET",
+  "blocker": "Approved Azan metadata exists, but the checked local files are not valid playable audio files. Do not enable playback until a licensed binary audio asset is present and hash-verified.",
   "default_azan_id": "makkah_public_01",
   "options": [
     {
       "id": "makkah_public_01",
       "title_ar": "أذان مكة المكرمة",
       "title_en": "Makkah Azan (Public Domain)",
-      "source": "Archive.org",
+      "source": "Internet Archive",
+      "source_url": "https://archive.org/details/athan-makkah",
       "license": "Public Domain Mark 1.0",
+      "license_evidence": "Claim not accepted for release because the local file was invalid HTML, not audio. Re-verify the source page and license before adding a replacement.",
       "file_path": "assets/audio/azan/makkah_azan_public_domain.mp3",
+      "storage_path": "apps/mobile/assets/audio/azan/makkah_azan_public_domain.mp3",
+      "file_hash_sha256": "0a25886b300943ec0ae211dcd3ccd43dd2035c60030c19c503a17c279e1b71f0",
       "duration_seconds": 20,
-      "approved": true,
-      "review_status": "verified",
-      "notes": "Verified Public Domain source via Archive.org."
+      "approved": false,
+      "approved_by": "rahma-content-ops",
+      "approved_at": "2026-05-19T00:00:00.000Z",
+      "playback_tested_at": null,
+      "review_status": "blocked_invalid_audio_file",
+      "notes": "Hash matches the local file, but the local file starts with HTML, not an MP3 audio header. Approval revoked until a valid licensed audio asset is added and playback is retested."
     },
     {
       "id": "madinah_standard",
       "title_ar": "أذان المدينة المنورة",
       "title_en": "Madinah Standard Azan",
-      "source": "Unverified Placeholder",
+      "source": "Unverified",
+      "source_url": "",
       "license": "Pending Review",
       "file_path": "assets/audio/azan/madinah_standard.mp3",
       "duration_seconds": 190,
       "approved": false,
       "review_status": "pending",
-      "notes": "Requires high-quality source and license confirmation."
+      "notes": "Rejected for production until source URL, license evidence, hash, and playback test are complete."
     }
   ]
 }

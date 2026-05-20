@@ -1,0 +1,28 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rahma-postgres
+  namespace: rahma-data
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:PLACEHOLDER-PINNED-TAG
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            tcpSocket:
+              port: 5432
+          livenessProbe:
+            tcpSocket:
+              port: 5432

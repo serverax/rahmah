@@ -19,9 +19,11 @@
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
+import { spawnSync } from 'node:child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,6 +34,29 @@ const MIGRATIONS_DIR = path.resolve(__dirname, '..', '..', 'backend', 'db', 'mig
 
 function hash(s) {
   return createHash('sha256').update(s).digest('hex');
+}
+
+function stripSqlComments(sql) {
+  return String(sql)
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .split(/\r?\n/)
+    .map((line) => line.replace(/--.*$/, ''))
+    .filter((line) => line.trim().length > 0)
+    .join('\n') + '\n';
+}
+
+function dsnToPsqlEnv(dsn) {
+  const url = new URL(dsn);
+  const out = {
+    PGHOST: url.hostname,
+    PGPORT: url.port || '5432',
+    PGUSER: decodeURIComponent(url.username || 'postgres'),
+    PGDATABASE: decodeURIComponent(url.pathname.replace(/^\//, '')),
+  };
+  if (url.password) {
+    out.PGPASSWORD = decodeURIComponent(url.password);
+  }
+  return out;
 }
 
 async function main() {
@@ -101,8 +126,11 @@ async function main() {
   }
 
   const summary = { applied: [], skipped: [], errors: [], total: files.length };
+  const tempDir = path.join(os.tmpdir(), 'rahma-migrations');
+  await fs.mkdir(tempDir, { recursive: true });
   for (const f of files) {
     const full = path.join(MIGRATIONS_DIR, f);
+    const tempSql = path.join(tempDir, `${f}.sql`);
     let sql;
     try { sql = await fs.readFile(full, 'utf8'); }
     catch {
@@ -110,6 +138,7 @@ async function main() {
       summary.errors.push({ file: f, reason: 'read_failed' });
       break;
     }
+    const sanitizedSql = stripSqlComments(sql);
     const h = hash(sql);
     if (appliedExisting.has(f)) {
       if (appliedExisting.get(f) !== h) {
@@ -124,20 +153,40 @@ async function main() {
     try {
       const client = await pool.connect();
       try {
-        await client.query('BEGIN');
-        await client.query(sql);
+        await fs.writeFile(tempSql, sanitizedSql, 'utf8');
+        const psql = spawnSync('psql', ['-v', 'ON_ERROR_STOP=1', '-f', tempSql], {
+          env: {
+            ...process.env,
+            ...dsnToPsqlEnv(dsn),
+            PGCLIENTENCODING: 'UTF8',
+          },
+          encoding: 'utf8',
+          windowsHide: true,
+        });
+        if (psql.status !== 0) {
+          if (process.env.RAHMA_DEBUG_MIGRATION_ERRORS === '1') {
+            console.error(`[migrations] FAILED ${f} — ${String(psql.stderr || psql.stdout || 'psql failed').trim()}`);
+          } else {
+            console.error(`[migrations] FAILED ${f} — error redacted`);
+          }
+          throw new Error('psql_failed');
+        }
         await client.query(
           'INSERT INTO schema_migrations (filename, content_hash) VALUES ($1, $2)',
           [f, h],
         );
-        await client.query('COMMIT');
         summary.applied.push(f);
         console.log(`[migrations] applied ${f}`);
       } catch (e) {
-        await client.query('ROLLBACK').catch(() => {});
-        console.error(`[migrations] FAILED ${f} — error redacted`);
+        if (process.env.RAHMA_DEBUG_MIGRATION_ERRORS === '1') {
+          console.error(`[migrations] FAILED ${f} — ${e && e.message ? e.message : 'unknown error'}`);
+          if (e && e.code) console.error(`[migrations] code=${e.code}`);
+          if (e && e.detail) console.error(`[migrations] detail=${e.detail}`);
+          if (e && e.position) console.error(`[migrations] position=${e.position}`);
+        } else {
+          console.error(`[migrations] FAILED ${f} — error redacted`);
+        }
         summary.errors.push({ file: f, reason: 'apply_failed' });
-        client.release();
         break;
       } finally {
         client.release();

@@ -1,0 +1,19 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rahma-rag
+  namespace: rahma-rag
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+        - name: rag
+          image: ghcr.io/serverax/rahma-rag:PLACEHOLDER-PINNED-TAG
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"

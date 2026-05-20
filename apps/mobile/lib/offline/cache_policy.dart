@@ -42,7 +42,10 @@ class CachePolicy {
   }) {
     final now = nowMs > 0 ? nowMs : DateTime.now().millisecondsSinceEpoch;
     if (!item.sourceApproved) {
-      return const CacheDecision(allowRender: false, reason: 'source_not_approved');
+      return const CacheDecision(
+        allowRender: false,
+        reason: 'source_not_approved',
+      );
     }
     final age = now - item.fetchedAtMs;
     if (age > ttlMs) {

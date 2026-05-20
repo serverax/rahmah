@@ -50,8 +50,9 @@ test('S27: migration runner refuses to start without DATABASE_URL', async () => 
   assert.ok(text.includes('schema_migrations'));
   assert.ok(text.includes('.sort()'));
   assert.ok(text.includes('DRIFT'));
-  assert.ok(text.includes('BEGIN'));
-  assert.ok(text.includes('COMMIT'));
+  assert.ok(text.includes("spawnSync('psql'"));
+  assert.ok(text.includes('stripSqlComments'));
+  assert.ok(text.includes('dsnToPsqlEnv'));
   // Never logs DATABASE_URL.
   assert.ok(!/console\.log\([^)]*DATABASE_URL/i.test(text));
 });

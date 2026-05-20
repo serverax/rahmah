@@ -1,0 +1,50 @@
+# Rahma local development stack: Postgres (pgvector) + Redis.
+# NOT for production.
+#
+# Usage (PowerShell):
+#   cd deployment/local
+#   $env:RAHMA_POSTGRES_PASSWORD = "rahma_local_dev_only"
+#   docker compose -f docker-compose.rahma-stack.yml up -d
+#
+#   $env:DATABASE_URL = "postgresql://rahma_user:$env:RAHMA_POSTGRES_PASSWORD@127.0.0.1:5434/rahma"
+#   $env:REDIS_URL = "redis://127.0.0.1:6380/0"
+#   cd ../..
+#   node scripts/db/run-migrations.js
+#
+# Ports: 5435 (Postgres), 6381 (Redis) — avoids 5433/5434/6379/6380 clashes.
+
+services:
+  rahma-postgres-pgvector:
+    image: pgvector/pgvector:pg16
+    container_name: rahma-postgres-pgvector
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: rahma
+      POSTGRES_USER: rahma_user
+      POSTGRES_PASSWORD: ${RAHMA_POSTGRES_PASSWORD:?set RAHMA_POSTGRES_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "127.0.0.1:5435:5432"
+    volumes:
+      - rahma_pgvector_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rahma_user -d rahma"]
+      interval: 10s
+      timeout: 5s
+      retries: 8
+
+  rahma-redis:
+    image: redis:7.4-alpine
+    container_name: rahma-redis-local
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    ports:
+      - "127.0.0.1:6381:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+
+volumes:
+  rahma_pgvector_data:

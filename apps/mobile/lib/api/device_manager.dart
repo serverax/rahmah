@@ -13,7 +13,7 @@ class DeviceManager {
   /// Register this device with the Rahma backend.
   Future<void> registerDevice() async {
     final payload = await _getDevicePayload();
-    
+
     try {
       final res = await _api.postJson('/api/device/register', payload);
       if (res['ok'] != true) {

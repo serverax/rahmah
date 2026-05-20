@@ -4,18 +4,23 @@ import 'package:rahma_mobile/offline/sync_status.dart';
 
 void main() {
   test('CachePolicy blocks unapproved source rendering', () {
-    final d = CachePolicy.evaluate(const CacheItem(
-      key: 'quran/2:255', fetchedAtMs: 1, sourceApproved: false,
-    ));
+    final d = CachePolicy.evaluate(
+      const CacheItem(
+        key: 'quran/2:255',
+        fetchedAtMs: 1,
+        sourceApproved: false,
+      ),
+    );
     expect(d.allowRender, false);
     expect(d.reason, 'source_not_approved');
   });
 
   test('CachePolicy blocks stale cache', () {
-    final now = 100 * 1000;
+    const now = 100 * 1000;
     final d = CachePolicy.evaluate(
       const CacheItem(key: 'x', fetchedAtMs: 0, sourceApproved: true),
-      nowMs: now, ttlMs: 50,
+      nowMs: now,
+      ttlMs: 50,
     );
     expect(d.allowRender, false);
     expect(d.reason, 'cache_stale');
@@ -24,7 +29,8 @@ void main() {
   test('CachePolicy allows fresh approved-source render', () {
     final d = CachePolicy.evaluate(
       const CacheItem(key: 'x', fetchedAtMs: 1000, sourceApproved: true),
-      nowMs: 1500, ttlMs: 10000,
+      nowMs: 1500,
+      ttlMs: 10000,
     );
     expect(d.allowRender, true);
   });

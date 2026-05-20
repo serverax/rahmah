@@ -1,0 +1,75 @@
+name: store-readiness-check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  store-readiness:
+    name: Store readiness blocker check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Required store files exist
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=(
+            docs/store/FINAL_STORE_ACCEPTANCE_REPORT.md
+            docs/store/RELEASE_CANDIDATE_FREEZE.md
+            docs/store/FINAL_ANDROID_RELEASE_VERIFICATION.md
+            docs/store/REAL_ANDROID_DEVICE_TEST_SCRIPT.md
+            docs/store/CLUSTER_ONLY_PUBLIC_URL_PLAN.md
+            docs/store/google-play-internal-testing-package/README.md
+            apps/web/public/privacy.html
+            apps/web/public/terms.html
+            apps/web/public/support.html
+            apps/mobile/assets/legal/privacy.md
+            apps/mobile/assets/legal/terms.md
+          )
+          for f in "${files[@]}"; do
+            test -s "$f" || { echo "::error file=$f::required file missing or empty"; exit 1; }
+          done
+      - name: Blocker summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          blockers=(
+            NO_DOMAIN_AVAILABLE
+            PUBLIC_PRIVACY_POLICY_HTTPS_URL_NOT_AVAILABLE
+            PUBLIC_SUPPORT_HTTPS_URL_NOT_AVAILABLE
+            REAL_ANDROID_DEVICE_TEST_NOT_DONE
+            PLAY_CONSOLE_FORMS_NOT_SUBMITTED
+          )
+          for b in "${blockers[@]}"; do
+            if grep -R "$b" docs/store >/dev/null; then
+              echo "::warning::$b remains open"
+            else
+              echo "::error::$b not found in store docs; do not hide store blockers"
+              exit 1
+            fi
+          done
+          echo "Store readiness remains blocked until domain/HTTPS/manual console steps are completed."
+      - name: Reject fake production URLs
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -R "https://148\.251\.247\.56" docs/store apps/mobile apps/web deployment/k3s/rahma-legal-pages 2>/dev/null; then
+            echo "::error::HTTPS IP URL found; do not fake HTTPS"
+            exit 1
+          fi
+          if grep -R "rahma\.ordinoxai\.com" docs/store apps/mobile apps/web deployment/k3s/rahma-legal-pages 2>/dev/null | grep -v "Do not use"; then
+            echo "::error::Unverified rahma.ordinoxai.com URL found"
+            exit 1
+          fi
+      - name: Mark job blocked honestly
+        shell: bash
+        run: |
+          echo "::error::Store submission is intentionally blocked: NO_DOMAIN_AVAILABLE and manual Play Console steps remain."
+          exit 1

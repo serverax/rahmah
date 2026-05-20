@@ -1,0 +1,55 @@
+name: Rahma Content CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  content-ci:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: backend/app/package-lock.json
+
+      - name: Install backend dependencies
+        working-directory: backend/app
+        run: npm install
+
+      - name: Validate source registry
+        run: node scripts/content/validate-source-registry.js
+
+      - name: Build offline export
+        run: node scripts/content/build-mobile-offline-export.js
+
+      - name: Verify Quran import completeness
+        run: node scripts/content/test-quran-full.js
+
+      - name: Block unapproved sources
+        run: node scripts/content/test-unapproved-source-block.js
+
+      - name: Run backend tests
+        working-directory: backend/app
+        run: npm test
+
+      - name: Upload offline seed artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rahma-offline-seed
+          path: apps/mobile/assets/content/rahma_offline_seed.json
+
